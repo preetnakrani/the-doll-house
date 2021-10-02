@@ -246,7 +246,7 @@ RenderSystem::~RenderSystem()
 // Initialize the screen texture from a standard sprite
 bool RenderSystem::initScreenTexture()
 {
-	registry.screenStates.emplace(screen_state_entity);
+	// registry.screenStates.emplace(screen_state_entity);
 
 	int width, height;
 	glfwGetFramebufferSize(const_cast<GLFWwindow*>(window), &width, &height);

@@ -160,8 +160,8 @@ void RenderSystem::drawToScreen()
 	GLuint time_uloc = glGetUniformLocation(water_program, "time");
 	GLuint dead_timer_uloc = glGetUniformLocation(water_program, "darken_screen_factor");
 	glUniform1f(time_uloc, (float)(glfwGetTime() * 10.0f));
-	ScreenState &screen = registry.screenStates.get(screen_state_entity);
-	glUniform1f(dead_timer_uloc, screen.darken_screen_factor);
+	// ScreenState &screen = registry.screenStates.get(screen_state_entity);
+	glUniform1f(dead_timer_uloc, 1);
 	gl_has_errors();
 	// Set the vertex position and vertex texture coordinates (both stored in the
 	// same VBO)

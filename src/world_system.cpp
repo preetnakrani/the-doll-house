@@ -151,58 +151,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
-	// Spawning new turtles
-	next_turtle_spawn -= elapsed_ms_since_last_update * current_speed;
-	if (registry.hardShells.components.size() <= MAX_TURTLES && next_turtle_spawn < 0.f) {
-		// Reset timer
-		next_turtle_spawn = (TURTLE_DELAY_MS / 2) + uniform_dist(rng) * (TURTLE_DELAY_MS / 2);
-		// Create turtle
-		Entity entity = createTurtle(renderer, {0,0});
-		// Setting random initial position and constant velocity
-		Motion& motion = registry.motions.get(entity);
-		motion.position =
-			vec2(screen_width -200.f, 
-				 50.f + uniform_dist(rng) * (screen_height - 100.f));
-		motion.velocity = vec2(-100.f, 0.f);
-	}
-
-	// Spawning new fish
-	next_fish_spawn -= elapsed_ms_since_last_update * current_speed;
-	if (registry.softShells.components.size() <= MAX_FISH && next_fish_spawn < 0.f) {
-		// !!!  TODO A1: Create new fish with createFish({0,0}), as for the Turtles above
-	}
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A3: HANDLE PEBBLE SPAWN HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 3
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-	// Processing the salmon state
-	assert(registry.screenStates.components.size() <= 1);
-    ScreenState &screen = registry.screenStates.components[0];
-
-    float min_counter_ms = 3000.f;
-	for (Entity entity : registry.deathTimers.entities) {
-		// progress timer
-		DeathTimer& counter = registry.deathTimers.get(entity);
-		counter.counter_ms -= elapsed_ms_since_last_update;
-		if(counter.counter_ms < min_counter_ms){
-		    min_counter_ms = counter.counter_ms;
-		}
-
-		// restart the game once the death timer expired
-		if (counter.counter_ms < 0) {
-			registry.deathTimers.remove(entity);
-			screen.darken_screen_factor = 0;
-            restart_game();
-			return true;
-		}
-	}
-	// reduce window brightness if any of the present salmons is dying
-	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
-
-	// !!! TODO A1: update LightUp timers and remove if time drops below zero, similar to the death counter
-
 	return true;
 }
 
@@ -255,30 +203,30 @@ void WorldSystem::handle_collisions() {
 		if (registry.players.has(entity)) {
 			//Player& player = registry.players.get(entity);
 
-			// Checking Player - HardShell collisions
-			if (registry.hardShells.has(entity_other)) {
-				// initiate death unless already dying
-				if (!registry.deathTimers.has(entity)) {
-					// Scream, reset timer, and make the salmon sink
-					registry.deathTimers.emplace(entity);
-					Mix_PlayChannel(-1, salmon_dead_sound, 0);
-					registry.motions.get(entity).angle = 3.1415f;
-					registry.motions.get(entity).velocity = { 0, 80 };
-
-					// !!! TODO A1: change the salmon color on death
-				}
-			}
-			// Checking Player - SoftShell collisions
-			else if (registry.softShells.has(entity_other)) {
-				if (!registry.deathTimers.has(entity)) {
-					// chew, count points, and set the LightUp timer
-					registry.remove_all_components_of(entity_other);
-					Mix_PlayChannel(-1, salmon_eat_sound, 0);
-					++points;
-
-					// !!! TODO A1: create a new struct called LightUp in components.hpp and add an instance to the salmon entity by modifying the ECS registry
-				}
-			}
+//			// Checking Player - HardShell collisions
+//			if (registry.hardShells.has(entity_other)) {
+//				// initiate death unless already dying
+//				if (!registry.deathTimers.has(entity)) {
+//					// Scream, reset timer, and make the salmon sink
+//					registry.deathTimers.emplace(entity);
+//					Mix_PlayChannel(-1, salmon_dead_sound, 0);
+//					registry.motions.get(entity).angle = 3.1415f;
+//					registry.motions.get(entity).velocity = { 0, 80 };
+//
+//					// !!! TODO A1: change the salmon color on death
+//				}
+//			}
+//			// Checking Player - SoftShell collisions
+//			else if (registry.softShells.has(entity_other)) {
+//				if (!registry.deathTimers.has(entity)) {
+//					// chew, count points, and set the LightUp timer
+//					registry.remove_all_components_of(entity_other);
+//					Mix_PlayChannel(-1, salmon_eat_sound, 0);
+//					++points;
+//
+//					// !!! TODO A1: create a new struct called LightUp in components.hpp and add an instance to the salmon entity by modifying the ECS registry
+//				}
+//			}
 		}
 	}
 
@@ -293,11 +241,6 @@ bool WorldSystem::is_over() const {
 
 // On key callback
 void WorldSystem::on_key(int key, int, int action, int mod) {
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A1: HANDLE SALMON MOVEMENT HERE
-	// key is of 'type' GLFW_KEY_
-	// action can be GLFW_PRESS GLFW_RELEASE GLFW_REPEAT
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {

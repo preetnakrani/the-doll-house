@@ -47,12 +47,12 @@ Entity createFish(RenderSystem* renderer, vec2 position)
 	motion.scale = vec2({ -FISH_BB_WIDTH, FISH_BB_HEIGHT });
 
 	// Create an (empty) Fish component to be able to refer to all fish
-	registry.softShells.emplace(entity);
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::FISH,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE });
+//	registry.softShells.emplace(entity);
+//	registry.renderRequests.insert(
+//		entity,
+//		{ TEXTURE_ASSET_ID::FISH,
+//			EFFECT_ASSET_ID::TEXTURED,
+//			GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }
@@ -75,12 +75,12 @@ Entity createTurtle(RenderSystem* renderer, vec2 position)
 	motion.scale = vec2({ -TURTLE_BB_WIDTH, TURTLE_BB_HEIGHT });
 
 	// Create and (empty) Turtle component to be able to refer to all turtles
-	registry.hardShells.emplace(entity);
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::TURTLE,
-		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE });
+//	registry.hardShells.emplace(entity);
+//	registry.renderRequests.insert(
+//		entity,
+//		{ TEXTURE_ASSET_ID::TURTLE,
+//		 EFFECT_ASSET_ID::TEXTURED,
+//		 GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }
