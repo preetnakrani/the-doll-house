@@ -12,7 +12,7 @@
 *.exe
 *.db
 *.pdb
-*.lib
+# *.lib
 *.ipch
 *.mp4
 *.suo
