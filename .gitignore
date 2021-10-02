@@ -28,5 +28,26 @@
 **/$RECYCLE.BIN/
 **/Desktop.ini
 
+/shelf/
+/workspace.xml
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+build
+debug
+cmake-build-debug
+cmake-build-default
+cmake-build-minsizerel
+cmake-build-release
+cmake-build-relwithdebinfo
+
+ext/project_path.hpp
+
+.idea
+.vs
+.DS_Store
+
 !ext/
 !template/ext/
