@@ -31,17 +31,10 @@ bool RenderSystem::init(int width, int height, GLFWwindow* window_arg)
 	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
 	gl_has_errors();
 
-	// For some high DPI displays (ex. Retina Display on Macbooks)
-	// https://stackoverflow.com/questions/36672935/why-retina-screen-coordinate-value-is-twice-the-value-of-pixel-value
 	int fb_width, fb_height;
 	glfwGetFramebufferSize(window, &fb_width, &fb_height);
 	screen_scale = static_cast<float>(fb_width) / width;
 	(int)height; // dummy to avoid warning
-
-	// ASK(Camilo): Setup error callback. This can not be done in mac os, so do not enable
-	// it unless you are on Linux or Windows. You will need to change the window creation
-	// code to use OpenGL 4.3 (not suported on mac) and add additional .h and .cpp
-	// glDebugMessageCallback((GLDEBUGPROC)errorCallback, nullptr);
 
 	// We are not really using VAO's but without at least one bound we will crash in
 	// some systems.
@@ -179,34 +172,6 @@ void RenderSystem::initializeGlGeometryBuffers()
 		pebble_indices.push_back((uint16_t)((i + 1) % NUM_TRIANGLES));
 		pebble_indices.push_back((uint16_t)NUM_TRIANGLES);
 	}
-	int geom_index = (int)GEOMETRY_BUFFER_ID::PEBBLE;
-	meshes[geom_index].vertices = pebble_vertices;
-	meshes[geom_index].vertex_indices = pebble_indices;
-	bindVBOandIBO(GEOMETRY_BUFFER_ID::PEBBLE, meshes[geom_index].vertices, meshes[geom_index].vertex_indices);
-
-	//////////////////////////////////
-	// Initialize debug line
-	std::vector<ColoredVertex> line_vertices;
-	std::vector<uint16_t> line_indices;
-
-	constexpr float depth = 0.5f;
-	constexpr vec3 red = { 0.8,0.1,0.1 };
-
-	// Corner points
-	line_vertices = {
-		{{-0.5,-0.5, depth}, red},
-		{{-0.5, 0.5, depth}, red},
-		{{ 0.5, 0.5, depth}, red},
-		{{ 0.5,-0.5, depth}, red},
-	};
-
-	// Two triangles
-	line_indices = {0, 1, 3, 1, 2, 3};
-	
-	geom_index = (int)GEOMETRY_BUFFER_ID::DEBUG_LINE;
-	meshes[geom_index].vertices = line_vertices;
-	meshes[geom_index].vertex_indices = line_indices;
-	bindVBOandIBO(GEOMETRY_BUFFER_ID::DEBUG_LINE, line_vertices, line_indices);
 
 	///////////////////////////////////////////////////////
 	// Initialize screen triangle (yes, triangle, not quad; its more efficient).

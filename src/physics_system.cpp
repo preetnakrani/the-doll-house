@@ -28,23 +28,16 @@ bool collides(const Motion& motion1, const Motion& motion2)
 
 void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_height_px)
 {
-	// Move fish based on how much time has passed, this is to (partially) avoid
+	// Move entity based on how much time has passed, this is to (partially) avoid
 	// having entities move at different speed based on the machine.
 	auto& motion_registry = registry.motions;
 	for(uint i = 0; i< motion_registry.size(); i++)
 	{
-		// !!! TODO A1: update motion.position based on step_seconds and motion.velocity
-		//Motion& motion = motion_registry.components[i];
-		//Entity entity = motion_registry.entities[i];
-		//float step_seconds = 1.0f * (elapsed_ms / 1000.f);
-		(void)elapsed_ms; // placeholder to silence unused warning until implemented
+		Motion& motion = motion_registry.components[i];
+		Entity entity = motion_registry.entities[i];
+		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
+		motion.position = motion.position + (step_seconds * motion.velocity);
 	}
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A3: HANDLE PEBBLE UPDATES HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 3
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 	// Check for collisions between all moving entities
     ComponentContainer<Motion> &motion_container = registry.motions;
 	for(uint i = 0; i<motion_container.components.size(); i++)
@@ -68,19 +61,8 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 		}
 	}
 
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A2: HANDLE SALMON - WALL collisions HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 	// you may need the following quantities to compute wall positions
 	(float)window_width_px; (float)window_height_px;
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A2: DRAW DEBUG INFO HERE on Salmon mesh collision
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
-	// You will want to use the createLine from world_init.hpp
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	// debugging of bounding boxes
 	if (debugging.in_debug_mode)
@@ -94,17 +76,12 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 			// visualize the radius with two axis-aligned lines
 			const vec2 bonding_box = get_bounding_box(motion_i);
 			float radius = sqrt(dot(bonding_box/2.f, bonding_box/2.f));
-			vec2 line_scale1 = { motion_i.scale.x / 10, 2*radius };
-			Entity line1 = createLine(motion_i.position, line_scale1);
-			vec2 line_scale2 = { 2*radius, motion_i.scale.x / 10};
-			Entity line2 = createLine(motion_i.position, line_scale2);
+			//vec2 line_scale1 = { motion_i.scale.x / 10, 2*radius };
+			//Entity line1 = createLine(motion_i.position, line_scale1);
+			//vec2 line_scale2 = { 2*radius, motion_i.scale.x / 10};
+			//Entity line2 = createLine(motion_i.position, line_scale2);
 
 			// !!! TODO A2: implement debugging of bounding boxes and mesh
 		}
 	}
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A3: HANDLE PEBBLE collisions HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 3
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
