@@ -28,7 +28,7 @@ Entity createDoll(RenderSystem* renderer, vec2 pos)
     registry.players.emplace(entity);
     registry.renderRequests.insert(
             entity,
-            { TEXTURE_ASSET_ID::DOLL,
+            { TEXTURE_ASSET_ID::DOLL_DOWN,
               EFFECT_ASSET_ID::TEXTURED,
               GEOMETRY_BUFFER_ID::SPRITE });
 
