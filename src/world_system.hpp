@@ -54,7 +54,7 @@ private:
 	// Game state
 	RenderSystem* renderer;
 	float current_speed;
-    int player_speed;
+    float player_speed = 100.f;
 	Entity player_doll;
 
 	// music references
