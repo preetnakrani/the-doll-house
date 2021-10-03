@@ -10,16 +10,20 @@ struct Player
 
 };
 
-// Turtles and pebbles have a hard shell
-struct HardShell
-{
+struct Enemy {
 
 };
 
-// Fish and Salmon have a soft shell
-struct SoftShell
-{
+struct Health {
+    int health = 0;
+    int healthDecrement  = 0;
+};
 
+enum class Direction {
+    UP = 0,
+    RIGHT = 1,
+    DOWN = 2,
+    LEFT = 3
 };
 
 // All data relevant to the shape and motion of entities
@@ -28,6 +32,13 @@ struct Motion {
 	float angle = 0;
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
+    Direction dir = Direction::DOWN;
+};
+
+struct Momentum {
+    float count_ms = 1000;
+    float decrement = 0;
+    vec2 velocity;
 };
 
 // Stucture to store collision information
@@ -38,6 +49,26 @@ struct Collision
 	Collision(Entity& other) { this->other = other; };
 };
 
+enum class AttackType {
+    NORMAL = 0,
+    NOTNORMAL = 1
+};
+
+struct Attack {
+    std::string name = "";
+    AttackType type = AttackType::NORMAL;
+    int damage = 0;
+};
+
+struct GameItem {
+    float timer = 0;
+    int health = 0;
+    int speed = 0;
+    bool enemyRepel = false;
+    bool timed = false;
+};
+
+
 // Data structure for toggling debug mode
 struct Debug {
 	bool in_debug_mode = 0;
@@ -45,22 +76,24 @@ struct Debug {
 };
 extern Debug debugging;
 
+enum class GameState {
+    PLAYING = 0,
+    GAMEOVER = 1,
+    STORYSCREEN = 2,
+    BOSS = 3,
+    BATTLE = 4
+};
+
 // Sets the brightness of the screen
-struct ScreenState
+struct Game
 {
-	float darken_screen_factor = -1;
+	GameState state = GameState::PLAYING;
 };
 
 // A struct to refer to debugging graphics in the ECS
 struct DebugComponent
 {
 	// Note, an empty struct has size 1
-};
-
-// A timer that will be associated to dying salmon
-struct DeathTimer
-{
-	float counter_ms = 3000;
 };
 
 // Single Vertex Buffer element for non-textured meshes (coloured.vs.glsl & salmon.vs.glsl)
@@ -111,16 +144,27 @@ struct Mesh
  */
 
 enum class TEXTURE_ASSET_ID {
-	FISH = 0,
-	TURTLE = FISH + 1,
-	TEXTURE_COUNT = TURTLE + 1
+	DOLL_UP = 0,
+	DOLL_RIGHT = DOLL_UP + 1,
+	DOLL_DOWN = DOLL_RIGHT + 1,
+	DOLL_LEFT = DOLL_DOWN + 1,
+	ENEMY_ONE = DOLL_LEFT + 1,
+    ENEMY_TWO = ENEMY_ONE + 1,
+    ENEMY_THREE = ENEMY_TWO + 1,
+    BOSS = ENEMY_THREE + 1,
+	TABLE = BOSS + 1,
+    CHAIR = TABLE + 1,
+    BED = CHAIR + 1,
+    HEALTH_ITEM = BED + 1,
+    SPEED_ITEM  = HEALTH_ITEM + 1,
+    ENEMY_REPEL = SPEED_ITEM + 1,
+    TEXTURE_COUNT = ENEMY_REPEL + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
 enum class EFFECT_ASSET_ID {
 	COLOURED = 0,
-	PEBBLE = COLOURED + 1,
-	SALMON = PEBBLE + 1,
+	SALMON = COLOURED + 1,
 	TEXTURED = SALMON + 1,
 	WATER = TEXTURED + 1,
 	EFFECT_COUNT = WATER + 1
@@ -130,8 +174,7 @@ const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 enum class GEOMETRY_BUFFER_ID {
 	SALMON = 0,
 	SPRITE = SALMON + 1,
-	PEBBLE = SPRITE + 1,
-	DEBUG_LINE = PEBBLE + 1,
+	DEBUG_LINE = SPRITE + 1,
 	SCREEN_TRIANGLE = DEBUG_LINE + 1,
 	GEOMETRY_COUNT = SCREEN_TRIANGLE + 1
 };

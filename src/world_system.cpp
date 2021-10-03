@@ -9,16 +9,13 @@
 #include "physics_system.hpp"
 
 // Game configuration
-const size_t MAX_TURTLES = 15;
-const size_t MAX_FISH = 5;
-const size_t TURTLE_DELAY_MS = 2000 * 3;
-const size_t FISH_DELAY_MS = 5000 * 3;
+const size_t MAX_ENEMY = 5;
+const size_t ENEMY_DELAY_MS = 2000 * 3;
 
 // Create the fish world
 WorldSystem::WorldSystem()
 	: points(0)
-	, next_turtle_spawn(0.f)
-	, next_fish_spawn(0.f) {
+    , next_enemy_spawn(0.f) {
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
 }
@@ -151,57 +148,21 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
-	// Spawning new turtles
-	next_turtle_spawn -= elapsed_ms_since_last_update * current_speed;
-	if (registry.hardShells.components.size() <= MAX_TURTLES && next_turtle_spawn < 0.f) {
-		// Reset timer
-		next_turtle_spawn = (TURTLE_DELAY_MS / 2) + uniform_dist(rng) * (TURTLE_DELAY_MS / 2);
-		// Create turtle
-		Entity entity = createTurtle(renderer, {0,0});
-		// Setting random initial position and constant velocity
-		Motion& motion = registry.motions.get(entity);
-		motion.position =
-			vec2(screen_width -200.f, 
-				 50.f + uniform_dist(rng) * (screen_height - 100.f));
-		motion.velocity = vec2(-100.f, 0.f);
-	}
+    // Spawning new enemy
+    next_enemy_spawn -= elapsed_ms_since_last_update * current_speed;
+    if (registry.enemies.components.size() < MAX_ENEMY && next_enemy_spawn < 0.f && registry.game.has(player_doll) && registry.game.get(player_doll).state == GameState::PLAYING ) {
+        // Reset timer
+        next_enemy_spawn = (ENEMY_DELAY_MS / 2) + uniform_dist(rng) * (ENEMY_DELAY_MS / 2);
 
-	// Spawning new fish
-	next_fish_spawn -= elapsed_ms_since_last_update * current_speed;
-	if (registry.softShells.components.size() <= MAX_FISH && next_fish_spawn < 0.f) {
-		// !!!  TODO A1: Create new fish with createFish({0,0}), as for the Turtles above
-	}
+        vec2 position =
+                vec2(50.f + uniform_dist(rng) * (screen_width - 100.f),
+                     50.f + uniform_dist(rng) * (screen_height - 100.f));
 
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A3: HANDLE PEBBLE SPAWN HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 3
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-	// Processing the salmon state
-	assert(registry.screenStates.components.size() <= 1);
-    ScreenState &screen = registry.screenStates.components[0];
-
-    float min_counter_ms = 3000.f;
-	for (Entity entity : registry.deathTimers.entities) {
-		// progress timer
-		DeathTimer& counter = registry.deathTimers.get(entity);
-		counter.counter_ms -= elapsed_ms_since_last_update;
-		if(counter.counter_ms < min_counter_ms){
-		    min_counter_ms = counter.counter_ms;
-		}
-
-		// restart the game once the death timer expired
-		if (counter.counter_ms < 0) {
-			registry.deathTimers.remove(entity);
-			screen.darken_screen_factor = 0;
-            restart_game();
-			return true;
-		}
-	}
-	// reduce window brightness if any of the present salmons is dying
-	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
-
-	// !!! TODO A1: update LightUp timers and remove if time drops below zero, similar to the death counter
+        vec2 bounding = vec2(10.f, 10.f);
+        if (!s.checkFakeCollision(position, bounding)) {
+            createEnemy(renderer, position);
+        }
+    }
 
 	return true;
 }
@@ -224,28 +185,15 @@ void WorldSystem::restart_game() {
 	registry.list_all_components();
 
 	// Create a new salmon
-	player_salmon = createSalmon(renderer, { 100, 200 });
-	registry.colors.insert(player_salmon, {1, 0.8f, 0.8f});
-
-	// !! TODO A3: Enable static pebbles on the ground
-	// Create pebbles on the floor for reference
-	/*
-	for (uint i = 0; i < 20; i++) {
-		int w, h;
-		glfwGetWindowSize(window, &w, &h);
-		float radius = 30 * (uniform_dist(rng) + 0.3f); // range 0.3 .. 1.3
-		Entity pebble = createPebble({ uniform_dist(rng) * w, h - uniform_dist(rng) * 20 }, 
-			         { radius, radius });
-		float brightness = uniform_dist(rng) * 0.5 + 0.5;
-		registry.colors.insert(pebble, { brightness, brightness, brightness});
-	}
-	*/
+	player_doll = createDoll(renderer, { 100, 200 });
+    player_speed = 200.f;
+	registry.colors.insert(player_doll, {1, 0.8f, 0.8f});
 }
 
 // Compute collisions between entities
 void WorldSystem::handle_collisions() {
 	// Loop over all collisions detected by the physics system
-	auto& collisionsRegistry = registry.collisions; // TODO: @Tim, is the reference here needed?
+	auto& collisionsRegistry = registry.collisions;
 	for (uint i = 0; i < collisionsRegistry.components.size(); i++) {
 		// The entity and its collider
 		Entity entity = collisionsRegistry.entities[i];
@@ -253,31 +201,14 @@ void WorldSystem::handle_collisions() {
 
 		// For now, we are only interested in collisions that involve the salmon
 		if (registry.players.has(entity)) {
-			//Player& player = registry.players.get(entity);
+			Player& player = registry.players.get(entity);
 
-			// Checking Player - HardShell collisions
-			if (registry.hardShells.has(entity_other)) {
+
+			if (registry.enemies.has(entity_other)) {
 				// initiate death unless already dying
-				if (!registry.deathTimers.has(entity)) {
-					// Scream, reset timer, and make the salmon sink
-					registry.deathTimers.emplace(entity);
-					Mix_PlayChannel(-1, salmon_dead_sound, 0);
-					registry.motions.get(entity).angle = 3.1415f;
-					registry.motions.get(entity).velocity = { 0, 80 };
-
-					// !!! TODO A1: change the salmon color on death
-				}
-			}
-			// Checking Player - SoftShell collisions
-			else if (registry.softShells.has(entity_other)) {
-				if (!registry.deathTimers.has(entity)) {
-					// chew, count points, and set the LightUp timer
-					registry.remove_all_components_of(entity_other);
-					Mix_PlayChannel(-1, salmon_eat_sound, 0);
-					++points;
-
-					// !!! TODO A1: create a new struct called LightUp in components.hpp and add an instance to the salmon entity by modifying the ECS registry
-				}
+				registry.remove_all_components_of(entity_other);
+                Game& game = registry.game.get(player_doll);
+                game.state = GameState::BATTLE;
 			}
 		}
 	}
@@ -293,11 +224,6 @@ bool WorldSystem::is_over() const {
 
 // On key callback
 void WorldSystem::on_key(int key, int, int action, int mod) {
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A1: HANDLE SALMON MOVEMENT HERE
-	// key is of 'type' GLFW_KEY_
-	// action can be GLFW_PRESS GLFW_RELEASE GLFW_REPEAT
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {
@@ -315,6 +241,43 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 			debugging.in_debug_mode = true;
 	}
 
+    Motion& motion = registry.motions.get(player_doll);
+    if (action == GLFW_REPEAT) {
+        if (key == GLFW_KEY_W) {
+            motion.dir = Direction::UP;
+            motion.velocity = vec2{0, -player_speed};
+        } else if (key == GLFW_KEY_S) {
+            motion.dir = Direction::DOWN;
+            motion.velocity = vec2{0, +player_speed};
+        } else if (key == GLFW_KEY_A) {
+            motion.dir = Direction::LEFT;
+            motion.velocity = vec2{-player_speed, 0};
+        } else if (key == GLFW_KEY_D) {
+            motion.dir = Direction::RIGHT;
+            motion.velocity = vec2{+player_speed, 0};
+        }
+    } else if (action == GLFW_PRESS) {
+        if (key == GLFW_KEY_W) {
+            motion.dir = Direction::UP;
+        } else if (key == GLFW_KEY_S) {
+            motion.dir = Direction::DOWN;
+        } else if (key == GLFW_KEY_A) {
+            motion.dir = Direction::LEFT;
+        } else if (key == GLFW_KEY_D) {
+            motion.dir = Direction::RIGHT;
+        }
+    } else if (action == GLFW_RELEASE) {
+        if (key == GLFW_KEY_W) {
+            motion.velocity = vec2{motion.velocity[0], 0};
+        } else if (key == GLFW_KEY_S) {
+            motion.velocity = vec2{motion.velocity[0], 0};
+        } else if (key == GLFW_KEY_A) {
+            motion.velocity = vec2{0, motion.velocity[1]};
+        } else if (key == GLFW_KEY_D) {
+            motion.velocity = vec2{0, motion.velocity[1]};
+        }
+    }
+
 	// Control the current speed with `<` `>`
 	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_COMMA) {
 		current_speed -= 0.1f;
@@ -328,11 +291,22 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A1: HANDLE SALMON ROTATION HERE
-	// xpos and ypos are relative to the top-left of the window, the salmon's
-	// default facing direction is (1, 0)
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 	(vec2)mouse_position; // dummy to avoid compiler warning
+}
+
+void WorldSystem::setRenderRequests() {
+    if (registry.game.get(player_doll).state == GameState::PLAYING) {
+        RenderRequest& rr = registry.renderRequests.get(player_doll);
+        Direction dir = registry.motions.get(player_doll).dir;
+        if (dir == Direction::UP) {
+            rr.used_texture = TEXTURE_ASSET_ID::DOLL_UP;
+        } else if (dir == Direction::RIGHT) {
+            rr.used_texture = TEXTURE_ASSET_ID::DOLL_RIGHT;
+        } else if (dir == Direction::DOWN) {
+            rr.used_texture = TEXTURE_ASSET_ID::DOLL_DOWN;
+        } else if (dir == Direction::LEFT) {
+            rr.used_texture = TEXTURE_ASSET_ID::DOLL_LEFT;
+        }
+    }
+
 }

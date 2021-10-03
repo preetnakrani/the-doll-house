@@ -23,6 +23,7 @@ int main()
 	WorldSystem world;
 	RenderSystem renderer;
 	PhysicsSystem physics;
+    world.s = physics;
 	AISystem ai;
 
 	// Initializing window
@@ -55,10 +56,8 @@ int main()
 		ai.step(elapsed_ms);
 		physics.step(elapsed_ms, window_width_px, window_height_px);
 		world.handle_collisions();
-
+        world.setRenderRequests();
 		renderer.draw();
-
-		// TODO A2: you can implement the debug freeze here but other places are possible too.
 	}
 
 	return EXIT_SUCCESS;

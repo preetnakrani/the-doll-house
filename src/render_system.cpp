@@ -66,7 +66,7 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 		glBindTexture(GL_TEXTURE_2D, texture_id);
 		gl_has_errors();
 	}
-	else if (render_request.used_effect == EFFECT_ASSET_ID::SALMON || render_request.used_effect == EFFECT_ASSET_ID::PEBBLE)
+	else if (render_request.used_effect == EFFECT_ASSET_ID::SALMON)
 	{
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		GLint in_color_loc = glGetAttribLocation(program, "in_color");
@@ -88,8 +88,6 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 			GLint light_up_uloc = glGetUniformLocation(program, "light_up");
 			assert(light_up_uloc >= 0);
 
-			// !!! TODO A1: set the light_up shader variable using glUniform1i,
-			// similar to the glUniform1f call below. The 1f or 1i specified the type, here a single int.
 			gl_has_errors();
 		}
 	}
@@ -160,8 +158,8 @@ void RenderSystem::drawToScreen()
 	GLuint time_uloc = glGetUniformLocation(water_program, "time");
 	GLuint dead_timer_uloc = glGetUniformLocation(water_program, "darken_screen_factor");
 	glUniform1f(time_uloc, (float)(glfwGetTime() * 10.0f));
-	ScreenState &screen = registry.screenStates.get(screen_state_entity);
-	glUniform1f(dead_timer_uloc, screen.darken_screen_factor);
+	// ScreenState &screen = registry.screenStates.get(screen_state_entity);
+	glUniform1f(dead_timer_uloc, 1);
 	gl_has_errors();
 	// Set the vertex position and vertex texture coordinates (both stored in the
 	// same VBO)

@@ -14,4 +14,6 @@ public:
 	PhysicsSystem()
 	{
 	}
+
+    bool checkFakeCollision(vec2 position, vec2 box);
 };
