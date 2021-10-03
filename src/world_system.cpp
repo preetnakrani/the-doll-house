@@ -150,7 +150,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
     // Spawning new enemy
     next_enemy_spawn -= elapsed_ms_since_last_update * current_speed;
-    if (registry.enemies.components.size() <= MAX_ENEMY && next_enemy_spawn < 0.f && registry.game.has(player_doll) && registry.game.get(player_doll).state == GameState::PLAYING ) {
+    if (registry.enemies.components.size() < MAX_ENEMY && next_enemy_spawn < 0.f && registry.game.has(player_doll) && registry.game.get(player_doll).state == GameState::PLAYING ) {
         // Reset timer
         next_enemy_spawn = (ENEMY_DELAY_MS / 2) + uniform_dist(rng) * (ENEMY_DELAY_MS / 2);
 
@@ -160,7 +160,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
         vec2 bounding = vec2(10.f, 10.f);
         if (!s.checkFakeCollision(position, bounding)) {
-            printf("Asdfasdfasdfasf");
             createEnemy(renderer, position);
         }
     }
@@ -202,28 +201,16 @@ void WorldSystem::handle_collisions() {
 
 		// For now, we are only interested in collisions that involve the salmon
 		if (registry.players.has(entity)) {
-			//Player& player = registry.players.get(entity);
+			Player& player = registry.players.get(entity);
 
-//			// Checking Player - HardShell collisions
-//			if (registry.hardShells.has(entity_other)) {
-//				// initiate death unless already dying
-//				if (!registry.deathTimers.has(entity)) {
-//					// Scream, reset timer, and make the salmon sink
-//					registry.deathTimers.emplace(entity);
-//					Mix_PlayChannel(-1, salmon_dead_sound, 0);
-//					registry.motions.get(entity).angle = 3.1415f;
-//					registry.motions.get(entity).velocity = { 0, 80 };
-//				}
-//			}
-//			// Checking Player - SoftShell collisions
-//			else if (registry.softShells.has(entity_other)) {
-//				if (!registry.deathTimers.has(entity)) {
-//					// chew, count points, and set the LightUp timer
-//					registry.remove_all_components_of(entity_other);
-//					Mix_PlayChannel(-1, salmon_eat_sound, 0);
-//					++points;
-//				}
-//			}
+
+			if (registry.enemies.has(entity_other)) {
+				// initiate death unless already dying
+				registry.enemies.remove(entity_other);
+                Game& game = registry.game.get(player_doll);
+                game.state = GameState::BATTLE;
+                printf("asdfasf: %i", game.state);
+			}
 		}
 	}
 

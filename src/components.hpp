@@ -80,7 +80,8 @@ enum class GameState {
     PLAYING = 0,
     GAMEOVER = 1,
     STORYSCREEN = 2,
-    BOSS = 3
+    BOSS = 3,
+    BATTLE = 4
 };
 
 // Sets the brightness of the screen
