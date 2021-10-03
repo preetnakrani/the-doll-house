@@ -16,9 +16,7 @@ const size_t FISH_DELAY_MS = 5000 * 3;
 
 // Create the fish world
 WorldSystem::WorldSystem()
-	: points(0)
-	, next_turtle_spawn(0.f)
-	, next_fish_spawn(0.f) {
+	: points(0) {
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
 }
@@ -172,8 +170,8 @@ void WorldSystem::restart_game() {
 	registry.list_all_components();
 
 	// Create a new salmon
-	player_salmon = createSalmon(renderer, { 100, 200 });
-	registry.colors.insert(player_salmon, {1, 0.8f, 0.8f});
+	player_doll = createDoll(renderer, { 100, 200 });
+	registry.colors.insert(player_doll, {1, 0.8f, 0.8f});
 }
 
 // Compute collisions between entities
@@ -239,6 +237,42 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		else
 			debugging.in_debug_mode = true;
 	}
+    Motion& motion = registry.motions.get(player_doll);
+    if (action == GLFW_PRESS) {
+        if (key == GLFW_KEY_W) {
+            motion.dir = Direction::UP;
+        } else if (key == GLFW_KEY_S) {
+            motion.dir = Direction::DOWN;
+        } else if (key == GLFW_KEY_A) {
+            motion.dir = Direction::LEFT;
+        } else if (key == GLFW_KEY_D) {
+            motion.dir = Direction::RIGHT;
+        }
+    } else if (action == GLFW_REPEAT) {
+        if (key == GLFW_KEY_W) {
+            motion.dir = Direction::UP;
+            motion.velocity = vec2{0, +player_speed};
+        } else if (key == GLFW_KEY_S) {
+            motion.dir = Direction::DOWN;
+            motion.velocity = vec2{0, -player_speed};
+        } else if (key == GLFW_KEY_A) {
+            motion.dir = Direction::LEFT;
+            motion.velocity = vec2{-player_speed, 0};
+        } else if (key == GLFW_KEY_D) {
+            motion.dir = Direction::RIGHT;
+            motion.velocity = vec2{+player_speed, 0};
+        }
+    } else if (action == GLFW_RELEASE) {
+        if (key == GLFW_KEY_W) {
+            motion.velocity = vec2{motion.velocity[0], 0};
+        } else if (key == GLFW_KEY_S) {
+            motion.velocity = vec2{motion.velocity[0], 0};
+        } else if (key == GLFW_KEY_A) {
+            motion.velocity = vec2{0, motion.velocity[1]};
+        } else if (key == GLFW_KEY_D) {
+            motion.velocity = vec2{0, motion.velocity[1]};
+        }
+    }
 
 	// Control the current speed with `<` `>`
 	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_COMMA) {
