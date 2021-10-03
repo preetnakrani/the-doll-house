@@ -242,17 +242,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
     Motion& motion = registry.motions.get(player_doll);
-    if (action == GLFW_PRESS) {
-        if (key == GLFW_KEY_W) {
-            motion.dir = Direction::UP;
-        } else if (key == GLFW_KEY_S) {
-            motion.dir = Direction::DOWN;
-        } else if (key == GLFW_KEY_A) {
-            motion.dir = Direction::LEFT;
-        } else if (key == GLFW_KEY_D) {
-            motion.dir = Direction::RIGHT;
-        }
-    } else if (action == GLFW_REPEAT) {
+    if (action == GLFW_REPEAT) {
         if (key == GLFW_KEY_W) {
             motion.dir = Direction::UP;
             motion.velocity = vec2{0, -player_speed};
@@ -265,6 +255,16 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
         } else if (key == GLFW_KEY_D) {
             motion.dir = Direction::RIGHT;
             motion.velocity = vec2{+player_speed, 0};
+        }
+    } else if (action == GLFW_PRESS) {
+        if (key == GLFW_KEY_W) {
+            motion.dir = Direction::UP;
+        } else if (key == GLFW_KEY_S) {
+            motion.dir = Direction::DOWN;
+        } else if (key == GLFW_KEY_A) {
+            motion.dir = Direction::LEFT;
+        } else if (key == GLFW_KEY_D) {
+            motion.dir = Direction::RIGHT;
         }
     } else if (action == GLFW_RELEASE) {
         if (key == GLFW_KEY_W) {
@@ -292,4 +292,21 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	(vec2)mouse_position; // dummy to avoid compiler warning
+}
+
+void WorldSystem::setRenderRequests() {
+    if (registry.game.get(player_doll).state == GameState::PLAYING) {
+        RenderRequest& rr = registry.renderRequests.get(player_doll);
+        Direction dir = registry.motions.get(player_doll).dir;
+        if (dir == Direction::UP) {
+            rr.used_texture = TEXTURE_ASSET_ID::DOLL_UP;
+        } else if (dir == Direction::RIGHT) {
+            rr.used_texture = TEXTURE_ASSET_ID::DOLL_RIGHT;
+        } else if (dir == Direction::DOWN) {
+            rr.used_texture = TEXTURE_ASSET_ID::DOLL_DOWN;
+        } else if (dir == Direction::LEFT) {
+            rr.used_texture = TEXTURE_ASSET_ID::DOLL_LEFT;
+        }
+    }
+
 }
