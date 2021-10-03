@@ -50,35 +50,41 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 	// Move entity based on how much time has passed, this is to (partially) avoid
 	// having entities move at different speed based on the machine.
 	auto& motion_registry = registry.motions;
-	for(uint i = 0; i< motion_registry.size(); i++)
-	{
-        Motion& motion = motion_registry.components[i];
-        Entity entity = motion_registry.entities[i];
-        float step_seconds = 1.0f * (elapsed_ms / 1000.f);
-        motion.position = motion.position + (motion.velocity * step_seconds);
-	}
-	// Check for collisions between all moving entities
-    ComponentContainer<Motion> &motion_container = registry.motions;
-	for(uint i = 0; i<motion_container.components.size(); i++)
-	{
-		Motion& motion_i = motion_container.components[i];
-		Entity entity_i = motion_container.entities[i];
-		for(uint j = 0; j<motion_container.components.size(); j++) // i+1
-		{
-			if (i == j)
-				continue;
+	ComponentContainer<Motion>& motion_container = registry.motions;
 
-			Motion& motion_j = motion_container.components[j];
-			if (collides(motion_i, motion_j))
+	if (registry.game.get(registry.players.entities[0]).state == GameState::PLAYING) {
+		for (uint i = 0; i < motion_registry.size(); i++)
+		{
+			Motion& motion = motion_registry.components[i];
+			Entity entity = motion_registry.entities[i];
+			float step_seconds = 1.0f * (elapsed_ms / 1000.f);
+			motion.position = motion.position + (motion.velocity * step_seconds);
+		}
+
+		// Check for collisions between all moving entities
+		for (uint i = 0; i < motion_container.components.size(); i++)
+		{
+			Motion& motion_i = motion_container.components[i];
+			Entity entity_i = motion_container.entities[i];
+			for (uint j = 0; j < motion_container.components.size(); j++) // i+1
 			{
-				Entity entity_j = motion_container.entities[j];
-				// Create a collisions event
-				// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
-				registry.collisions.emplace_with_duplicates(entity_i, entity_j);
-				registry.collisions.emplace_with_duplicates(entity_j, entity_i);
+				if (i == j)
+					continue;
+
+				Motion& motion_j = motion_container.components[j];
+				if (collides(motion_i, motion_j))
+				{
+					Entity entity_j = motion_container.entities[j];
+					// Create a collisions event
+					// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
+					registry.collisions.emplace_with_duplicates(entity_i, entity_j);
+					registry.collisions.emplace_with_duplicates(entity_j, entity_i);
+				}
 			}
 		}
 	}
+
+
 
 	// you may need the following quantities to compute wall positions
 	(float)window_width_px; (float)window_height_px;
