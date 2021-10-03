@@ -206,10 +206,9 @@ void WorldSystem::handle_collisions() {
 
 			if (registry.enemies.has(entity_other)) {
 				// initiate death unless already dying
-				registry.enemies.remove(entity_other);
+				registry.remove_all_components_of(entity_other);
                 Game& game = registry.game.get(player_doll);
                 game.state = GameState::BATTLE;
-                printf("asdfasf: %i", game.state);
 			}
 		}
 	}
