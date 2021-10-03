@@ -9,14 +9,13 @@
 #include "physics_system.hpp"
 
 // Game configuration
-const size_t MAX_TURTLES = 15;
-const size_t MAX_FISH = 5;
-const size_t TURTLE_DELAY_MS = 2000 * 3;
-const size_t FISH_DELAY_MS = 5000 * 3;
+const size_t MAX_ENEMY = 5;
+const size_t ENEMY_DELAY_MS = 2000 * 3;
 
 // Create the fish world
 WorldSystem::WorldSystem()
-	: points(0) {
+	: points(0)
+    , next_enemy_spawn(0.f) {
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
 }
@@ -149,6 +148,23 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
+    // Spawning new enemy
+    next_enemy_spawn -= elapsed_ms_since_last_update * current_speed;
+    if (registry.enemies.components.size() <= MAX_ENEMY && next_enemy_spawn < 0.f && registry.game.has(player_doll) && registry.game.get(player_doll).state == GameState::PLAYING ) {
+        // Reset timer
+        next_enemy_spawn = (ENEMY_DELAY_MS / 2) + uniform_dist(rng) * (ENEMY_DELAY_MS / 2);
+
+        vec2 position =
+                vec2(50.f + uniform_dist(rng) * (screen_width - 100.f),
+                     50.f + uniform_dist(rng) * (screen_height - 100.f));
+
+        vec2 bounding = vec2(10.f, 10.f);
+        if (!s.checkFakeCollision(position, bounding)) {
+            printf("Asdfasdfasdfasf");
+            createEnemy(renderer, position);
+        }
+    }
+
 	return true;
 }
 
@@ -171,13 +187,14 @@ void WorldSystem::restart_game() {
 
 	// Create a new salmon
 	player_doll = createDoll(renderer, { 100, 200 });
+    player_speed = 200.f;
 	registry.colors.insert(player_doll, {1, 0.8f, 0.8f});
 }
 
 // Compute collisions between entities
 void WorldSystem::handle_collisions() {
 	// Loop over all collisions detected by the physics system
-	auto& collisionsRegistry = registry.collisions; // TODO: @Tim, is the reference here needed?
+	auto& collisionsRegistry = registry.collisions;
 	for (uint i = 0; i < collisionsRegistry.components.size(); i++) {
 		// The entity and its collider
 		Entity entity = collisionsRegistry.entities[i];

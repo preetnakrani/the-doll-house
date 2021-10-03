@@ -26,6 +26,25 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	return false;
 }
 
+bool PhysicsSystem::checkFakeCollision(vec2 position, vec2 box) {
+    ComponentContainer<Motion> &motion_container = registry.motions;
+    for(uint i = 0; i<motion_container.components.size(); i++)
+    {
+        Motion& motion_i = motion_container.components[i];
+
+            Motion m;
+            m.position = position;
+            m.scale = box;
+
+            if (collides(motion_i, m))
+            {
+                return true;
+            }
+    }
+    return false;
+
+}
+
 void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_height_px)
 {
 	// Move entity based on how much time has passed, this is to (partially) avoid

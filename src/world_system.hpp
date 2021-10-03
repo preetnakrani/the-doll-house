@@ -12,6 +12,7 @@
 #include <SDL_mixer.h>
 
 #include "render_system.hpp"
+#include "physics_system.hpp"
 
 // Container for all our entities and game logic. Individual rendering / update is
 // deferred to the relative update() methods
@@ -19,7 +20,7 @@ class WorldSystem
 {
 public:
 	WorldSystem();
-
+    PhysicsSystem s;
 	// Creates a window
 	GLFWwindow* create_window(int width, int height);
 
@@ -55,7 +56,9 @@ private:
 	RenderSystem* renderer;
 	float current_speed;
     float player_speed = 100.f;
+    float next_enemy_spawn;
 	Entity player_doll;
+
 
 	// music references
 	Mix_Music* background_music;

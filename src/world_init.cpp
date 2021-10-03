@@ -22,6 +22,9 @@ Entity createDoll(RenderSystem* renderer, vec2 pos)
     health.health = 100;
     health.healthDecrement = 0;
 
+    Game& game = registry.game.emplace(entity);
+    game.state = GameState::PLAYING;
+
     registry.players.emplace(entity);
     registry.renderRequests.insert(
             entity,

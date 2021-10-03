@@ -23,6 +23,7 @@ int main()
 	WorldSystem world;
 	RenderSystem renderer;
 	PhysicsSystem physics;
+    world.s = physics;
 	AISystem ai;
 
 	// Initializing window
