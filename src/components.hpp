@@ -33,7 +33,6 @@ struct Motion {
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
     Direction dir = Direction::DOWN;
-	float background = 0;
 };
 
 struct Momentum {
@@ -159,8 +158,7 @@ enum class TEXTURE_ASSET_ID {
     HEALTH_ITEM = BED + 1,
     SPEED_ITEM  = HEALTH_ITEM + 1,
     ENEMY_REPEL = SPEED_ITEM + 1,
-    BACKGROUND = ENEMY_REPEL + 1,
-	TEXTURE_COUNT = BACKGROUND + 1
+    TEXTURE_COUNT = ENEMY_REPEL + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

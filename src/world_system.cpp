@@ -184,15 +184,8 @@ void WorldSystem::restart_game() {
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 
-	// create a background
-	int screen_width, screen_height;
-	glfwGetFramebufferSize(window, &screen_width, &screen_height);
-	background = createBackground(renderer, { screen_width / 2.f, screen_height / 2.f });
-
-	// Create a new doll
+	// Create a new salmon
 	player_doll = createDoll(renderer, { 100, 200 });
-	
-
     player_speed = 200.f;
 	registry.colors.insert(player_doll, {1, 0.8f, 0.8f});
 }
@@ -252,16 +245,16 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
     if (action == GLFW_REPEAT) {
         if (key == GLFW_KEY_W) {
             motion.dir = Direction::UP;
-            motion.velocity.y = -player_speed;
+            motion.velocity = vec2{0, -player_speed};
         } else if (key == GLFW_KEY_S) {
             motion.dir = Direction::DOWN;
-            motion.velocity.y = player_speed;
+            motion.velocity = vec2{0, +player_speed};
         } else if (key == GLFW_KEY_A) {
             motion.dir = Direction::LEFT;
-            motion.velocity.x = -player_speed;
+            motion.velocity = vec2{-player_speed, 0};
         } else if (key == GLFW_KEY_D) {
             motion.dir = Direction::RIGHT;
-            motion.velocity.x = +player_speed;
+            motion.velocity = vec2{+player_speed, 0};
         }
     } else if (action == GLFW_PRESS) {
         if (key == GLFW_KEY_W) {
