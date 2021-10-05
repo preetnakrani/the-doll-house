@@ -157,6 +157,14 @@ void RenderSystem::drawToScreen()
 	// Set clock
 	GLuint time_uloc = glGetUniformLocation(water_program, "time");
 	GLuint dead_timer_uloc = glGetUniformLocation(water_program, "darken_screen_factor");
+
+	//Blue_check
+	GLuint blur_uloc = glGetUniformLocation(water_program, "blur_state");
+	Background& background = registry.backgrounds.get(registry.backgrounds.entities[0]);
+	glUniform1i(blur_uloc, background.blur_state);
+	
+	
+	
 	glUniform1f(time_uloc, (float)(glfwGetTime() * 10.0f));
 	// ScreenState &screen = registry.screenStates.get(screen_state_entity);
 	glUniform1f(dead_timer_uloc, 1);

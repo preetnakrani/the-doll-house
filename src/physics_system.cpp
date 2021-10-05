@@ -31,7 +31,7 @@ bool PhysicsSystem::checkFakeCollision(vec2 position, vec2 box) {
     for(uint i = 0; i<motion_container.components.size(); i++)
     {
         Motion& motion_i = motion_container.components[i];
-		if (motion_i.background == 1) {
+		if (motion_i.collision_proof == 1) {
 			return false;
 		}
 

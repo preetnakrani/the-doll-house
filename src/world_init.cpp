@@ -16,9 +16,11 @@ Entity createBackground(RenderSystem* renderer, vec2 pos)
     motion.position = pos;
     motion.angle = 0.f;
     motion.velocity = { 0.f, 0.f };
-    motion.background = 1;
+    motion.collision_proof = 1;
     motion.scale.y = (pos.y * 2) / mesh.original_size.y; // fit to screen
     motion.scale.x = (pos.x * 2) / mesh.original_size.x; // fit to screen
+
+    registry.backgrounds.emplace(entity);
     
     registry.renderRequests.insert(
         entity,

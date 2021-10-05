@@ -248,6 +248,23 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 			debugging.in_debug_mode = true;
 	}
 
+	// Temporary: Testing for blur/background
+	Background& bg_motion = registry.backgrounds.get(background);
+	if (action == GLFW_PRESS) {
+		// Blur
+		if (key == GLFW_KEY_P) {
+			bg_motion.blur_state = 1;
+		}
+		// Regular
+		else if (key == GLFW_KEY_O) {
+			bg_motion.blur_state = 0;
+		}
+		// Tweaking
+		else if (key == GLFW_KEY_I) {
+			bg_motion.blur_state = 2;
+		}
+	}
+
     Motion& motion = registry.motions.get(player_doll);
     if (action == GLFW_REPEAT) {
         if (key == GLFW_KEY_W) {

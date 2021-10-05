@@ -33,7 +33,7 @@ struct Motion {
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
     Direction dir = Direction::DOWN;
-	float background = 0;
+	int collision_proof = 0;
 };
 
 struct Momentum {
@@ -109,6 +109,13 @@ struct TexturedVertex
 {
 	vec3 position;
 	vec2 texcoord;
+};
+
+// Backgrounds
+struct Background
+{
+	int blur_state = 0;
+
 };
 
 // Mesh datastructure for storing vertex and index buffers
