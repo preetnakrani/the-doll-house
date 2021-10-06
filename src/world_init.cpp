@@ -72,6 +72,12 @@ Entity createDoll(RenderSystem* renderer, vec2 pos)
     health.health = 100;
     health.healthDecrement = 0;
 
+    // Player's default attack they start the game with
+    Attack& attack = registry.attacks.emplace(entity);
+    attack.damage = 10;
+    attack.name = "PUNCH";
+    attack.type = AttackType::NORMAL;
+
     Game& game = registry.game.emplace(entity);
     game.state = GameState::PLAYING;
 
