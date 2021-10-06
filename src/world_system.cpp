@@ -281,20 +281,23 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
     Motion& motion = registry.motions.get(player_doll);
-    if (action == GLFW_REPEAT) {
-        if (key == GLFW_KEY_W) {
-            motion.dir = Direction::UP;
-            motion.velocity.y = -player_speed;
-        } else if (key == GLFW_KEY_S) {
-            motion.dir = Direction::DOWN;
-            motion.velocity.y = player_speed;
-        } else if (key == GLFW_KEY_A) {
-            motion.dir = Direction::LEFT;
-            motion.velocity.x = -player_speed;
-        } else if (key == GLFW_KEY_D) {
-            motion.dir = Direction::RIGHT;
-            motion.velocity.x = +player_speed;
-        }
+	if (action == GLFW_REPEAT) {
+		if (key == GLFW_KEY_W) {
+			motion.dir = Direction::UP;
+			motion.velocity = vec2{ 0, -player_speed };
+		}
+		else if (key == GLFW_KEY_S) {
+			motion.dir = Direction::DOWN;
+			motion.velocity = vec2{ 0, +player_speed };
+		}
+		else if (key == GLFW_KEY_A) {
+			motion.dir = Direction::LEFT;
+			motion.velocity = vec2{ -player_speed, 0 };
+		}
+		else if (key == GLFW_KEY_D) {
+			motion.dir = Direction::RIGHT;
+			motion.velocity = vec2{ +player_speed, 0 };
+		}
     } else if (action == GLFW_PRESS) {
         if (key == GLFW_KEY_W) {
             motion.dir = Direction::UP;
