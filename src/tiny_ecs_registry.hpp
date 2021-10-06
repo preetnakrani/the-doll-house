@@ -22,6 +22,7 @@ public:
 	ComponentContainer<RenderRequest> renderRequests;
     ComponentContainer<Attack> attacks;
 	ComponentContainer<AttackList> attackLists;
+	ComponentContainer<MagicList> magicLists;
 	ComponentContainer<GameItem> gameItems;
 	ComponentContainer<Game> game;
 	ComponentContainer<DebugComponent> debugComponents;
@@ -38,6 +39,8 @@ public:
 
 		registry_list.push_back(&health);
         registry_list.push_back(&attacks);
+		registry_list.push_back(&attackLists);
+		registry_list.push_back(&magicLists);
 		registry_list.push_back(&motions);
 		registry_list.push_back(&collisions);
 		registry_list.push_back(&players);

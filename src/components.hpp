@@ -78,6 +78,59 @@ struct AttackList {
 	}
 };
 
+enum class MagicType {
+	ATTACK = 0,
+	DEFENSE = 1,
+	STATUS_EFFECT = 2 // Magic that changes the target's status
+};
+
+struct Magic {
+	std::string name = "";
+};
+
+struct MagicAttack : Magic {
+	MagicType magic_type = MagicType::ATTACK;
+	AttackType attack_type = AttackType::NORMAL;
+	int damage = 0;
+};
+
+struct MagicDefense : Magic {
+	MagicType magic_type = MagicType::DEFENSE;
+	int physical_defense_boost = 0;
+	int magic_defense_boost = 0;
+};
+
+struct MagicEffect : Magic {
+	MagicType magic_type = MagicType::STATUS_EFFECT;
+	bool isTemporary;
+	float timer; // set to 0 if no timer needed (permanent effect)
+};
+
+struct MagicList {
+	std::vector<Magic> available_magic;
+
+	void addMagicAttack(std::string name, AttackType attack_type, int damage) {
+		MagicAttack magic_attack = {};
+		magic_attack.name = name;
+		magic_attack.attack_type = attack_type;
+		magic_attack.damage = damage;
+	}
+
+	void addMagicDefense(std::string name, int physical_defense_boost, int magic_defense_boost) {
+		MagicDefense magic_defense = {};
+		magic_defense.name = name;
+		magic_defense.physical_defense_boost = physical_defense_boost;
+		magic_defense.magic_defense_boost = magic_defense_boost;
+	}
+
+	void addMagicEffect(std::string name, bool isTemporary, float timer) {
+		MagicEffect magic_effect = {};
+		magic_effect.name = name;
+		magic_effect.isTemporary = isTemporary;
+		magic_effect.timer = timer;
+	}
+};
+
 struct GameItem {
     float timer = 0;
     int health = 0;

@@ -72,10 +72,15 @@ Entity createDoll(RenderSystem* renderer, vec2 pos)
     health.health = 100;
     health.healthDecrement = 0;
 
-    // Give the player an attacks component and some default attacks
+    // Give the player an attack list, magic list, and add some default moves
     AttackList& player_attacks = registry.attackLists.emplace(entity);
     player_attacks.addAttack("PUNCH", AttackType::NORMAL, 10);
     player_attacks.addAttack("TAUNT", AttackType::NORMAL, 20);
+
+    MagicList& player_magic = registry.magicLists.emplace(entity);
+    player_magic.addMagicAttack("LIGHTNING", AttackType::NORMAL, 30);
+    player_magic.addMagicDefense("SHIELD", 30, 0);
+    player_magic.addMagicEffect("POISON", false, 0);
 
     Game& game = registry.game.emplace(entity);
     game.state = GameState::PLAYING;
