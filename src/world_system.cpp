@@ -7,6 +7,7 @@
 #include <sstream>
 
 #include "physics_system.hpp"
+#include "battle_system.hpp"
 
 // Game configuration
 const size_t MAX_ENEMY = 5;
@@ -206,9 +207,13 @@ void WorldSystem::handle_collisions() {
 
 			if (registry.enemies.has(entity_other)) {
 				// initiate death unless already dying
-				registry.remove_all_components_of(entity_other);
+				// registry.remove_all_components_of(entity_other); // Need enemy info for battle so I commented it out - Naoreen
                 Game& game = registry.game.get(player_doll);
                 game.state = GameState::BATTLE;
+				if (!registry.currentEnemies.has(entity_other)) {
+					registry.currentEnemies.emplace(entity_other);
+				}
+				
 			}
 		}
 	}
@@ -288,6 +293,16 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		printf("Current speed = %f\n", current_speed);
 	}
 	current_speed = fmax(0.f, current_speed);
+
+	// Temporary logic for keyboard-input battles
+	Game& game = registry.game.get(player_doll);
+	if (game.state == GameState::BATTLE) {
+		if (action == GLFW_PRESS && key == GLFW_KEY_SPACE) {
+			registry.turns.emplace(player_doll);
+			Turn& turn = registry.turns.get(player_doll);
+			turn.key = key; //FIX ME -> use constructor
+		}
+	}
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {

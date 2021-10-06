@@ -14,6 +14,11 @@ struct Enemy {
 
 };
 
+// An enemy that the player is currently engaging in battle with
+struct CurrentEnemy {
+
+};
+
 struct Health {
     int health = 0;
     int healthDecrement  = 0;
@@ -68,6 +73,11 @@ struct GameItem {
     bool timed = false;
 };
 
+// Idea - could be used to apply to the entity who has the currently active turn
+struct Turn {
+	// float timer = 0;
+	int key;
+};
 
 // Data structure for toggling debug mode
 struct Debug {
