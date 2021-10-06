@@ -27,6 +27,8 @@ public:
 	ComponentContainer<vec3> colors;
 	ComponentContainer<CurrentEnemy> currentEnemies;
 	ComponentContainer<Turn> turns;
+	ComponentContainer<Background> backgrounds;
+	ComponentContainer<HelpScreen> helpScreens;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
@@ -48,6 +50,8 @@ public:
         registry_list.push_back(&game);
 		registry_list.push_back(&currentEnemies);
 		registry_list.push_back(&turns);
+		registry_list.push_back(&backgrounds);
+		registry_list.push_back(&helpScreens);
 	}
 
 	void clear_all_components() {

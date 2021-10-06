@@ -43,8 +43,14 @@ class RenderSystem {
 			textures_path("turtle.png"), 
 			textures_path("fish.png"),
 			textures_path("turtle.png"), 
-			textures_path("fish.png") 
-	};
+			textures_path("fish.png"),
+			textures_path("attic.png"),
+			textures_path("help_pressA.png"),
+            textures_path("help_pressD.png"),
+            textures_path("help_pressS.png"),
+            textures_path("help_pressW.png"),
+            textures_path("help_battleInfo.png"),
+    };
 
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.
@@ -52,7 +58,8 @@ class RenderSystem {
 		shader_path("coloured"),
 		shader_path("salmon"),
 		shader_path("textured"),
-		shader_path("water") };
+		shader_path("water"),
+		shader_path("helpScreen")};
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
@@ -90,6 +97,8 @@ private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
 	void drawToScreen();
+	void drawOverlayWindow(Entity entity,
+                           const mat3 &projection);
 
 	// Window handle
 	GLFWwindow* window;

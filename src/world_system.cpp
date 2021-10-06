@@ -150,6 +150,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
     // Spawning new enemy
+	
     next_enemy_spawn -= elapsed_ms_since_last_update * current_speed;
     if (registry.enemies.components.size() < MAX_ENEMY && next_enemy_spawn < 0.f && registry.game.has(player_doll) && registry.game.get(player_doll).state == GameState::PLAYING ) {
         // Reset timer
@@ -157,11 +158,13 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
         vec2 position =
                 vec2(50.f + uniform_dist(rng) * (screen_width - 100.f),
-                     50.f + uniform_dist(rng) * (screen_height - 100.f));
+					screen_height / 3 + uniform_dist(rng) * (2 * screen_height/3 - 100.f));
 
         vec2 bounding = vec2(10.f, 10.f);
         if (!s.checkFakeCollision(position, bounding)) {
-            createEnemy(renderer, position);
+			Entity new_enemy = createEnemy(renderer, position);
+			registry.motions.get(new_enemy).scale = registry.motions.get(new_enemy).scale * float(screen_width / 8);
+			//createEnemy(renderer, position);
         }
     }
 
@@ -185,10 +188,22 @@ void WorldSystem::restart_game() {
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 
-	// Create a new salmon
-	player_doll = createDoll(renderer, { 100, 200 });
+	// create a background
+	int screen_width, screen_height;
+	glfwGetFramebufferSize(window, &screen_width, &screen_height);
+	background = createBackground(renderer, { screen_width / 2.f, screen_height / 2.f });
+
+	// Create a new doll
+	player_doll = createDoll(renderer, { screen_width / 24, screen_height/8 });
+	Motion& motion = registry.motions.get(player_doll);
+	motion.scale = motion.scale * float(screen_width / 6);
+
+	
+
     player_speed = 200.f;
 	registry.colors.insert(player_doll, {1, 0.8f, 0.8f});
+
+    helpScreen = createHelpWindow(renderer, { screen_width / 2.f, screen_height / 2.f });
 }
 
 // Compute collisions between entities
@@ -246,20 +261,42 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 			debugging.in_debug_mode = true;
 	}
 
+	auto gamestate = registry.game.get(player_doll).state;
+	if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
+        gamestate = GameState::PLAYING;
+	}
+
+	// Temporary: Testing for blur/background
+	Background& bg_motion = registry.backgrounds.get(background);
+	if (action == GLFW_PRESS) {
+		// Blur
+		if (key == GLFW_KEY_P) {
+			bg_motion.blur_state = 1;
+		}
+		// Regular
+		else if (key == GLFW_KEY_O) {
+			bg_motion.blur_state = 0;
+		}
+		// Tweaking
+		else if (key == GLFW_KEY_I) {
+			bg_motion.blur_state = 2;
+		}
+	}
+
     Motion& motion = registry.motions.get(player_doll);
     if (action == GLFW_REPEAT) {
         if (key == GLFW_KEY_W) {
             motion.dir = Direction::UP;
-            motion.velocity = vec2{0, -player_speed};
+            motion.velocity.y = -player_speed;
         } else if (key == GLFW_KEY_S) {
             motion.dir = Direction::DOWN;
-            motion.velocity = vec2{0, +player_speed};
+            motion.velocity.y = player_speed;
         } else if (key == GLFW_KEY_A) {
             motion.dir = Direction::LEFT;
-            motion.velocity = vec2{-player_speed, 0};
+            motion.velocity.x = -player_speed;
         } else if (key == GLFW_KEY_D) {
             motion.dir = Direction::RIGHT;
-            motion.velocity = vec2{+player_speed, 0};
+            motion.velocity.x = +player_speed;
         }
     } else if (action == GLFW_PRESS) {
         if (key == GLFW_KEY_W) {
