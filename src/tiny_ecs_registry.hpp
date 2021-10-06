@@ -21,6 +21,7 @@ public:
 	ComponentContainer<Mesh*> meshPtrs;
 	ComponentContainer<RenderRequest> renderRequests;
     ComponentContainer<Attack> attacks;
+	ComponentContainer<AttackList> attackLists;
 	ComponentContainer<GameItem> gameItems;
 	ComponentContainer<Game> game;
 	ComponentContainer<DebugComponent> debugComponents;

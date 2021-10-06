@@ -66,6 +66,10 @@ struct Attack {
     int damage = 0;
 };
 
+struct AttackList {
+	std::vector<Attack> available_attacks;
+};
+
 struct GameItem {
     float timer = 0;
     int health = 0;
