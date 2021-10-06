@@ -193,7 +193,7 @@ void WorldSystem::restart_game() {
 	background = createBackground(renderer, { screen_width / 2.f, screen_height / 2.f });
 
 	// Create a new doll
-	player_doll = createDoll(renderer, { screen_width / 5, screen_height/5 });
+	player_doll = createDoll(renderer, { screen_width / 5, screen_height/3 });
 	Motion& motion = registry.motions.get(player_doll);
 	motion.scale = motion.scale * float(screen_width / 8);
 
