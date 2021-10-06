@@ -33,6 +33,7 @@ struct Motion {
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
     Direction dir = Direction::DOWN;
+	int collision_proof = 0;
 };
 
 struct Momentum {
@@ -110,7 +111,19 @@ struct TexturedVertex
 	vec2 texcoord;
 };
 
-// Mesh datastructure for storing vertex and index buffers
+// Backgrounds
+struct Background
+{
+	int blur_state = 0;
+
+};
+
+// Help screen
+struct HelpScreen {
+    int order = 0;
+};
+
+// Mesh data structure for storing vertex and index buffers
 struct Mesh
 {
 	static bool loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out_vertices, std::vector<uint16_t>& out_vertex_indices, vec2& out_size);
@@ -158,7 +171,13 @@ enum class TEXTURE_ASSET_ID {
     HEALTH_ITEM = BED + 1,
     SPEED_ITEM  = HEALTH_ITEM + 1,
     ENEMY_REPEL = SPEED_ITEM + 1,
-    TEXTURE_COUNT = ENEMY_REPEL + 1
+    BACKGROUND = ENEMY_REPEL + 1,
+    HELP_PRESS_A = BACKGROUND + 1,
+    HELP_PRESS_D = HELP_PRESS_A + 1,
+    HELP_PRESS_S = HELP_PRESS_D + 1,
+    HELP_PRESS_W = HELP_PRESS_S + 1,
+    HELP_BATTLE_INFO = HELP_PRESS_W + 1,
+	TEXTURE_COUNT = HELP_BATTLE_INFO + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
@@ -166,8 +185,10 @@ enum class EFFECT_ASSET_ID {
 	COLOURED = 0,
 	SALMON = COLOURED + 1,
 	TEXTURED = SALMON + 1,
-	WATER = TEXTURED + 1,
-	EFFECT_COUNT = WATER + 1
+	BLUR = TEXTURED + 1,
+	REBLUR = BLUR + 1,
+	HELP_SCREEN = REBLUR + 1,
+	EFFECT_COUNT = HELP_SCREEN + 1
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 

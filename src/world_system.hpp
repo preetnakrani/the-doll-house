@@ -60,6 +60,8 @@ private:
     float player_speed = 100.f;
     float next_enemy_spawn;
 	Entity player_doll;
+	Entity background;
+	Entity helpScreen;
 
 
 	// music references

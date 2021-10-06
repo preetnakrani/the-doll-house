@@ -90,6 +90,8 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 
 			gl_has_errors();
 		}
+	} else if (render_request.used_effect == EFFECT_ASSET_ID::HELP_SCREEN) {
+
 	}
 	else
 	{
@@ -123,14 +125,15 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	gl_has_errors();
 }
 
-// draw the intermediate texture to the screen, with some distortion to simulate
-// water
+// Draw the intermediate texture to the screen, with some potentially some blur depending onthe state
+// Blur
 void RenderSystem::drawToScreen()
 {
 	// Setting shaders
-	// get the water texture, sprite mesh, and program
-	glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::WATER]);
+	// get the BLUR texture, sprite mesh, and program
+	glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::BLUR]);
 	gl_has_errors();
+
 	// Clearing backbuffer
 	int w, h;
 	glfwGetFramebufferSize(window, &w, &h);
@@ -141,11 +144,11 @@ void RenderSystem::drawToScreen()
 	glClearDepth(1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	gl_has_errors();
+
 	// Enabling alpha channel for textures
 	glDisable(GL_BLEND);
 	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_DEPTH_TEST);
-
 	// Draw the screen texture on the quad geometry
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]);
 	glBindBuffer(
@@ -153,17 +156,21 @@ void RenderSystem::drawToScreen()
 		index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]); // Note, GL_ELEMENT_ARRAY_BUFFER associates
 																	 // indices to the bound GL_ARRAY_BUFFER
 	gl_has_errors();
-	const GLuint water_program = effects[(GLuint)EFFECT_ASSET_ID::WATER];
-	// Set clock
-	GLuint time_uloc = glGetUniformLocation(water_program, "time");
-	GLuint dead_timer_uloc = glGetUniformLocation(water_program, "darken_screen_factor");
+
+	const GLuint blur_program = effects[(GLuint)EFFECT_ASSET_ID::BLUR];
+
+	// Set clock // For future potential implementations
+	GLuint time_uloc = glGetUniformLocation(blur_program, "time");
+
+	//Blur_check
+	GLuint blur_uloc = glGetUniformLocation(blur_program, "blur_state");
+	Background& background = registry.backgrounds.get(registry.backgrounds.entities[0]);
+	glUniform1i(blur_uloc, background.blur_state);
 	glUniform1f(time_uloc, (float)(glfwGetTime() * 10.0f));
-	// ScreenState &screen = registry.screenStates.get(screen_state_entity);
-	glUniform1f(dead_timer_uloc, 1);
 	gl_has_errors();
-	// Set the vertex position and vertex texture coordinates (both stored in the
-	// same VBO)
-	GLint in_position_loc = glGetAttribLocation(water_program, "in_position");
+
+	// Set the vertex position and vertex texture coordinates (both stored in the same VBO)
+	GLint in_position_loc = glGetAttribLocation(blur_program, "in_position");
 	glEnableVertexAttribArray(in_position_loc);
 	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
 	gl_has_errors();
@@ -173,12 +180,159 @@ void RenderSystem::drawToScreen()
 
 	glBindTexture(GL_TEXTURE_2D, off_screen_render_buffer_color);
 	gl_has_errors();
+
 	// Draw
 	glDrawElements(
 		GL_TRIANGLES, 3, GL_UNSIGNED_SHORT,
 		nullptr); // one triangle = 3 vertices; nullptr indicates that there is
 				  // no offset from the bound index buffer
 	gl_has_errors();
+
+	if (background.blur_state == 1) {
+		horizontalBlur();
+	}
+}
+
+void RenderSystem::horizontalBlur()
+{
+	// Setting shaders
+	// get the BLUR texture, sprite mesh, and program
+	glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::REBLUR]);
+	gl_has_errors();
+
+	// Clearing backbuffer
+	int w, h;
+	glfwGetFramebufferSize(window, &w, &h);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, w, h);
+	glDepthRange(0, 10);
+	glClearColor(1.f, 0, 0, 1.0);
+	glClearDepth(1.f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	gl_has_errors();
+
+	// Enabling alpha channel for textures
+	glDisable(GL_BLEND);
+	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_DEPTH_TEST);
+	// Draw the screen texture on the quad geometry
+	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]);
+	glBindBuffer(
+		GL_ELEMENT_ARRAY_BUFFER,
+		index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]); // Note, GL_ELEMENT_ARRAY_BUFFER associates
+																	 // indices to the bound GL_ARRAY_BUFFER
+	gl_has_errors();
+
+	const GLuint blur_program = effects[(GLuint)EFFECT_ASSET_ID::REBLUR];
+
+	// Set clock // For future potential implementations
+	GLuint time_uloc = glGetUniformLocation(blur_program, "time");
+
+	//Blur_check
+	GLuint blur_uloc = glGetUniformLocation(blur_program, "blur_state");
+	Background& background = registry.backgrounds.get(registry.backgrounds.entities[0]);
+	glUniform1i(blur_uloc, background.blur_state);
+	glUniform1f(time_uloc, (float)(glfwGetTime() * 10.0f));
+	gl_has_errors();
+
+	// Set the vertex position and vertex texture coordinates (both stored in the same VBO)
+	GLint in_position_loc = glGetAttribLocation(blur_program, "in_position");
+	glEnableVertexAttribArray(in_position_loc);
+	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void*)0);
+	gl_has_errors();
+
+	// Bind our texture in Texture Unit 0
+	glActiveTexture(GL_TEXTURE0);
+
+	glBindTexture(GL_TEXTURE_2D, off_screen_render_buffer_color);
+	gl_has_errors();
+
+	// Draw
+	glDrawElements(
+		GL_TRIANGLES, 3, GL_UNSIGNED_SHORT,
+		nullptr); // one triangle = 3 vertices; nullptr indicates that there is
+				  // no offset from the bound index buffer
+	gl_has_errors();
+}
+
+void RenderSystem::drawOverlayWindow(Entity entity,
+                                     const mat3 &projection)
+{
+    Motion &motion = registry.motions.get(entity);
+    // Transformation code, see Rendering and Transformation in the template
+    // specification for more info Incrementally updates transformation matrix,
+    // thus ORDER IS IMPORTANT
+    Transform transform;
+    transform.translate(motion.position);
+    transform.scale(motion.scale);
+
+    assert(registry.renderRequests.has(entity));
+    const RenderRequest &render_request = registry.renderRequests.get(entity);
+
+    const GLuint used_effect_enum = (GLuint)render_request.used_effect;
+    assert(used_effect_enum != (GLuint)EFFECT_ASSET_ID::EFFECT_COUNT);
+    const GLuint program = (GLuint)effects[used_effect_enum];
+
+    // Setting shaders
+    glUseProgram(program);
+    gl_has_errors();
+
+    assert(render_request.used_geometry != GEOMETRY_BUFFER_ID::GEOMETRY_COUNT);
+    const GLuint vbo = vertex_buffers[(GLuint)render_request.used_geometry];
+    const GLuint ibo = index_buffers[(GLuint)render_request.used_geometry];
+
+    // Setting vertex and index buffers
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    gl_has_errors();
+
+    if (render_request.used_effect == EFFECT_ASSET_ID::HELP_SCREEN) {
+        GLint in_position_loc = glGetAttribLocation(program, "in_position");
+        GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
+        gl_has_errors();
+        assert(in_texcoord_loc >= 0);
+
+        glEnableVertexAttribArray(in_position_loc);
+        glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
+                              sizeof(TexturedVertex), (void *)0);
+        gl_has_errors();
+
+        glEnableVertexAttribArray(in_texcoord_loc);
+        glVertexAttribPointer(
+                in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex),
+                (void *)sizeof(
+                        vec3)); // note the stride to skip the preceeding vertex position
+        // Enabling and binding texture to slot 0
+        glActiveTexture(GL_TEXTURE0);
+        gl_has_errors();
+
+        assert(registry.renderRequests.has(entity));
+        GLuint texture_id =
+                texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
+
+        glBindTexture(GL_TEXTURE_2D, texture_id);
+        gl_has_errors();
+    }
+
+    // Get number of indices from index buffer, which has elements uint16_t
+    GLint size = 0;
+    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+    gl_has_errors();
+
+    GLsizei num_indices = size / sizeof(uint16_t);
+    // GLsizei num_triangles = num_indices / 3;
+
+    GLint currProgram;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &currProgram);
+    // Setting uniform values to the currently bound program
+    GLuint transform_loc = glGetUniformLocation(currProgram, "transform");
+    glUniformMatrix3fv(transform_loc, 1, GL_FALSE, (float *)&transform.mat);
+    GLuint projection_loc = glGetUniformLocation(currProgram, "projection");
+    glUniformMatrix3fv(projection_loc, 1, GL_FALSE, (float *)&projection);
+    gl_has_errors();
+    // Drawing of num_indices/3 triangles specified in the index buffer
+    glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr);
+    gl_has_errors();
 }
 
 // Render our game world
@@ -195,7 +349,7 @@ void RenderSystem::draw()
 	// Clearing backbuffer
 	glViewport(0, 0, w, h);
 	glDepthRange(0.00001, 10);
-	glClearColor(0, 0, 1, 1.0);
+	glClearColor(0, 1, 1, 1.0); // background color
 	glClearDepth(1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_BLEND);
@@ -217,7 +371,11 @@ void RenderSystem::draw()
 
 	// Truely render to the screen
 	drawToScreen();
-
+	for (Entity entity : registry.renderRequests.entities) {
+	    if (registry.helpScreens.has(entity)) {
+            drawOverlayWindow(entity, projection_2D);
+        }
+	}
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(window);
 	gl_has_errors();
