@@ -68,6 +68,14 @@ struct Attack {
 
 struct AttackList {
 	std::vector<Attack> available_attacks;
+
+	void addAttack(std::string name, AttackType type, int damage) {
+		Attack attack = {};
+		attack.name = name;
+		attack.type = type;
+		attack.damage = damage;
+		available_attacks.push_back(attack);
+	}
 };
 
 struct GameItem {

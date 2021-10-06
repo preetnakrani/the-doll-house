@@ -74,20 +74,8 @@ Entity createDoll(RenderSystem* renderer, vec2 pos)
 
     // Give the player an attacks component and some default attacks
     AttackList& player_attacks = registry.attackLists.emplace(entity);
-
-    // Player's default attack they start the game with
-    Attack attack = {};
-    attack.damage = 10;
-    attack.name = "PUNCH";
-    attack.type = AttackType::NORMAL;
-    player_attacks.available_attacks.push_back(attack);
-
-    // Let's try adding a second attack
-    Attack attack2 = {};
-    attack2.damage = 20;
-    attack2.name = "TAUNT";
-    attack2.type = AttackType::NORMAL;
-    player_attacks.available_attacks.push_back(attack2);
+    player_attacks.addAttack("PUNCH", AttackType::NORMAL, 10);
+    player_attacks.addAttack("TAUNT", AttackType::NORMAL, 20);
 
     Game& game = registry.game.emplace(entity);
     game.state = GameState::PLAYING;
