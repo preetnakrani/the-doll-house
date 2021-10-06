@@ -58,7 +58,7 @@ class RenderSystem {
 		shader_path("coloured"),
 		shader_path("salmon"),
 		shader_path("textured"),
-		shader_path("water"),
+		shader_path("verticalBlur"),
 		shader_path("helpScreen")};
 
 	std::array<GLuint, geometry_count> vertex_buffers;

@@ -40,7 +40,7 @@ Entity createHelpWindow(RenderSystem* renderer, vec2 pos)
     motion.position = pos;
     motion.angle = 0.f;
     motion.velocity = { 0.f, 0.f };
-    motion.scale = mesh.original_size * 300.f;
+    motion.scale = mesh.original_size;
     motion.collision_proof = 1;
     registry.helpScreens.emplace(entity);
     registry.renderRequests.insert(

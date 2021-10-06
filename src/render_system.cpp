@@ -125,13 +125,13 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	gl_has_errors();
 }
 
-// draw the intermediate texture to the screen, with some distortion to simulate
-// water
+// Draw the intermediate texture to the screen, with some potentially some blur depending onthe state
+// Blur
 void RenderSystem::drawToScreen()
 {
 	// Setting shaders
-	// get the water texture, sprite mesh, and program
-	glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::WATER]);
+	// get the BLUR texture, sprite mesh, and program
+	glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::BLUR]);
 	gl_has_errors();
 	// Clearing backbuffer
 	int w, h;
@@ -155,13 +155,13 @@ void RenderSystem::drawToScreen()
 		index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]); // Note, GL_ELEMENT_ARRAY_BUFFER associates
 																	 // indices to the bound GL_ARRAY_BUFFER
 	gl_has_errors();
-	const GLuint water_program = effects[(GLuint)EFFECT_ASSET_ID::WATER];
+	const GLuint blur_program = effects[(GLuint)EFFECT_ASSET_ID::BLUR];
 	// Set clock
-	GLuint time_uloc = glGetUniformLocation(water_program, "time");
-	GLuint dead_timer_uloc = glGetUniformLocation(water_program, "darken_screen_factor");
+	GLuint time_uloc = glGetUniformLocation(blur_program, "time");
+	GLuint dead_timer_uloc = glGetUniformLocation(blur_program, "darken_screen_factor");
 
 	//Blue_check
-	GLuint blur_uloc = glGetUniformLocation(water_program, "blur_state");
+	GLuint blur_uloc = glGetUniformLocation(blur_program, "blur_state");
 	Background& background = registry.backgrounds.get(registry.backgrounds.entities[0]);
 	glUniform1i(blur_uloc, background.blur_state);
 	
@@ -173,7 +173,7 @@ void RenderSystem::drawToScreen()
 	gl_has_errors();
 	// Set the vertex position and vertex texture coordinates (both stored in the
 	// same VBO)
-	GLint in_position_loc = glGetAttribLocation(water_program, "in_position");
+	GLint in_position_loc = glGetAttribLocation(blur_program, "in_position");
 	glEnableVertexAttribArray(in_position_loc);
 	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
 	gl_has_errors();

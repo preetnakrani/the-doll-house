@@ -195,7 +195,7 @@ void WorldSystem::restart_game() {
 	// Create a new doll
 	player_doll = createDoll(renderer, { screen_width / 24, screen_height/8 });
 	Motion& motion = registry.motions.get(player_doll);
-	motion.scale = motion.scale * float(screen_width / 6);
+	motion.scale = motion.scale * float(screen_width / 8);
 
 	
 
@@ -203,6 +203,8 @@ void WorldSystem::restart_game() {
 	registry.colors.insert(player_doll, {1, 0.8f, 0.8f});
 
     helpScreen = createHelpWindow(renderer, { screen_width / 2.f, screen_height / 2.f });
+	Motion& help_motion = registry.motions.get(helpScreen);
+	help_motion.scale = help_motion.scale * float(screen_width / 8);
 }
 
 // Compute collisions between entities
