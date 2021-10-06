@@ -149,6 +149,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
     // Spawning new enemy
+	
     next_enemy_spawn -= elapsed_ms_since_last_update * current_speed;
     if (registry.enemies.components.size() < MAX_ENEMY && next_enemy_spawn < 0.f && registry.game.has(player_doll) && registry.game.get(player_doll).state == GameState::PLAYING ) {
         // Reset timer
@@ -160,7 +161,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
         vec2 bounding = vec2(10.f, 10.f);
         if (!s.checkFakeCollision(position, bounding)) {
-            createEnemy(renderer, position);
+			Entity new_enemy = createEnemy(renderer, position);
+			registry.motions.get(new_enemy).scale = registry.motions.get(new_enemy).scale * float(screen_width / 8);
+			//createEnemy(renderer, position);
         }
     }
 

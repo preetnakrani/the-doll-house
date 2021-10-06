@@ -99,7 +99,7 @@ Entity createEnemy(RenderSystem* renderer, vec2 pos)
     motion.position = pos;
     motion.angle = 0.f;
     motion.velocity = { 0.f, 0.f };
-    motion.scale = mesh.original_size * 150.f;
+    motion.scale = mesh.original_size;
     motion.scale.x *= -1; // point front to the right
 
     Health& health = registry.health.emplace(entity);
