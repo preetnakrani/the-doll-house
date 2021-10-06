@@ -158,7 +158,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
         vec2 position =
                 vec2(50.f + uniform_dist(rng) * (screen_width - 100.f),
-					screen_height / 3 + uniform_dist(rng) * (2 * screen_height/3 - 100.f));
+					50.f + screen_height / 3 + uniform_dist(rng) * (2 * screen_height/3 - 100.f));
 
         vec2 bounding = vec2(10.f, 10.f);
         if (!s.checkFakeCollision(position, bounding)) {
@@ -194,9 +194,9 @@ void WorldSystem::restart_game() {
 	background = createBackground(renderer, { screen_width / 2.f, screen_height / 2.f });
 
 	// Create a new doll
-	player_doll = createDoll(renderer, { screen_width / 24, screen_height/8 });
+	player_doll = createDoll(renderer, { screen_width / 5, screen_height/3 });
 	Motion& motion = registry.motions.get(player_doll);
-	motion.scale = motion.scale * float(screen_width / 6);
+	motion.scale = motion.scale * float(screen_width / 8);
 
 	
 
@@ -204,6 +204,8 @@ void WorldSystem::restart_game() {
 	registry.colors.insert(player_doll, {1, 0.8f, 0.8f});
 
     helpScreen = createHelpWindow(renderer, { screen_width / 2.f, screen_height / 2.f });
+	Motion& help_motion = registry.motions.get(helpScreen);
+	help_motion.scale = help_motion.scale * float(screen_width / 8);
 }
 
 // Compute collisions between entities
@@ -284,20 +286,23 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
     Motion& motion = registry.motions.get(player_doll);
-    if (action == GLFW_REPEAT) {
-        if (key == GLFW_KEY_W) {
-            motion.dir = Direction::UP;
-            motion.velocity.y = -player_speed;
-        } else if (key == GLFW_KEY_S) {
-            motion.dir = Direction::DOWN;
-            motion.velocity.y = player_speed;
-        } else if (key == GLFW_KEY_A) {
-            motion.dir = Direction::LEFT;
-            motion.velocity.x = -player_speed;
-        } else if (key == GLFW_KEY_D) {
-            motion.dir = Direction::RIGHT;
-            motion.velocity.x = +player_speed;
-        }
+	if (action == GLFW_REPEAT) {
+		if (key == GLFW_KEY_W) {
+			motion.dir = Direction::UP;
+			motion.velocity = vec2{ 0, -player_speed };
+		}
+		else if (key == GLFW_KEY_S) {
+			motion.dir = Direction::DOWN;
+			motion.velocity = vec2{ 0, +player_speed };
+		}
+		else if (key == GLFW_KEY_A) {
+			motion.dir = Direction::LEFT;
+			motion.velocity = vec2{ -player_speed, 0 };
+		}
+		else if (key == GLFW_KEY_D) {
+			motion.dir = Direction::RIGHT;
+			motion.velocity = vec2{ +player_speed, 0 };
+		}
     } else if (action == GLFW_PRESS) {
         if (key == GLFW_KEY_W) {
             motion.dir = Direction::UP;

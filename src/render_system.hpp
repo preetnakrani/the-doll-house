@@ -58,7 +58,8 @@ class RenderSystem {
 		shader_path("coloured"),
 		shader_path("salmon"),
 		shader_path("textured"),
-		shader_path("water"),
+		shader_path("verticalBlur"),
+		shader_path("horizontalBlur"),
 		shader_path("helpScreen")};
 
 	std::array<GLuint, geometry_count> vertex_buffers;
@@ -97,6 +98,7 @@ private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
 	void drawToScreen();
+	void horizontalBlur();
 	void drawOverlayWindow(Entity entity,
                            const mat3 &projection);
 
