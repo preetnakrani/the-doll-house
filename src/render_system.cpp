@@ -133,6 +133,7 @@ void RenderSystem::drawToScreen()
 	// get the BLUR texture, sprite mesh, and program
 	glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::BLUR]);
 	gl_has_errors();
+
 	// Clearing backbuffer
 	int w, h;
 	glfwGetFramebufferSize(window, &w, &h);
@@ -143,11 +144,11 @@ void RenderSystem::drawToScreen()
 	glClearDepth(1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	gl_has_errors();
+
 	// Enabling alpha channel for textures
 	glDisable(GL_BLEND);
 	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_DEPTH_TEST);
-
 	// Draw the screen texture on the quad geometry
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]);
 	glBindBuffer(
@@ -155,24 +156,20 @@ void RenderSystem::drawToScreen()
 		index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]); // Note, GL_ELEMENT_ARRAY_BUFFER associates
 																	 // indices to the bound GL_ARRAY_BUFFER
 	gl_has_errors();
-	const GLuint blur_program = effects[(GLuint)EFFECT_ASSET_ID::BLUR];
-	// Set clock
-	GLuint time_uloc = glGetUniformLocation(blur_program, "time");
-	GLuint dead_timer_uloc = glGetUniformLocation(blur_program, "darken_screen_factor");
 
-	//Blue_check
+	const GLuint blur_program = effects[(GLuint)EFFECT_ASSET_ID::BLUR];
+
+	// Set clock // For future potential implementations
+	GLuint time_uloc = glGetUniformLocation(blur_program, "time");
+
+	//Blur_check
 	GLuint blur_uloc = glGetUniformLocation(blur_program, "blur_state");
 	Background& background = registry.backgrounds.get(registry.backgrounds.entities[0]);
 	glUniform1i(blur_uloc, background.blur_state);
-	
-	
-	
 	glUniform1f(time_uloc, (float)(glfwGetTime() * 10.0f));
-	// ScreenState &screen = registry.screenStates.get(screen_state_entity);
-	glUniform1f(dead_timer_uloc, 1);
 	gl_has_errors();
-	// Set the vertex position and vertex texture coordinates (both stored in the
-	// same VBO)
+
+	// Set the vertex position and vertex texture coordinates (both stored in the same VBO)
 	GLint in_position_loc = glGetAttribLocation(blur_program, "in_position");
 	glEnableVertexAttribArray(in_position_loc);
 	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
@@ -183,6 +180,73 @@ void RenderSystem::drawToScreen()
 
 	glBindTexture(GL_TEXTURE_2D, off_screen_render_buffer_color);
 	gl_has_errors();
+
+	// Draw
+	glDrawElements(
+		GL_TRIANGLES, 3, GL_UNSIGNED_SHORT,
+		nullptr); // one triangle = 3 vertices; nullptr indicates that there is
+				  // no offset from the bound index buffer
+	gl_has_errors();
+
+	if (background.blur_state == 1) {
+		horizontalBlur();
+	}
+}
+
+void RenderSystem::horizontalBlur()
+{
+	// Setting shaders
+	// get the BLUR texture, sprite mesh, and program
+	glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::REBLUR]);
+	gl_has_errors();
+
+	// Clearing backbuffer
+	int w, h;
+	glfwGetFramebufferSize(window, &w, &h);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, w, h);
+	glDepthRange(0, 10);
+	glClearColor(1.f, 0, 0, 1.0);
+	glClearDepth(1.f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	gl_has_errors();
+
+	// Enabling alpha channel for textures
+	glDisable(GL_BLEND);
+	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_DEPTH_TEST);
+	// Draw the screen texture on the quad geometry
+	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]);
+	glBindBuffer(
+		GL_ELEMENT_ARRAY_BUFFER,
+		index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]); // Note, GL_ELEMENT_ARRAY_BUFFER associates
+																	 // indices to the bound GL_ARRAY_BUFFER
+	gl_has_errors();
+
+	const GLuint blur_program = effects[(GLuint)EFFECT_ASSET_ID::REBLUR];
+
+	// Set clock // For future potential implementations
+	GLuint time_uloc = glGetUniformLocation(blur_program, "time");
+
+	//Blur_check
+	GLuint blur_uloc = glGetUniformLocation(blur_program, "blur_state");
+	Background& background = registry.backgrounds.get(registry.backgrounds.entities[0]);
+	glUniform1i(blur_uloc, background.blur_state);
+	glUniform1f(time_uloc, (float)(glfwGetTime() * 10.0f));
+	gl_has_errors();
+
+	// Set the vertex position and vertex texture coordinates (both stored in the same VBO)
+	GLint in_position_loc = glGetAttribLocation(blur_program, "in_position");
+	glEnableVertexAttribArray(in_position_loc);
+	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void*)0);
+	gl_has_errors();
+
+	// Bind our texture in Texture Unit 0
+	glActiveTexture(GL_TEXTURE0);
+
+	glBindTexture(GL_TEXTURE_2D, off_screen_render_buffer_color);
+	gl_has_errors();
+
 	// Draw
 	glDrawElements(
 		GL_TRIANGLES, 3, GL_UNSIGNED_SHORT,
