@@ -156,7 +156,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
         vec2 position =
                 vec2(50.f + uniform_dist(rng) * (screen_width - 100.f),
-                     50.f + uniform_dist(rng) * (screen_height - 100.f));
+					screen_height / 3 + uniform_dist(rng) * (2 * screen_height/3 - 100.f));
 
         vec2 bounding = vec2(10.f, 10.f);
         if (!s.checkFakeCollision(position, bounding)) {
@@ -190,7 +190,10 @@ void WorldSystem::restart_game() {
 	background = createBackground(renderer, { screen_width / 2.f, screen_height / 2.f });
 
 	// Create a new doll
-	player_doll = createDoll(renderer, { 500, 500 });
+	player_doll = createDoll(renderer, { screen_width / 24, screen_height/8 });
+	Motion& motion = registry.motions.get(player_doll);
+	motion.scale = motion.scale * float(screen_width / 6);
+
 	
 
     player_speed = 200.f;
