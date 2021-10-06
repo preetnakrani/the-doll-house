@@ -15,3 +15,5 @@ Entity createBackground(RenderSystem* renderer, vec2 pos);
 Entity createEnemy(RenderSystem *renderer, vec2 pos);
 
 Entity createDoll(RenderSystem *renderer, vec2 pos);
+
+Entity createHelpWindow(RenderSystem *renderer, vec2 pos);

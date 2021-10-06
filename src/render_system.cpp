@@ -90,6 +90,8 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 
 			gl_has_errors();
 		}
+	} else if (render_request.used_effect == EFFECT_ASSET_ID::HELP_SCREEN) {
+
 	}
 	else
 	{
@@ -189,6 +191,86 @@ void RenderSystem::drawToScreen()
 	gl_has_errors();
 }
 
+void RenderSystem::drawOverlayWindow(Entity entity,
+                                     const mat3 &projection)
+{
+    Motion &motion = registry.motions.get(entity);
+    // Transformation code, see Rendering and Transformation in the template
+    // specification for more info Incrementally updates transformation matrix,
+    // thus ORDER IS IMPORTANT
+    Transform transform;
+    transform.translate(motion.position);
+    transform.scale(motion.scale);
+
+    assert(registry.renderRequests.has(entity));
+    const RenderRequest &render_request = registry.renderRequests.get(entity);
+
+    const GLuint used_effect_enum = (GLuint)render_request.used_effect;
+    assert(used_effect_enum != (GLuint)EFFECT_ASSET_ID::EFFECT_COUNT);
+    const GLuint program = (GLuint)effects[used_effect_enum];
+
+    // Setting shaders
+    glUseProgram(program);
+    gl_has_errors();
+
+    assert(render_request.used_geometry != GEOMETRY_BUFFER_ID::GEOMETRY_COUNT);
+    const GLuint vbo = vertex_buffers[(GLuint)render_request.used_geometry];
+    const GLuint ibo = index_buffers[(GLuint)render_request.used_geometry];
+
+    // Setting vertex and index buffers
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    gl_has_errors();
+
+    if (render_request.used_effect == EFFECT_ASSET_ID::HELP_SCREEN) {
+        GLint in_position_loc = glGetAttribLocation(program, "in_position");
+        GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
+        gl_has_errors();
+        assert(in_texcoord_loc >= 0);
+
+        glEnableVertexAttribArray(in_position_loc);
+        glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
+                              sizeof(TexturedVertex), (void *)0);
+        gl_has_errors();
+
+        glEnableVertexAttribArray(in_texcoord_loc);
+        glVertexAttribPointer(
+                in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex),
+                (void *)sizeof(
+                        vec3)); // note the stride to skip the preceeding vertex position
+        // Enabling and binding texture to slot 0
+        glActiveTexture(GL_TEXTURE0);
+        gl_has_errors();
+
+        assert(registry.renderRequests.has(entity));
+        GLuint texture_id =
+                texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
+
+        glBindTexture(GL_TEXTURE_2D, texture_id);
+        gl_has_errors();
+    }
+
+    // Get number of indices from index buffer, which has elements uint16_t
+    GLint size = 0;
+    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+    gl_has_errors();
+
+    GLsizei num_indices = size / sizeof(uint16_t);
+    // GLsizei num_triangles = num_indices / 3;
+
+    GLint currProgram;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &currProgram);
+    // Setting uniform values to the currently bound program
+    GLuint transform_loc = glGetUniformLocation(currProgram, "transform");
+    glUniformMatrix3fv(transform_loc, 1, GL_FALSE, (float *)&transform.mat);
+    GLuint projection_loc = glGetUniformLocation(currProgram, "projection");
+    glUniformMatrix3fv(projection_loc, 1, GL_FALSE, (float *)&projection);
+    gl_has_errors();
+    // Drawing of num_indices/3 triangles specified in the index buffer
+    glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr);
+    gl_has_errors();
+}
+
 // Render our game world
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
 void RenderSystem::draw()
@@ -225,7 +307,11 @@ void RenderSystem::draw()
 
 	// Truely render to the screen
 	drawToScreen();
-
+	for (Entity entity : registry.renderRequests.entities) {
+	    if (registry.helpScreens.has(entity)) {
+            drawOverlayWindow(entity, projection_2D);
+        }
+	}
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(window);
 	gl_has_errors();

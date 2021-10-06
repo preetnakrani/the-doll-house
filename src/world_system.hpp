@@ -61,6 +61,7 @@ private:
     float next_enemy_spawn;
 	Entity player_doll;
 	Entity background;
+	Entity helpScreen;
 
 
 	// music references

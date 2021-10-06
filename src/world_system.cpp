@@ -190,11 +190,13 @@ void WorldSystem::restart_game() {
 	background = createBackground(renderer, { screen_width / 2.f, screen_height / 2.f });
 
 	// Create a new doll
-	player_doll = createDoll(renderer, { 100, 200 });
+	player_doll = createDoll(renderer, { 500, 500 });
 	
 
     player_speed = 200.f;
 	registry.colors.insert(player_doll, {1, 0.8f, 0.8f});
+
+    helpScreen = createHelpWindow(renderer, { screen_width / 2.f, screen_height / 2.f });
 }
 
 // Compute collisions between entities
@@ -246,6 +248,11 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 			debugging.in_debug_mode = false;
 		else
 			debugging.in_debug_mode = true;
+	}
+
+	auto gamestate = registry.game.get(player_doll).state;
+	if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
+        gamestate = GameState::PLAYING;
 	}
 
 	// Temporary: Testing for blur/background
