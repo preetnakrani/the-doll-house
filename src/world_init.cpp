@@ -90,7 +90,7 @@ Entity createEnemy(RenderSystem* renderer, vec2 pos)
     auto entity = Entity();
 
     // Store a reference to the potentially re-used mesh object
-    Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SALMON);
+    Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
     registry.meshPtrs.emplace(entity, &mesh);
 
     // Setting initial motion values
@@ -106,13 +106,13 @@ Entity createEnemy(RenderSystem* renderer, vec2 pos)
     health.health = 100;
     health.healthDecrement = 0;
 
-    // Create and (empty) Salmon component to be able to refer to all turtles
+    // Create an enemy
     registry.enemies.emplace(entity);
     registry.renderRequests.insert(
             entity,
-            { TEXTURE_ASSET_ID::TEXTURE_COUNT, // TEXTURE_COUNT indicates that no txture is needed
-              EFFECT_ASSET_ID::SALMON,
-              GEOMETRY_BUFFER_ID::SALMON });
+            { TEXTURE_ASSET_ID::DUST_BUNNY, // TEXTURE_COUNT indicates that no txture is needed
+              EFFECT_ASSET_ID::TEXTURED,
+              GEOMETRY_BUFFER_ID::SPRITE });
 
     return entity;
 }

@@ -157,7 +157,8 @@ struct Mesh
  */
 
 enum class TEXTURE_ASSET_ID {
-	DOLL_UP = 0,
+	DUST_BUNNY = 0,
+	DOLL_UP = DUST_BUNNY + 1,
 	DOLL_RIGHT = DOLL_UP + 1,
 	DOLL_DOWN = DOLL_RIGHT + 1,
 	DOLL_LEFT = DOLL_DOWN + 1,
