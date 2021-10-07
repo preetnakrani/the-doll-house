@@ -26,8 +26,6 @@ void BattleSystem::handle_battle() {
         // New battle was initiated so let's initialize relevant variables
         current_enemies = registry.currentEnemies.entities;
         is_active_battle = true;
-
-        battle_screen = createBattleWindow(renderer, {400,800});
         printf("=====Initialized battle=====\n");
     }
 

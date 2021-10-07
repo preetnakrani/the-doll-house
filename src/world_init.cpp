@@ -62,7 +62,8 @@ Entity createBattleWindow(RenderSystem* renderer, vec2 pos)
     motion.position = pos;
     motion.angle = 0.f;
     motion.velocity = { 0.f, 0.f };
-    motion.scale = {5,4}; // changes size of screen
+    motion.scale.y = (pos.y * 2) / mesh.original_size.y; // fit to screen
+    motion.scale.x = (pos.x * 2) / mesh.original_size.x; // fit to screen
     motion.collision_proof = 1;
     registry.battleScreens.emplace(entity);
     registry.renderRequests.insert(
@@ -71,11 +72,6 @@ Entity createBattleWindow(RenderSystem* renderer, vec2 pos)
               // help screen effect just renders it like the help screen
               EFFECT_ASSET_ID::HELP_SCREEN,
               GEOMETRY_BUFFER_ID::SPRITE});
-//     createDoll(renderer, {700, 400});
-//    registry.renderRequests.insert(entity,
-//                                   {TEXTURE_ASSET_ID::DOLL_LEFT,
-//                                   EFFECT_ASSET_ID::TEXTURED,
-//                                   GEOMETRY_BUFFER_ID::SPRITE});
     return entity;
 }
 
