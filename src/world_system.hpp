@@ -20,7 +20,7 @@ class WorldSystem
 {
 public:
 	WorldSystem();
-    PhysicsSystem s;
+    PhysicsSystem physics;
 	// Creates a window
 	GLFWwindow* create_window(int width, int height);
 

@@ -159,11 +159,10 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
                 vec2(50.f + uniform_dist(rng) * (screen_width - 100.f),
 					50.f + screen_height / 3 + uniform_dist(rng) * (2 * screen_height/3 - 100.f));
 
-        vec2 bounding = vec2(10.f, 10.f);
-        if (!s.checkFakeCollision(position, bounding)) {
+        vec2 bounding = vec2(50.f, 50.f);
+        if (!physics.checkFakeCollision(position, bounding)) {
 			Entity new_enemy = createEnemy(renderer, position);
 			registry.motions.get(new_enemy).scale = registry.motions.get(new_enemy).scale * float(screen_width / 8);
-			//createEnemy(renderer, position);
         }
     }
 
@@ -281,6 +280,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
     Motion& motion = registry.motions.get(player_doll);
+    Direction curr = motion.dir;
 	if (action == GLFW_REPEAT) {
 		if (key == GLFW_KEY_W) {
 			motion.dir = Direction::UP;
@@ -319,6 +319,10 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
             motion.velocity = vec2{0, motion.velocity[1]};
         }
     }
+    if (curr != motion.dir) {
+        this->setRenderRequests();
+    }
+
 
 	// Control the current speed with `<` `>`
 	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_COMMA) {
