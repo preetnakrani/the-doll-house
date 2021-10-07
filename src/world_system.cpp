@@ -193,7 +193,7 @@ void WorldSystem::restart_game() {
 	background = createBackground(renderer, { screen_width / 2.f, screen_height / 2.f });
 
 	// Create a new doll
-	player_doll = createDoll(renderer, { screen_width / 5, screen_height/3 });
+	player_doll = createDoll(renderer, { screen_width /5.f, screen_height/3.f });
 	Motion& motion = registry.motions.get(player_doll);
 	motion.scale = motion.scale * float(screen_width / 8);
 
@@ -202,7 +202,7 @@ void WorldSystem::restart_game() {
     player_speed = 200.f;
 	registry.colors.insert(player_doll, {1, 0.8f, 0.8f});
 
-    helpScreen = createHelpWindow(renderer, { screen_width / 2.f, screen_height / 2.f });
+    helpScreen = createHelpWindow(renderer, { screen_width / 2.f, screen_height / 6 });
 	Motion& help_motion = registry.motions.get(helpScreen);
 	help_motion.scale = help_motion.scale * float(screen_width / 8);
 }
