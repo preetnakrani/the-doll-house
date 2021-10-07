@@ -53,6 +53,9 @@ void BattleSystem::handle_battle() {
         }
         is_active_battle = false;
         game.state = GameState::PLAYING;
+
+        Entity battle_screen = registry.battleScreens.entities.at(0);
+        registry.remove_all_components_of(battle_screen);
         printf("=====Battle ended=====\n");
     }
 };
