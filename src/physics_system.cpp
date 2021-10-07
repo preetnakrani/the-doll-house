@@ -26,26 +26,27 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	return false;
 }
 
-bool PhysicsSystem::checkFakeCollision(vec2 position, vec2 box) {
+void checkFakeCollision(Entity e) {
     ComponentContainer<Motion> &motion_container = registry.motions;
+    Motion m = registry.motions.get(e);
     for(uint i = 0; i<motion_container.components.size(); i++)
     {
         Motion& motion_i = motion_container.components[i];
 		if (motion_i.collision_proof == 1) {
-			return false;
+            continue;
 		}
 
-            Motion m;
-            m.position = position;
-            m.scale = box;
-
-            if (collides(motion_i, m))
+            if (collides(motion_i, registry.motions.get(e)))
             {
-                return true;
+                registry.remove_all_components_of(e);
+                return;
             }
     }
-    return false;
 
+}
+
+std::function<void (Entity)> PhysicsSystem::getCollisionFunction() {
+    return checkFakeCollision;
 }
 
 void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_height_px)

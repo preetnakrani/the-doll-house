@@ -160,9 +160,13 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 					50.f + screen_height / 3 + uniform_dist(rng) * (2 * screen_height/3 - 100.f));
 
         vec2 bounding = vec2(50.f, 50.f);
-        if (!physics.checkFakeCollision(position, bounding)) {
-			Entity new_enemy = createEnemy(renderer, position);
-			registry.motions.get(new_enemy).scale = registry.motions.get(new_enemy).scale * float(screen_width / 8);
+        Entity new_enemy = createEnemy(renderer, position);
+        registry.motions.get(new_enemy).position = position;
+        registry.motions.get(new_enemy).scale = bounding;
+        registry.motions.get(new_enemy).scale = registry.motions.get(new_enemy).scale * float(screen_width / 8);
+
+        for(std::function<void (Entity)> fn: callbacks) {
+            fn(new_enemy);
         }
     }
 
@@ -280,7 +284,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
     Motion& motion = registry.motions.get(player_doll);
-    Direction curr = motion.dir;
+    Direction prev = motion.dir;
 	if (action == GLFW_REPEAT) {
 		if (key == GLFW_KEY_W) {
 			motion.dir = Direction::UP;
@@ -319,7 +323,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
             motion.velocity = vec2{0, motion.velocity[1]};
         }
     }
-    if (curr != motion.dir) {
+    if (prev != motion.dir) {
         this->setRenderRequests();
     }
 
@@ -354,5 +358,8 @@ void WorldSystem::setRenderRequests() {
             rr.used_texture = TEXTURE_ASSET_ID::DOLL_LEFT;
         }
     }
+}
 
+void WorldSystem::attach(std::function<void (Entity)> fn) {
+    callbacks.push_back(fn);
 }
