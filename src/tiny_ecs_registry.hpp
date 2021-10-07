@@ -31,6 +31,7 @@ public:
 	ComponentContainer<Turn> turns;
 	ComponentContainer<Background> backgrounds;
 	ComponentContainer<HelpScreen> helpScreens;
+    ComponentContainer<BattleScreen> battleScreens;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
@@ -56,6 +57,7 @@ public:
 		registry_list.push_back(&turns);
 		registry_list.push_back(&backgrounds);
 		registry_list.push_back(&helpScreens);
+        registry_list.push_back(&battleScreens);
 	}
 
 	void clear_all_components() {

@@ -12,6 +12,8 @@
 // Game configuration
 const size_t MAX_ENEMY = 5;
 const size_t ENEMY_DELAY_MS = 2000 * 3;
+int SCREEN_WIDTH;
+int SCREEN_HEIGHT;
 
 // Create the fish world
 WorldSystem::WorldSystem()
@@ -117,15 +119,29 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 	Mix_PlayMusic(background_music, -1);
 	fprintf(stderr, "Loaded music\n");
 
+    int screen_width, screen_height;
+    glfwGetFramebufferSize(window, &screen_width, &screen_height);
+    SCREEN_HEIGHT = screen_height;
+    SCREEN_WIDTH = screen_width;
+
 	// Set all states to default
     restart_game();
 }
+
+//void WorldSystem::getScreenSize() {
+//    int screen_width, screen_height;
+//    glfwGetFramebufferSize(window, &screen_width, &screen_height);
+//    SCREEN_HEIGHT = screen_height;
+//    SCREEN_WIDTH = screen_width;
+//}
 
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	// Get the screen dimensions
 	int screen_width, screen_height;
 	glfwGetFramebufferSize(window, &screen_width, &screen_height);
+    SCREEN_HEIGHT = screen_height;
+    SCREEN_WIDTH = screen_width;
 
 	// Updating window title with points
 	std::stringstream title_ss;
@@ -198,7 +214,6 @@ void WorldSystem::restart_game() {
 	Motion& motion = registry.motions.get(player_doll);
 	motion.scale = motion.scale * float(screen_width / 8);
 
-	
 
     player_speed = 200.f;
 	registry.colors.insert(player_doll, {1, 0.8f, 0.8f});
@@ -206,6 +221,15 @@ void WorldSystem::restart_game() {
     helpScreen = createHelpWindow(renderer, { screen_width / 2.f, screen_height / 2.f });
 	Motion& help_motion = registry.motions.get(helpScreen);
 	help_motion.scale = help_motion.scale * float(screen_width / 8);
+
+}
+
+void WorldSystem::drawBattleWindow() {
+//    battle_screen = createBattleWindow(renderer, {0,0});
+    battle_screen = createBattleWindow(renderer, { SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f });
+    Motion& battle_motion = registry.motions.get(battle_screen);
+    battle_motion.scale = battle_motion.scale * float(SCREEN_WIDTH / 8);
+
 }
 
 // Compute collisions between entities
@@ -229,6 +253,7 @@ void WorldSystem::handle_collisions() {
                 game.state = GameState::BATTLE;
 				if (!registry.currentEnemies.has(entity_other)) {
 					registry.currentEnemies.emplace(entity_other);
+                    drawBattleWindow();
 				}
 				
 			}
@@ -238,6 +263,7 @@ void WorldSystem::handle_collisions() {
 	// Remove all collisions from this simulation step
 	registry.collisions.clear();
 }
+
 
 // Should the game be over ?
 bool WorldSystem::is_over() const {

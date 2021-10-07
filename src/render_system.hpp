@@ -50,6 +50,7 @@ class RenderSystem {
             textures_path("help_pressS.png"),
             textures_path("help_pressW.png"),
             textures_path("help_battleInfo.png"),
+            textures_path("battle_screen_1.png"),
     };
 
 	std::array<GLuint, effect_count> effects;

@@ -1,15 +1,18 @@
 #include "battle_system.hpp"
+#include "world_init.hpp"
+#include "world_system.hpp"
 #include <iostream>
 using namespace std;
 
+Entity battle_screen;
 Entity player_doll;
 vector<Entity> current_enemies;
 
 // true when battle is ongoing, false when there is no battle happening right now
 bool is_active_battle = false;
 
-void BattleSystem::init() {
-    // TODO: Might be useful to have initialization logic in a helper - Naoreen
+void BattleSystem::init(RenderSystem* renderer_arg) {
+    this->renderer = renderer_arg;
 };
 
 void BattleSystem::handle_battle() {
@@ -23,6 +26,8 @@ void BattleSystem::handle_battle() {
         // New battle was initiated so let's initialize relevant variables
         current_enemies = registry.currentEnemies.entities;
         is_active_battle = true;
+
+        battle_screen = createBattleWindow(renderer, {400,800});
         printf("=====Initialized battle=====\n");
     }
 

@@ -1,6 +1,7 @@
 #include "world_init.hpp"
 #include "tiny_ecs_registry.hpp"
 
+
 Entity createBackground(RenderSystem* renderer, vec2 pos)
 {
     auto entity = Entity();
@@ -48,6 +49,33 @@ Entity createHelpWindow(RenderSystem* renderer, vec2 pos)
             { TEXTURE_ASSET_ID::HELP_PRESS_D,
               EFFECT_ASSET_ID::HELP_SCREEN,
               GEOMETRY_BUFFER_ID::SPRITE});
+    return entity;
+}
+
+Entity createBattleWindow(RenderSystem* renderer, vec2 pos)
+{
+    auto entity = Entity();
+    Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+    registry.meshPtrs.emplace(entity, &mesh);
+    Motion& motion = registry.motions.emplace(entity);
+    motion.dir = Direction::DOWN;
+    motion.position = pos;
+    motion.angle = 0.f;
+    motion.velocity = { 0.f, 0.f };
+    motion.scale = {5,4}; // changes size of screen
+    motion.collision_proof = 1;
+    registry.battleScreens.emplace(entity);
+    registry.renderRequests.insert(
+            entity,
+            { TEXTURE_ASSET_ID::BATTLE_BACKGROUND_1,
+              // help screen effect just renders it like the help screen
+              EFFECT_ASSET_ID::HELP_SCREEN,
+              GEOMETRY_BUFFER_ID::SPRITE});
+//     createDoll(renderer, {700, 400});
+//    registry.renderRequests.insert(entity,
+//                                   {TEXTURE_ASSET_ID::DOLL_LEFT,
+//                                   EFFECT_ASSET_ID::TEXTURED,
+//                                   GEOMETRY_BUFFER_ID::SPRITE});
     return entity;
 }
 

@@ -198,6 +198,10 @@ struct HelpScreen {
     int order = 0;
 };
 
+struct BattleScreen {
+
+};
+
 // Mesh data structure for storing vertex and index buffers
 struct Mesh
 {
@@ -252,7 +256,8 @@ enum class TEXTURE_ASSET_ID {
     HELP_PRESS_S = HELP_PRESS_D + 1,
     HELP_PRESS_W = HELP_PRESS_S + 1,
     HELP_BATTLE_INFO = HELP_PRESS_W + 1,
-	TEXTURE_COUNT = HELP_BATTLE_INFO + 1
+    BATTLE_BACKGROUND_1 = HELP_BATTLE_INFO + 1,
+	TEXTURE_COUNT = BATTLE_BACKGROUND_1 + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
@@ -263,6 +268,7 @@ enum class EFFECT_ASSET_ID {
 	BLUR = TEXTURED + 1,
 	REBLUR = BLUR + 1,
 	HELP_SCREEN = REBLUR + 1,
+//    BATTLE_SCREEN = HELP_SCREEN + 1,
 	EFFECT_COUNT = HELP_SCREEN + 1
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;

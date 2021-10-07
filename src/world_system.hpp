@@ -62,6 +62,7 @@ private:
 	Entity player_doll;
 	Entity background;
 	Entity helpScreen;
+    Entity battle_screen;
 
 
 	// music references
@@ -72,4 +73,7 @@ private:
 	// C++ random number generator
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
+    void drawBattleWindow();
+
+    void getScreenSize();
 };
