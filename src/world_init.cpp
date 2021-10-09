@@ -119,6 +119,29 @@ Entity createDoll(RenderSystem* renderer, vec2 pos)
     return entity;
 }
 
+Entity createBattleDoll(RenderSystem* renderer, vec2 pos)
+{
+    auto entity = Entity();
+    Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+    registry.meshPtrs.emplace(entity, &mesh);
+    Motion& motion = registry.motions.emplace(entity);
+    motion.dir = Direction::DOWN;
+    motion.position = pos;
+    motion.angle = 0.f;
+    motion.velocity = { 0.f, 0.f };
+    motion.scale = {100,100};
+//    motion.scale = mesh.original_size;
+    motion.collision_proof = 1;
+    registry.battleDolls.emplace(entity);
+    registry.renderRequests.insert(
+            entity,
+            { TEXTURE_ASSET_ID::DOLL_RIGHT,
+                    // help screen effect just renders it like the help screen
+              EFFECT_ASSET_ID::HELP_SCREEN,
+              GEOMETRY_BUFFER_ID::SPRITE});
+    return entity;
+}
+
 Entity createEnemy(RenderSystem* renderer, vec2 pos)
 {
     auto entity = Entity();
@@ -147,6 +170,35 @@ Entity createEnemy(RenderSystem* renderer, vec2 pos)
             { TEXTURE_ASSET_ID::TEXTURE_COUNT, // TEXTURE_COUNT indicates that no txture is needed
               EFFECT_ASSET_ID::SALMON,
               GEOMETRY_BUFFER_ID::SALMON });
+
+    return entity;
+}
+
+Entity createBattleEnemy(RenderSystem* renderer, vec2 pos)
+{
+    auto entity = Entity();
+
+    // Store a reference to the potentially re-used mesh object
+    Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+    registry.meshPtrs.emplace(entity, &mesh);
+
+    // Setting initial motion values
+    Motion& motion = registry.motions.emplace(entity);
+    motion.dir = Direction::DOWN;
+    motion.position = pos;
+    motion.angle = 0.f;
+    motion.velocity = { 0.f, 0.f };
+    motion.scale = {100, 100};
+    motion.collision_proof = 1;
+//    motion.scale.x *= -1; // point front to the right
+
+    // Create and (empty) Salmon component to be able to refer to all turtles
+    registry.battleEnemies.emplace(entity);
+    registry.renderRequests.insert(
+            entity,
+            { TEXTURE_ASSET_ID::DOLL_LEFT, // TEXTURE_COUNT indicates that no txture is needed
+              EFFECT_ASSET_ID::HELP_SCREEN,
+              GEOMETRY_BUFFER_ID::SPRITE });
 
     return entity;
 }

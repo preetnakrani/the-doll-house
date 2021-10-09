@@ -202,6 +202,14 @@ struct BattleScreen {
 
 };
 
+struct BattleDoll {
+
+};
+
+struct BattleEnemy {
+
+};
+
 // Mesh data structure for storing vertex and index buffers
 struct Mesh
 {

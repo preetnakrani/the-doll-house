@@ -63,6 +63,8 @@ private:
 	Entity background;
 	Entity helpScreen;
     Entity battle_screen;
+    Entity battle_doll;
+    Entity battle_enemy;
 
 
 	// music references

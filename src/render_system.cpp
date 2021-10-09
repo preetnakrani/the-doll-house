@@ -378,6 +378,12 @@ void RenderSystem::draw()
         if (registry.battleScreens.has(entity)) {
             drawOverlayWindow(entity, projection_2D);
         }
+        if (registry.battleDolls.has(entity)) {
+            drawOverlayWindow(entity, projection_2D);
+        }
+        if (registry.battleEnemies.has(entity)) {
+            drawOverlayWindow(entity, projection_2D);
+        }
 	}
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(window);

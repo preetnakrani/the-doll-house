@@ -20,4 +20,6 @@ Entity createEnemy(RenderSystem *renderer, vec2 pos);
 
 Entity createDoll(RenderSystem *renderer, vec2 pos);
 
+Entity createBattleDoll(RenderSystem *renderer, vec2 pos);
 
+Entity createBattleEnemy(RenderSystem *renderer, vec2 pos);

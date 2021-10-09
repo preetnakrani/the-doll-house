@@ -227,6 +227,10 @@ void WorldSystem::restart_game() {
 void WorldSystem::drawBattleWindow() {
     battle_screen = createBattleWindow(renderer, { SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f });
     Motion& battle_motion = registry.motions.get(battle_screen);
+    battle_doll = createBattleDoll(renderer,{ SCREEN_WIDTH / 3.f, SCREEN_HEIGHT / 2.f });
+    Motion& battle_doll_motion = registry.motions.get(battle_doll);
+    battle_enemy = createBattleEnemy(renderer, { SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f });
+    Motion& battle_enemy_motion = registry.motions.get(battle_enemy);
 }
 
 // Compute collisions between entities

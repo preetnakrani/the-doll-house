@@ -6,6 +6,8 @@ using namespace std;
 
 Entity battle_screen;
 Entity player_doll;
+Entity battle_doll;
+Entity battle_enemy;
 vector<Entity> current_enemies;
 
 // true when battle is ongoing, false when there is no battle happening right now
@@ -25,6 +27,8 @@ void BattleSystem::handle_battle() {
     if (!is_active_battle) {
         // New battle was initiated so let's initialize relevant variables
         current_enemies = registry.currentEnemies.entities;
+        battle_enemy = registry.battleEnemies.entities[0];
+        battle_doll = registry.battleDolls.entities[0];
         is_active_battle = true;
         printf("=====Initialized battle=====\n");
     }
@@ -50,6 +54,8 @@ void BattleSystem::handle_battle() {
         for (int i = 0; i < current_enemies.size(); i++) {
             Entity enemy = current_enemies[0];
             registry.remove_all_components_of(enemy);
+            registry.remove_all_components_of(battle_doll);
+            registry.remove_all_components_of(battle_enemy);
         }
         is_active_battle = false;
         game.state = GameState::PLAYING;

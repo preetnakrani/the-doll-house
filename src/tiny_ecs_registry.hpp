@@ -32,6 +32,8 @@ public:
 	ComponentContainer<Background> backgrounds;
 	ComponentContainer<HelpScreen> helpScreens;
     ComponentContainer<BattleScreen> battleScreens;
+    ComponentContainer<BattleDoll> battleDolls;
+    ComponentContainer<BattleEnemy> battleEnemies;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
@@ -58,6 +60,8 @@ public:
 		registry_list.push_back(&backgrounds);
 		registry_list.push_back(&helpScreens);
         registry_list.push_back(&battleScreens);
+        registry_list.push_back(&battleDolls);
+        registry_list.push_back(&battleEnemies);
 	}
 
 	void clear_all_components() {
