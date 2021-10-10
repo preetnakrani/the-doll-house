@@ -75,6 +75,36 @@ Entity createBattleWindow(RenderSystem* renderer, vec2 pos)
     return entity;
 }
 
+Entity createBattleMenuItem(RenderSystem* renderer, vec2 pos, BattleMenuItemType item_type, TEXTURE_ASSET_ID texture_id)
+{
+    auto entity = Entity();
+    Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+    registry.meshPtrs.emplace(entity, &mesh);
+    Motion& motion = registry.motions.emplace(entity);
+    motion.dir = Direction::DOWN;
+    motion.position = pos;
+    motion.angle = 0.f;
+    motion.velocity = { 0.f, 0.f };
+    motion.scale = mesh.original_size;
+    motion.collision_proof = 1;
+
+    if (item_type == BattleMenuItemType::BUTTON_AREA || item_type == BattleMenuItemType::TEXT_AREA) {
+        BattleMenu& battle_menu = registry.battleMenus.emplace(entity);
+        battle_menu.menu_type = item_type;
+    }
+    else if (item_type == BattleMenuItemType::ATTACK_BUTTON || item_type == BattleMenuItemType::MAGIC_BUTTON || item_type == BattleMenuItemType::ITEMS_BUTTON) {
+        BattleMenuButton& battle_menu_button = registry.battleMenuButtons.emplace(entity);
+        battle_menu_button.button_type = item_type;
+    }
+
+    registry.renderRequests.insert(
+        entity,
+        { texture_id,
+          EFFECT_ASSET_ID::HELP_SCREEN,
+          GEOMETRY_BUFFER_ID::SPRITE });
+    return entity;
+}
+
 Entity createDoll(RenderSystem* renderer, vec2 pos)
 {
     auto entity = Entity();

@@ -40,6 +40,9 @@ public:
 	bool is_over()const;
 
     void setRenderRequests();
+
+	// Handles removing components of battle window, should only be called by BattleSystem
+	void destroyBattleWindow();
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
@@ -65,6 +68,10 @@ private:
     Entity battle_screen;
     Entity battle_doll;
     Entity battle_enemy;
+	Entity battle_menu_button_area;
+	Entity battle_menu_button_attack;
+	Entity battle_menu_button_magic;
+	Entity battle_menu_button_items;
 
 
 	// music references

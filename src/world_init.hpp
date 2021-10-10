@@ -16,6 +16,8 @@ Entity createHelpWindow(RenderSystem *renderer, vec2 pos);
 
 Entity createBattleWindow(RenderSystem *renderer, vec2 pos);
 
+Entity createBattleMenuItem(RenderSystem* renderer, vec2 pos, BattleMenuItemType item_type, TEXTURE_ASSET_ID texture_id);
+
 Entity createEnemy(RenderSystem *renderer, vec2 pos);
 
 Entity createDoll(RenderSystem *renderer, vec2 pos);

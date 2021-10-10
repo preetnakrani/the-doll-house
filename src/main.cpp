@@ -40,7 +40,7 @@ int main()
 	// initialize the main systems
 	renderer.init(window_width_px, window_height_px, window);
 	world.init(&renderer);
-    battle.init(&renderer);
+    battle.init(&world);
 
 	// variable timestep loop
 	auto t = Clock::now();
