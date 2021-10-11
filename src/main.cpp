@@ -36,7 +36,12 @@ int main()
 	}
 
 	// initialize the main systems
-	renderer.init(window_width_px, window_height_px, window);
+	// if app is running on macos, double the size of the renderer to display the entire screen.
+	if (__APPLE__) {
+        renderer.init(window_width_px * 2, window_height_px * 2, window);
+    } else {
+        renderer.init(window_width_px, window_height_px, window);
+    }
 	world.init(&renderer);
 
 	// variable timestep loop

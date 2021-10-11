@@ -40,11 +40,14 @@ public:
 	bool is_over()const;
 
     void setRenderRequests();
+    void swap_help_screen();
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 pos);
-
+	void on_mouse_click(int button, int action, int mods);
+	void openMenuOverlayScreen();
+	void closeMenuOverlayScreen();
 	// restart level
 	void restart_game();
 
@@ -62,6 +65,8 @@ private:
 	Entity player_doll;
 	Entity background;
 	Entity helpScreen;
+	Entity menuButton;
+	Entity menuOverlay;
 
 
 	// music references

@@ -20,7 +20,7 @@ Entity createBackground(RenderSystem* renderer, vec2 pos)
     motion.scale.x = (pos.x * 2) / mesh.original_size.x; // fit to screen
 
     registry.backgrounds.emplace(entity);
-    
+
     registry.renderRequests.insert(
         entity,
         { TEXTURE_ASSET_ID::BACKGROUND,
@@ -30,10 +30,12 @@ Entity createBackground(RenderSystem* renderer, vec2 pos)
     return entity;
 }
 
+// this entity can be blurred when blur activates
 Entity createHelpWindow(RenderSystem* renderer, vec2 pos)
 {
     auto entity = Entity();
-    Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+    // width: height = 2 : 1
+    Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::HELP_SCREEN);
     registry.meshPtrs.emplace(entity, &mesh);
     Motion& motion = registry.motions.emplace(entity);
     motion.dir = Direction::DOWN;
@@ -45,9 +47,50 @@ Entity createHelpWindow(RenderSystem* renderer, vec2 pos)
     registry.helpScreens.emplace(entity);
     registry.renderRequests.insert(
             entity,
-            { TEXTURE_ASSET_ID::HELP_PRESS_D,
+            { TEXTURE_ASSET_ID::HELP_PRESS_A,
               EFFECT_ASSET_ID::HELP_SCREEN,
-              GEOMETRY_BUFFER_ID::SPRITE});
+              GEOMETRY_BUFFER_ID::HELP_SCREEN});
+    return entity;
+}
+
+Entity createMenuButton(RenderSystem* renderer, vec2 pos)
+{
+    auto entity = Entity();
+    Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::HELP_SCREEN);
+    registry.meshPtrs.emplace(entity, &mesh);
+    Motion& motion = registry.motions.emplace(entity);
+    motion.dir = Direction::DOWN;
+    motion.position = pos;
+    motion.angle = 0.f;
+    motion.velocity = { 0.f, 0.f };
+    motion.scale = mesh.original_size;
+    motion.collision_proof = 1;
+    registry.helpScreens.emplace(entity);
+    registry.renderRequests.insert(
+            entity,
+            { TEXTURE_ASSET_ID::MENU_BUTTON,
+              EFFECT_ASSET_ID::HELP_SCREEN,
+              GEOMETRY_BUFFER_ID::HELP_SCREEN});
+    return entity;
+}
+
+Entity createMenuOverlay(RenderSystem *renderer, vec2 pos) {
+    auto entity = Entity();
+    Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::HELP_SCREEN);
+    registry.meshPtrs.emplace(entity, &mesh);
+    Motion& motion = registry.motions.emplace(entity);
+    motion.dir = Direction::DOWN;
+    motion.position = pos;
+    motion.angle = 0.f;
+    motion.velocity = { 0.f, 0.f };
+    motion.scale = mesh.original_size;
+    motion.collision_proof = 1;
+    registry.helpScreens.emplace(entity);
+//    registry.renderRequests.insert(
+//            entity,
+//            { TEXTURE_ASSET_ID::MENU_OVERLAY,
+//              EFFECT_ASSET_ID::HELP_SCREEN,
+//              GEOMETRY_BUFFER_ID::SPRITE});
     return entity;
 }
 

@@ -5,12 +5,18 @@
 // stlib
 #include <cassert>
 #include <sstream>
+#include <iostream>
 
 #include "physics_system.hpp"
 
 // Game configuration
 const size_t MAX_ENEMY = 5;
 const size_t ENEMY_DELAY_MS = 2000 * 3;
+std::array<TEXTURE_ASSET_ID, 4> helpScreenOptions = {TEXTURE_ASSET_ID::HELP_PRESS_A,
+                                                     TEXTURE_ASSET_ID::HELP_PRESS_D,
+                                                     TEXTURE_ASSET_ID::HELP_PRESS_W,
+                                                     TEXTURE_ASSET_ID::HELP_PRESS_S};
+vec3 menuButtonInfo;
 
 // Create the fish world
 WorldSystem::WorldSystem()
@@ -81,8 +87,10 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	glfwSetWindowUserPointer(window, this);
 	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
 	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
-	glfwSetKeyCallback(window, key_redirect);
+    auto mouse_click_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_click(_0, _1, _2); };
+    glfwSetKeyCallback(window, key_redirect);
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
+	glfwSetMouseButtonCallback(window, mouse_click_redirect);
 
 	//////////////////////////////////////
 	// Loading music and sounds with SDL
@@ -196,15 +204,23 @@ void WorldSystem::restart_game() {
 	player_doll = createDoll(renderer, { screen_width /5.f, screen_height/3.f });
 	Motion& motion = registry.motions.get(player_doll);
 	motion.scale = motion.scale * float(screen_width / 8);
-
-	
-
     player_speed = 200.f;
 	registry.colors.insert(player_doll, {1, 0.8f, 0.8f});
 
-    helpScreen = createHelpWindow(renderer, { screen_width / 2.f, screen_height / 6 });
+	// create a help screen
+    helpScreen = createHelpWindow(renderer, { screen_width / 2.f, screen_height / 6.f });
 	Motion& help_motion = registry.motions.get(helpScreen);
-	help_motion.scale = help_motion.scale * float(screen_width / 8);
+	help_motion.scale = help_motion.scale * float(screen_width / 4);
+
+	// create a clickable menu button
+	menuButton = createMenuButton(renderer, { screen_width - 100, screen_width / 40 });
+    Motion& menuButton_motion = registry.motions.get(menuButton);
+    menuButton_motion.scale = menuButton_motion.scale * float(screen_width / 16);
+
+    // create a menu overlay
+    menuOverlay = createMenuOverlay(renderer, {screen_width/2, screen_height/2});
+    Motion& overlayMotion = registry.motions.get(menuOverlay);
+    overlayMotion.scale = overlayMotion.scale * float(screen_width / 4);
 }
 
 // Compute collisions between entities
@@ -242,7 +258,20 @@ bool WorldSystem::is_over() const {
 // On key callback
 void WorldSystem::on_key(int key, int, int action, int mod) {
 
-	// Resetting game
+    // change the helpscreen display, n to move left and m to move right
+    if (registry.helpScreens.has(helpScreen)) {
+        HelpScreen& hs = registry.helpScreens.get(helpScreen);
+        RenderRequest& hs_rr = registry.renderRequests.get(helpScreen);
+        if (key == GLFW_KEY_N && action == GLFW_PRESS && hs.order != 0) {
+            hs_rr.used_texture = helpScreenOptions[hs.order - 1];
+            hs.order--;
+        } else if (key == GLFW_KEY_M && action == GLFW_PRESS && hs.order !=3) {
+            hs_rr.used_texture = helpScreenOptions[hs.order + 1];
+            hs.order++;
+        }
+    }
+
+    // Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
@@ -332,6 +361,65 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	current_speed = fmax(0.f, current_speed);
 }
 
+void WorldSystem::on_mouse_click(int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        double xPos, yPos;
+        glfwGetCursorPos(window, &xPos, &yPos);
+
+
+        Game& game = registry.game.get(player_doll);
+        // clickevent happening on menu box
+        if (1115 < xPos && xPos< 1187 && 13 < yPos && yPos < 49) {
+            if (game.state == GameState::MENUOVERLAY) {
+                closeMenuOverlayScreen();
+            } else if (game.state == GameState::PLAYING) {
+                openMenuOverlayScreen();
+            }
+        }
+        if (game.state == GameState::MENUOVERLAY) {
+            // do actions associated with the overlay
+            std::cout << xPos << std::endl;
+            std::cout << yPos << std::endl;
+            // clicked Restart Game
+            if (470 < xPos && xPos< 730 && 280 < yPos && yPos < 330) {
+                closeMenuOverlayScreen();
+                restart_game();
+            }
+            // clicked Exit Game
+            if (470 < xPos && xPos< 730 && 480 < yPos && yPos < 520) {
+                closeMenuOverlayScreen();
+            }
+
+        }
+
+    }
+}
+
+void WorldSystem::openMenuOverlayScreen() {
+    Game& game = registry.game.get(player_doll);
+    game.state = GameState::MENUOVERLAY;
+    Background& bg_motion = registry.backgrounds.get(background);
+    bg_motion.blur_state = 1;
+    registry.renderRequests.insert(
+            menuOverlay,
+            { TEXTURE_ASSET_ID::MENU_OVERLAY,
+              EFFECT_ASSET_ID::HELP_SCREEN,
+              GEOMETRY_BUFFER_ID::SPRITE});
+    registry.helpScreens.remove(helpScreen);
+}
+
+void WorldSystem::closeMenuOverlayScreen() {
+    Background& bg_motion = registry.backgrounds.get(background);
+    bg_motion.blur_state = 0;
+    registry.renderRequests.remove(menuOverlay);
+    registry.helpScreens.emplace(helpScreen);
+    Game& game = registry.game.get(player_doll);
+    game.state = GameState::PLAYING;
+}
+
+
+
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	(vec2)mouse_position; // dummy to avoid compiler warning
 }
@@ -350,5 +438,4 @@ void WorldSystem::setRenderRequests() {
             rr.used_texture = TEXTURE_ASSET_ID::DOLL_LEFT;
         }
     }
-
 }

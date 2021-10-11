@@ -46,11 +46,12 @@ class RenderSystem {
 			textures_path("turtle.png"), 
 			textures_path("fish.png"),
 			textures_path("attic.png"),
-			textures_path("help_pressA.png"),
-            textures_path("help_pressD.png"),
-            textures_path("help_pressS.png"),
-            textures_path("help_pressW.png"),
-            textures_path("help_battleInfo.png"),
+			textures_path("PressA.png"),
+            textures_path("PressD.png"),
+            textures_path("PressS.png"),
+            textures_path("PressW.png"),
+            textures_path("Menu Button.png"),
+            textures_path("Menu Overlay.png"),
     };
 
 	std::array<GLuint, effect_count> effects;
