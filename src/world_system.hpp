@@ -40,6 +40,9 @@ public:
 	bool is_over()const;
 
     void setRenderRequests();
+    void progressTutorial(float elapsed_ms_since_last_update);
+    void escapeTutorial(bool isComplete);
+
     void swap_help_screen();
 private:
 	// Input callback functions
@@ -67,6 +70,7 @@ private:
 	Entity helpScreen;
 	Entity menuButton;
 	Entity menuOverlay;
+	Entity tutorialScreen;
 
 
 	// music references

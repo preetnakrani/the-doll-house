@@ -69,6 +69,12 @@ struct GameItem {
     bool timed = false;
 };
 
+struct TutorialTimer {
+    float timePerSprite = 7000.f;
+    bool tutorialCompleted = false;
+    int tutorialIndex = 0;
+};
+
 
 // Data structure for toggling debug mode
 struct Debug {
@@ -83,7 +89,8 @@ enum class GameState {
     STORYSCREEN = 2,
     BOSS = 3,
     BATTLE = 4,
-    MENUOVERLAY = 5
+    MENUOVERLAY = 5,
+    TUTORIAL = 6
 };
 
 // Sets the brightness of the screen
@@ -178,9 +185,15 @@ enum class TEXTURE_ASSET_ID {
     HELP_PRESS_D = HELP_PRESS_A + 1,
     HELP_PRESS_S = HELP_PRESS_D + 1,
     HELP_PRESS_W = HELP_PRESS_S + 1,
-    MENU_BUTTON = HELP_PRESS_W + 1,
+    STAY_AWAY = HELP_PRESS_W + 1,
+    MENU_BUTTON = STAY_AWAY + 1,
     MENU_OVERLAY = MENU_BUTTON + 1,
-	TEXTURE_COUNT = MENU_OVERLAY + 1
+    TUTORIAL_ONE = MENU_OVERLAY + 1,
+    TUTORIAL_TWO = TUTORIAL_ONE + 1,
+    TUTORIAL_THREE = TUTORIAL_TWO + 1,
+    TUTORIAL_FOUR = TUTORIAL_THREE + 1,
+    TUTORIAL_FIVE = TUTORIAL_FOUR + 1,
+    TEXTURE_COUNT = TUTORIAL_FIVE + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

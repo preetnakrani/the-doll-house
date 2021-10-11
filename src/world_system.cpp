@@ -12,12 +12,16 @@
 // Game configuration
 const size_t MAX_ENEMY = 5;
 const size_t ENEMY_DELAY_MS = 2000 * 3;
-std::array<TEXTURE_ASSET_ID, 4> helpScreenOptions = {TEXTURE_ASSET_ID::HELP_PRESS_A,
+std::array<TEXTURE_ASSET_ID, 5> helpScreenOptions = {TEXTURE_ASSET_ID::HELP_PRESS_A,
                                                      TEXTURE_ASSET_ID::HELP_PRESS_D,
                                                      TEXTURE_ASSET_ID::HELP_PRESS_W,
-                                                     TEXTURE_ASSET_ID::HELP_PRESS_S};
-vec3 menuButtonInfo;
-
+                                                     TEXTURE_ASSET_ID::HELP_PRESS_S,
+                                                     TEXTURE_ASSET_ID::STAY_AWAY};
+std::array<TEXTURE_ASSET_ID, 5> tutorialScreenOptions = {TEXTURE_ASSET_ID::TUTORIAL_ONE,
+                                                     TEXTURE_ASSET_ID::TUTORIAL_TWO,
+                                                     TEXTURE_ASSET_ID::TUTORIAL_THREE,
+                                                     TEXTURE_ASSET_ID::TUTORIAL_FOUR,
+                                                     TEXTURE_ASSET_ID::TUTORIAL_FIVE};
 // Create the fish world
 WorldSystem::WorldSystem()
 	: points(0)
@@ -130,6 +134,10 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
+
+    if (registry.game.get(player_doll).state == GameState::TUTORIAL) {
+        progressTutorial(elapsed_ms_since_last_update);
+    }
 	// Get the screen dimensions
 	int screen_width, screen_height;
 	glfwGetFramebufferSize(window, &screen_width, &screen_height);
@@ -178,6 +186,39 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	return true;
 }
 
+void WorldSystem::progressTutorial(float elapsed_ms_since_last_update) {
+    Background& bg_motion = registry.backgrounds.get(background);
+    bg_motion.blur_state = 1;
+    registry.helpScreens.remove(helpScreen);
+    registry.helpScreens.remove(menuButton);
+    RenderRequest& rr = registry.renderRequests.get(tutorialScreen);
+    TutorialTimer &tutorialTimer = registry.tutorialTimer.get(tutorialScreen);
+    float& time = tutorialTimer.timePerSprite;
+    int& index = tutorialTimer.tutorialIndex;
+    bool& isComplete = tutorialTimer.tutorialCompleted;
+    time -= elapsed_ms_since_last_update;
+    if (time <= 0) {
+        if (index == 4) {
+            escapeTutorial(isComplete);
+        } else {
+            index++;
+            rr.used_texture = tutorialScreenOptions[index];
+            tutorialTimer.timePerSprite = 7000.f;
+        }
+    }
+}
+
+void WorldSystem::escapeTutorial(bool isComplete) {
+    isComplete = true;
+    registry.helpScreens.emplace(helpScreen);
+    registry.helpScreens.emplace(menuButton);
+    registry.renderRequests.remove(tutorialScreen);
+    Game& game = registry.game.get(player_doll);
+    game.state = GameState::PLAYING;
+    Background& bg_motion = registry.backgrounds.get(background);
+    bg_motion.blur_state = 0;
+}
+
 // Reset the world state to its initial state
 void WorldSystem::restart_game() {
 	// Debugging for memory/component leaks
@@ -221,6 +262,16 @@ void WorldSystem::restart_game() {
     menuOverlay = createMenuOverlay(renderer, {screen_width/2, screen_height/2});
     Motion& overlayMotion = registry.motions.get(menuOverlay);
     overlayMotion.scale = overlayMotion.scale * float(screen_width / 4);
+
+    // create tutorial screen
+    tutorialScreen = createTutorial(renderer, {screen_width/2, screen_height/2});
+    Motion& tutorialMotion = registry.motions.get(tutorialScreen);
+    tutorialMotion.scale = tutorialMotion.scale * float(screen_width / 2);
+    // set state to tutorial
+    if (!registry.tutorialTimer.get(tutorialScreen).tutorialCompleted) {
+        Game& game = registry.game.get(player_doll);
+        game.state = GameState::TUTORIAL;
+    }
 }
 
 // Compute collisions between entities
@@ -257,6 +308,12 @@ bool WorldSystem::is_over() const {
 
 // On key callback
 void WorldSystem::on_key(int key, int, int action, int mod) {
+    // press spacebar to close tutorial screen
+    Game& game = registry.game.get(player_doll);
+    if (game.state == GameState::TUTORIAL && key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+        TutorialTimer &tutorialTimer = registry.tutorialTimer.get(tutorialScreen);
+        escapeTutorial(tutorialTimer.tutorialCompleted);
+    }
 
     // change the helpscreen display, n to move left and m to move right
     if (registry.helpScreens.has(helpScreen)) {
@@ -265,7 +322,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
         if (key == GLFW_KEY_N && action == GLFW_PRESS && hs.order != 0) {
             hs_rr.used_texture = helpScreenOptions[hs.order - 1];
             hs.order--;
-        } else if (key == GLFW_KEY_M && action == GLFW_PRESS && hs.order !=3) {
+        } else if (key == GLFW_KEY_M && action == GLFW_PRESS && hs.order !=4) {
             hs_rr.used_texture = helpScreenOptions[hs.order + 1];
             hs.order++;
         }
@@ -287,7 +344,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 			debugging.in_debug_mode = true;
 	}
 
-	auto gamestate = registry.game.get(player_doll).state;
+    auto gamestate = registry.game.get(player_doll).state;
 	if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
         gamestate = GameState::PLAYING;
 	}

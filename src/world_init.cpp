@@ -94,6 +94,26 @@ Entity createMenuOverlay(RenderSystem *renderer, vec2 pos) {
     return entity;
 }
 
+Entity createTutorial(RenderSystem *renderer, vec2 pos) {
+    auto entity = Entity();
+    Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::HELP_SCREEN);
+    registry.meshPtrs.emplace(entity, &mesh);
+    Motion& motion = registry.motions.emplace(entity);
+    motion.dir = Direction::DOWN;
+    motion.position = pos;
+    motion.angle = 0.f;
+    motion.velocity = { 0.f, 0.f };
+    motion.scale = mesh.original_size;
+    motion.collision_proof = 1;
+    registry.tutorialTimer.emplace(entity);
+    registry.helpScreens.emplace(entity);
+    registry.renderRequests.insert(
+            entity,
+            { TEXTURE_ASSET_ID::TUTORIAL_ONE,
+              EFFECT_ASSET_ID::HELP_SCREEN,
+              GEOMETRY_BUFFER_ID::HELP_SCREEN});
+    return entity;
+}
 Entity createDoll(RenderSystem* renderer, vec2 pos)
 {
     auto entity = Entity();
