@@ -17,3 +17,5 @@ Entity createEnemy(RenderSystem *renderer, vec2 pos);
 Entity createDoll(RenderSystem *renderer, vec2 pos);
 
 Entity createHelpWindow(RenderSystem *renderer, vec2 pos);
+
+Entity createWallBlock(vec2 pos);

@@ -106,7 +106,7 @@ Entity createEnemy(RenderSystem* renderer, vec2 pos)
     health.health = 100;
     health.healthDecrement = 0;
 
-    // Create and (empty) Salmon component to be able to refer to all turtles
+    // Create and (empty) Enemy component to be able to refer to all turtles
     registry.enemies.emplace(entity);
     registry.renderRequests.insert(
             entity,
@@ -114,5 +114,21 @@ Entity createEnemy(RenderSystem* renderer, vec2 pos)
               EFFECT_ASSET_ID::SALMON,
               GEOMETRY_BUFFER_ID::SALMON });
 
+    return entity;
+}
+
+Entity createWallBlock(vec2 pos)
+{
+    auto entity = Entity();
+
+    // Setting initial motion values
+    Motion& motion = registry.motions.emplace(entity);
+    motion.position = pos;
+    motion.angle = 0.f;
+    motion.scale.x = 100.f;
+    motion.scale.y = 100.f;
+    motion.velocity = { 0.f, 0.f };
+
+    registry.walls.emplace(entity);
     return entity;
 }
