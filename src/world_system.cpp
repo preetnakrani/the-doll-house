@@ -8,6 +8,7 @@
 
 #include "physics_system.hpp"
 #include "battle_system.hpp"
+#include <iostream>
 
 // Game configuration
 const size_t MAX_ENEMY = 5;
@@ -84,8 +85,10 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	glfwSetWindowUserPointer(window, this);
 	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
 	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
+	auto mouse_click_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_click(_0, _1, _2); };
 	glfwSetKeyCallback(window, key_redirect);
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
+	glfwSetMouseButtonCallback(window, mouse_click_redirect);
 
 	//////////////////////////////////////
 	// Loading music and sounds with SDL
@@ -228,7 +231,7 @@ void WorldSystem::drawBattleWindow() {
     battle_doll = createBattleDoll(renderer, { SCREEN_WIDTH / 3.f, SCREEN_HEIGHT / 2.f });
     battle_enemy = createBattleEnemy(renderer, { SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f });
 
-	float SCALE = SCREEN_HEIGHT / 160; //160 px is the height of the Aseprite drawing of the battle screen
+	float SCALE = SCREEN_HEIGHT / 160; // 160 px is the height of the Aseprite drawing of the battle screen
 	
 	// The numbers that the "POSITION" quantities are being multiplied by are the positions of the assets on the Aseprite drawing
 	vec2 BUTTON_AREA_POSITION = { 32 * SCALE, 132 * SCALE };
@@ -423,6 +426,15 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	(vec2)mouse_position; // dummy to avoid compiler warning
 }
 
+void WorldSystem::on_mouse_click(int button, int action, int mods)
+{
+	if (registry.game.get(player_doll).state == GameState::BATTLE) {
+		double xPos, yPos;
+		glfwGetCursorPos(window, &xPos, &yPos);
+		BattleMenuItemType button_clicked = getBattleScreenButtonClicked(xPos, yPos);	
+	}
+}
+
 void WorldSystem::setRenderRequests() {
     if (registry.game.get(player_doll).state == GameState::PLAYING) {
         RenderRequest& rr = registry.renderRequests.get(player_doll);
@@ -438,4 +450,52 @@ void WorldSystem::setRenderRequests() {
         }
     }
 
+}
+
+BattleMenuItemType WorldSystem::getBattleScreenButtonClicked(double x, double y) {
+	assert(registry.game.get(player_doll).state == GameState::BATTLE);
+
+	const double BUTTON_HEIGHT = 58;
+	const double BUTTON_WIDTH_LARGER = 254; // Attack, Magic, and Items buttons
+	const double BUTTON_WIDTH_SMALLER = 85; // Learn and Go buttons
+
+	// Coordinates of button's top left corner, {x, y}
+	const vec2 ACTION_BUTTON_COORDS = { 33, 560 };
+	const vec2 MAGIC_BUTTON_COORDS = { 33, 631 };
+	const vec2 ITEMS_BUTTON_COORDS = { 33, 703 };
+	const vec2 LEARN_BUTTON_COORDS = { 1075, 631 };
+	const vec2 GO_BUTTON_COORDS = { 1075, 703 };
+
+	if (isClickInRegion(x, y, ACTION_BUTTON_COORDS, BUTTON_HEIGHT, BUTTON_WIDTH_LARGER)) {
+		printf("ACTION BUTTON CLICKED");
+		return BattleMenuItemType::ATTACK_BUTTON;
+	}
+	else if (isClickInRegion(x, y, MAGIC_BUTTON_COORDS, BUTTON_HEIGHT, BUTTON_WIDTH_LARGER)) {
+		printf("MAGIC BUTTON CLICKED");
+		return BattleMenuItemType::MAGIC_BUTTON;
+	}
+	else if (isClickInRegion(x, y, ITEMS_BUTTON_COORDS, BUTTON_HEIGHT, BUTTON_WIDTH_LARGER)) {
+		printf("ITEMS BUTTON CLICKED");
+		return BattleMenuItemType::ITEMS_BUTTON;
+	}
+	else if (isClickInRegion(x, y, LEARN_BUTTON_COORDS, BUTTON_HEIGHT, BUTTON_WIDTH_SMALLER)) {
+		printf("LEARN BUTTON CLICKED");
+		return BattleMenuItemType::LEARN_BUTTON;
+	}
+	else if (isClickInRegion(x, y, GO_BUTTON_COORDS, BUTTON_HEIGHT, BUTTON_WIDTH_SMALLER)) {
+		printf("GO BUTTON CLICKED");
+		return BattleMenuItemType::GO_BUTTON;
+	}
+	else {
+		printf("CLICK OUTSIDE REGION");
+		return BattleMenuItemType::NONE;
+	}
+}
+
+bool WorldSystem::isClickInRegion(double x, double y, vec2 top_left_coords, double height, double width) {
+	return
+		x >= top_left_coords[0] &&
+		x <= top_left_coords[0] + width &&
+		y >= top_left_coords[1] &&
+		y <= top_left_coords[1] + height;
 }

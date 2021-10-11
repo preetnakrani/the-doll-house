@@ -47,9 +47,25 @@ private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 pos);
+	void on_mouse_click(int button, int action, int mods);
 
 	// restart level
 	void restart_game();
+
+	// creates the battle window and all its UI elements
+	void drawBattleWindow();
+
+	// helper function that scales UI assets
+	void scaleUIAsset(Entity entity, vec2 originalDimensions, float scaleFactor);
+
+	// returns which button was clicked on the battle screen, if any
+	BattleMenuItemType getBattleScreenButtonClicked(double x, double y);
+
+	// helper function that returns whether a mouse click on coordinates x, y occured in a given (rectangular) region
+	// where top_left_coords is the coordinate of the region's top left corner
+	bool isClickInRegion(double x, double y, vec2 top_left_coords, double height, double width);
+
+	void getScreenSize();
 
 	// OpenGL window handle
 	GLFWwindow* window;
@@ -86,8 +102,4 @@ private:
 	// C++ random number generator
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
-    void drawBattleWindow();
-	void scaleUIAsset(Entity entity, vec2 originalDimensions, float scaleFactor);
-
-    void getScreenSize();
 };

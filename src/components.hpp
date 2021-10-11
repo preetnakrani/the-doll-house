@@ -211,6 +211,7 @@ struct BattleEnemy {
 };
 
 enum class BattleMenuItemType {
+	NONE = 0, // Do not assign this to any assets
 	BUTTON_AREA = 1,
 	TEXT_AREA = 2,
 	ATTACK_BUTTON = 3,
