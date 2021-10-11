@@ -23,7 +23,6 @@ int main()
 	WorldSystem world;
 	RenderSystem renderer;
 	PhysicsSystem physics;
-    world.physics = physics;
 	AISystem ai;
 
 	// Initializing window
@@ -38,6 +37,7 @@ int main()
 	// initialize the main systems
 	renderer.init(window_width_px, window_height_px, window);
 	world.init(&renderer);
+	world.attach(physics.getCollisionFunction());
 
 	// variable timestep loop
 	auto t = Clock::now();

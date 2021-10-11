@@ -15,5 +15,5 @@ public:
 	{
 	}
 
-    bool checkFakeCollision(vec2 position, vec2 box);
+	std::function<void(Entity)> getCollisionFunction();
 };
