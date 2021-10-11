@@ -134,7 +134,6 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
-
     if (registry.game.get(player_doll).state == GameState::TUTORIAL) {
         progressTutorial(elapsed_ms_since_last_update);
     }
@@ -182,8 +181,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			//createEnemy(renderer, position);
         }
     }
+    // display the enum number that corresponds to the current state of the game
+//    Game& game = registry.game.get(player_doll);
+//    std::cout << static_cast<int>(game.state) << std::endl;
 
-	return true;
+    return true;
 }
 
 void WorldSystem::progressTutorial(float elapsed_ms_since_last_update) {
