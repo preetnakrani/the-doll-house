@@ -227,34 +227,37 @@ void WorldSystem::drawBattleWindow() {
 	battle_screen = createBattleWindow(renderer, { SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f });
     battle_doll = createBattleDoll(renderer, { SCREEN_WIDTH / 3.f, SCREEN_HEIGHT / 2.f });
     battle_enemy = createBattleEnemy(renderer, { SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f });
+
+	float SCALE = SCREEN_HEIGHT / 160; //160 px is the height of the Aseprite drawing of the battle screen
 	
-	vec2 BUTTON_AREA_POSITION = { 32 * 5, 132 * 5 }; // Found by using coordinates from Aseprite drawing, and scaling by 5
+	// The numbers that the "POSITION" quantities are being multiplied by are the positions of the assets on the Aseprite drawing
+	vec2 BUTTON_AREA_POSITION = { 32 * SCALE, 132 * SCALE };
 	battle_menu_button_area = createBattleMenuItem(renderer, BUTTON_AREA_POSITION, BattleMenuItemType::BUTTON_AREA, TEXTURE_ASSET_ID::BATTLE_MENU_BUTTON_AREA);	
-	scaleUIAsset(battle_menu_button_area, { 60, 51 }, 5);
+	scaleUIAsset(battle_menu_button_area, { 60, 51 }, SCALE);
 
-	vec2 TEXT_AREA_POSITION = { 151 * 5, 132 * 5 };
+	vec2 TEXT_AREA_POSITION = { 151 * SCALE, 132 * SCALE };
 	battle_menu_text_area = createBattleMenuItem(renderer, TEXT_AREA_POSITION, BattleMenuItemType::TEXT_AREA, TEXTURE_ASSET_ID::BATTLE_MENU_TEXT_AREA);
-	scaleUIAsset(battle_menu_text_area, { 173, 51 }, 5);
+	scaleUIAsset(battle_menu_text_area, { 173, 51 }, SCALE);
 
-	vec2 ATTACK_BUTTON_POSITION = { 32 * 5, 132 * 5 - 73 };
+	vec2 ATTACK_BUTTON_POSITION = { 32 * SCALE, 132 * SCALE - 73 };
 	battle_menu_button_attack = createBattleMenuItem(renderer, ATTACK_BUTTON_POSITION, BattleMenuItemType::ATTACK_BUTTON, TEXTURE_ASSET_ID::BATTLE_MENU_BUTTON_ATTACK);
-	scaleUIAsset(battle_menu_button_attack, { 52, 13 }, 5);
+	scaleUIAsset(battle_menu_button_attack, { 52, 13 }, SCALE);
 
-	vec2 MAGIC_BUTTON_POSITION = { 32 * 5, 132 * 5 };
+	vec2 MAGIC_BUTTON_POSITION = { 32 * SCALE, 132 * SCALE };
 	battle_menu_button_magic = createBattleMenuItem(renderer, MAGIC_BUTTON_POSITION, BattleMenuItemType::MAGIC_BUTTON, TEXTURE_ASSET_ID::BATTLE_MENU_BUTTON_MAGIC);
-	scaleUIAsset(battle_menu_button_magic, { 52, 13 }, 5);
+	scaleUIAsset(battle_menu_button_magic, { 52, 13 }, SCALE);
 
-	vec2 ITEMS_BUTTON_POSITION = { 32 * 5, 132 * 5 + 73 };
+	vec2 ITEMS_BUTTON_POSITION = { 32 * SCALE, 132 * SCALE + 73 };
 	battle_menu_button_items = createBattleMenuItem(renderer, ITEMS_BUTTON_POSITION, BattleMenuItemType::ITEMS_BUTTON, TEXTURE_ASSET_ID::BATTLE_MENU_BUTTON_ITEMS);
 	scaleUIAsset(battle_menu_button_items, { 52, 13 }, 5);
 
-	vec2 LEARN_BUTTON_POSITION = { 224 * 5, 132 * 5 };
+	vec2 LEARN_BUTTON_POSITION = { 224 * SCALE, 132 * SCALE };
 	battle_menu_button_learn = createBattleMenuItem(renderer, LEARN_BUTTON_POSITION, BattleMenuItemType::LEARN_BUTTON, TEXTURE_ASSET_ID::BATTLE_MENU_BUTTON_LEARN);
 	scaleUIAsset(battle_menu_button_learn, { 18, 13 }, 5);
 
-	vec2 GO_BUTTON_POSITION = { 224 * 5, 132 * 5 + 73 };
+	vec2 GO_BUTTON_POSITION = { 224 * SCALE, 132 * SCALE + 73 };
 	battle_menu_button_go = createBattleMenuItem(renderer, GO_BUTTON_POSITION, BattleMenuItemType::GO_BUTTON, TEXTURE_ASSET_ID::BATTLE_MENU_BUTTON_GO);
-	scaleUIAsset(battle_menu_button_go, { 18, 13 }, 5);
+	scaleUIAsset(battle_menu_button_go, { 18, 13 }, SCALE);
 }
 
 void WorldSystem::scaleUIAsset(Entity entity, vec2 originalDimensions, float scaleFactor) {
