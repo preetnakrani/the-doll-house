@@ -93,7 +93,13 @@ Entity createBattleMenuItem(RenderSystem* renderer, vec2 pos, BattleMenuItemType
         BattleMenu& battle_menu = registry.battleMenus.emplace(entity);
         battle_menu.menu_type = item_type;
     }
-    else if (item_type == BattleMenuItemType::ATTACK_BUTTON || item_type == BattleMenuItemType::MAGIC_BUTTON || item_type == BattleMenuItemType::ITEMS_BUTTON) {
+    else if (
+        item_type == BattleMenuItemType::ATTACK_BUTTON ||
+        item_type == BattleMenuItemType::MAGIC_BUTTON ||
+        item_type == BattleMenuItemType::ITEMS_BUTTON ||
+        item_type == BattleMenuItemType::LEARN_BUTTON ||
+        item_type == BattleMenuItemType::GO_BUTTON)
+    {
         BattleMenuButton& battle_menu_button = registry.battleMenuButtons.emplace(entity);
         battle_menu_button.button_type = item_type;
     }

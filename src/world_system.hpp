@@ -65,6 +65,8 @@ private:
 	Entity player_doll;
 	Entity background;
 	Entity helpScreen;
+
+	// Entities related to rendering battle screen
     Entity battle_screen;
     Entity battle_doll;
     Entity battle_enemy;
@@ -73,7 +75,8 @@ private:
 	Entity battle_menu_button_attack;
 	Entity battle_menu_button_magic;
 	Entity battle_menu_button_items;
-
+	Entity battle_menu_button_learn;
+	Entity battle_menu_button_go;
 
 	// music references
 	Mix_Music* background_music;

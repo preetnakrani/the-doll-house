@@ -215,7 +215,9 @@ enum class BattleMenuItemType {
 	TEXT_AREA = 2,
 	ATTACK_BUTTON = 3,
 	MAGIC_BUTTON = 4,
-	ITEMS_BUTTON = 5
+	ITEMS_BUTTON = 5,
+	LEARN_BUTTON = 6, // User can click on this to learn more about the move they selected
+	GO_BUTTON = 7 // It's more like a "submit" button, but I wanted to save space on the UI - Naoreen
 };
 
 struct BattleMenu {
@@ -286,7 +288,9 @@ enum class TEXTURE_ASSET_ID {
 	BATTLE_MENU_BUTTON_ATTACK = BATTLE_MENU_TEXT_AREA + 1,
 	BATTLE_MENU_BUTTON_MAGIC = BATTLE_MENU_BUTTON_ATTACK + 1,
 	BATTLE_MENU_BUTTON_ITEMS = BATTLE_MENU_BUTTON_MAGIC + 1,
-	TEXTURE_COUNT = BATTLE_MENU_BUTTON_ITEMS + 1
+	BATTLE_MENU_BUTTON_LEARN = BATTLE_MENU_BUTTON_ITEMS + 1,
+	BATTLE_MENU_BUTTON_GO = BATTLE_MENU_BUTTON_LEARN + 1,
+	TEXTURE_COUNT = BATTLE_MENU_BUTTON_GO + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

@@ -257,6 +257,18 @@ void WorldSystem::drawBattleWindow() {
 	Motion& items_button_motion = registry.motions.get(battle_menu_button_items);
 	items_button_motion.scale.x = 104 * 2.5;
 	items_button_motion.scale.y = 26 * 2.5;
+
+	vec2 LEARN_BUTTON_POSITION = { 224 * 5, 132 * 5 };
+	battle_menu_button_learn = createBattleMenuItem(renderer, LEARN_BUTTON_POSITION, BattleMenuItemType::LEARN_BUTTON, TEXTURE_ASSET_ID::BATTLE_MENU_BUTTON_LEARN);
+	Motion& learn_button_motion = registry.motions.get(battle_menu_button_learn);
+	learn_button_motion.scale.x = 18 * 5;
+	learn_button_motion.scale.y = 13 * 5;
+
+	vec2 GO_BUTTON_POSITION = { 224 * 5, 132 * 5 + 73 };
+	battle_menu_button_go = createBattleMenuItem(renderer, GO_BUTTON_POSITION, BattleMenuItemType::GO_BUTTON, TEXTURE_ASSET_ID::BATTLE_MENU_BUTTON_GO);
+	Motion& go_button_motion = registry.motions.get(battle_menu_button_go);
+	go_button_motion.scale.x = 18 * 5;
+	go_button_motion.scale.y = 13 * 5;
 }
 
 void WorldSystem::destroyBattleWindow() {
