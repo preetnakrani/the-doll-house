@@ -69,6 +69,7 @@ private:
     Entity battle_doll;
     Entity battle_enemy;
 	Entity battle_menu_button_area;
+	Entity battle_menu_text_area;
 	Entity battle_menu_button_attack;
 	Entity battle_menu_button_magic;
 	Entity battle_menu_button_items;

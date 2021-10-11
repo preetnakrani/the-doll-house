@@ -80,6 +80,7 @@ Entity createBattleMenuItem(RenderSystem* renderer, vec2 pos, BattleMenuItemType
     auto entity = Entity();
     Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
     registry.meshPtrs.emplace(entity, &mesh);
+
     Motion& motion = registry.motions.emplace(entity);
     motion.dir = Direction::DOWN;
     motion.position = pos;

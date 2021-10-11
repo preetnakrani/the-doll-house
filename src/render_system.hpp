@@ -52,6 +52,7 @@ class RenderSystem {
             textures_path("help_battleInfo.png"),
             textures_path("battle_screen_1.png"),
 			textures_path("battle_menu_button_area.png"),
+			textures_path("battle_menu_text_area.png"),
 			textures_path("battle_menu_button_attack.png"),
 			textures_path("battle_menu_button_magic.png"),
 			textures_path("battle_menu_button_items.png"),
