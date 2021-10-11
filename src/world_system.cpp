@@ -170,22 +170,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
     }
 
-
-	//hardcoded for now while we figure out save/load
-	createWallBlock({ 50.f, 150.f });
-	createWallBlock({ 150.f, 150.f });
-	createWallBlock({ 250.f, 150.f });
-	createWallBlock({ 350.f, 150.f });
-	createWallBlock({ 450.f, 150.f });
-	createWallBlock({ 550.f, 150.f });
-	createWallBlock({ 650.f, 150.f });
-	createWallBlock({ 750.f, 150.f });
-	createWallBlock({ 850.f, 150.f });
-	createWallBlock({ 950.f, 150.f });
-	createWallBlock({ 1050.f, 150.f });
-	createWallBlock({ 1150.f, 150.f });
-	createWallBlock({ 1250.f, 150.f });
-
 	return true;
 }
 
@@ -224,6 +208,24 @@ void WorldSystem::restart_game() {
     helpScreen = createHelpWindow(renderer, { screen_width / 2.f, screen_height / 2.f });
 	Motion& help_motion = registry.motions.get(helpScreen);
 	help_motion.scale = help_motion.scale * float(screen_width / 8);
+
+
+
+	//hardcoded for now while we figure out save/load
+	createWallBlock({ 50.f, 150.f });
+	createWallBlock({ 150.f, 150.f });
+	createWallBlock({ 250.f, 150.f });
+	createWallBlock({ 350.f, 150.f });
+	createWallBlock({ 450.f, 150.f });
+	createWallBlock({ 550.f, 150.f });
+	createWallBlock({ 650.f, 150.f });
+	createWallBlock({ 750.f, 150.f });
+	createWallBlock({ 850.f, 150.f });
+	createWallBlock({ 950.f, 150.f });
+	createWallBlock({ 1050.f, 150.f });
+	createWallBlock({ 1150.f, 150.f });
+	createWallBlock({ 1250.f, 150.f });
+
 }
 
 // Compute collisions between entities
@@ -253,15 +255,15 @@ void WorldSystem::handle_collisions() {
 				motion.velocity = vec2(0.f, 0.f);
 
 				if (motion.dir == Direction::UP) {
-					motion.position = vec2(motion.position[0], motion.position[1] + 0.05f);
+					motion.position = vec2(motion.position[0], motion.position[1] + 0.07f);
 				} else if (motion.dir == Direction::RIGHT) {
-					motion.position = vec2(motion.position[0] - 0.05f, motion.position[1]);
+					motion.position = vec2(motion.position[0] - 0.07f, motion.position[1]);
 
 				} else if (motion.dir == Direction::DOWN) {
-					motion.position = vec2(motion.position[0], motion.position[1] - 0.05f);
+					motion.position = vec2(motion.position[0], motion.position[1] - 0.07f);
 
 				} else if (motion.dir == Direction::LEFT) {
-					motion.position = vec2(motion.position[0] + 0.05f, motion.position[1]);
+					motion.position = vec2(motion.position[0] + 0.07f, motion.position[1]);
 
 				}
 			}
