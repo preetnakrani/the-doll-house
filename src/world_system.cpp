@@ -314,6 +314,21 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
         TutorialTimer &tutorialTimer = registry.tutorialTimer.get(tutorialScreen);
         escapeTutorial(tutorialTimer.tutorialCompleted);
     }
+    // press return key to progress tutorial faster
+    if (game.state == GameState::TUTORIAL && key == GLFW_KEY_ENTER && action == GLFW_PRESS) {
+        RenderRequest& rr = registry.renderRequests.get(tutorialScreen);
+        TutorialTimer &tutorialTimer = registry.tutorialTimer.get(tutorialScreen);
+        float& time = tutorialTimer.timePerSprite;
+        int& index = tutorialTimer.tutorialIndex;
+        bool& isComplete = tutorialTimer.tutorialCompleted;
+        if (index == 4) {
+            escapeTutorial(isComplete);
+        } else {
+            index++;
+            rr.used_texture = tutorialScreenOptions[index];
+            tutorialTimer.timePerSprite = 7000.f;
+            }
+        }
 
     // change the helpscreen display, n to move left and m to move right
     if (registry.helpScreens.has(helpScreen)) {
@@ -439,13 +454,26 @@ void WorldSystem::on_mouse_click(int button, int action, int mods)
             std::cout << xPos << std::endl;
             std::cout << yPos << std::endl;
             // clicked Restart Game
-            if (470 < xPos && xPos< 730 && 280 < yPos && yPos < 330) {
+            if (460 < xPos && xPos< 730 && 320 < yPos && yPos < 360) {
                 closeMenuOverlayScreen();
                 restart_game();
             }
             // clicked Exit Game
-            if (470 < xPos && xPos< 730 && 480 < yPos && yPos < 520) {
+            if (460 < xPos && xPos< 730 && 430 < yPos && yPos < 470) {
+                // close menu overlay
+                // change index to 0
+                // change gamestate to tutorial
                 closeMenuOverlayScreen();
+                registry.renderRequests.insert(
+                        tutorialScreen,
+                        { TEXTURE_ASSET_ID::TUTORIAL_ONE,
+                          EFFECT_ASSET_ID::HELP_SCREEN,
+                          GEOMETRY_BUFFER_ID::HELP_SCREEN});
+                TutorialTimer& tutorial = registry.tutorialTimer.get(tutorialScreen);
+                tutorial.tutorialCompleted = false;
+                tutorial.tutorialIndex = 0;
+                Game& game = registry.game.get(player_doll);
+                game.state = GameState::TUTORIAL;
             }
 
         }
