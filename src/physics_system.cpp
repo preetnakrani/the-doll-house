@@ -29,16 +29,18 @@ bool collides(const Motion& motion1, const Motion& motion2)
 void checkFakeCollision(Entity e) {
 	ComponentContainer<Motion>& motion_container = registry.motions;
 	Motion m = registry.motions.get(e);
+	std::vector<Entity> entities = registry.motions.entities;
+
 	for (uint i = 0; i < motion_container.components.size(); i++)
 	{
 		Motion& motion_i = motion_container.components[i];
-		if (motion_i.collision_proof == 1) {
+		if (motion_i.collision_proof == 1 || (unsigned int)entities[i] == (unsigned int)e) {
 			continue;
 		}
 
-		if (collides(motion_i, registry.motions.get(e)))
+		if (collides(motion_i, m))
 		{
-			registry.remove_all_components_of(e);
+;			registry.remove_all_components_of(e);
 			return;
 		}
 	}
