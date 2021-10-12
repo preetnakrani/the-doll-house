@@ -31,10 +31,18 @@ bool RenderSystem::init(int width, int height, GLFWwindow* window_arg)
 	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
 	gl_has_errors();
 
-	int fb_width, fb_height;
-	glfwGetFramebufferSize(window, &fb_width, &fb_height);
-	screen_scale = static_cast<float>(fb_width) / width;
-	(int)height; // dummy to avoid warning
+//	int fb_width, fb_height;
+//	glfwGetFramebufferSize(window, &fb_width, &fb_height);
+//	screen_scale = static_cast<float>(fb_width) / width;
+//	(int)height; // dummy to avoid warning
+    int frame_buffer_width_px, frame_buffer_height_px;
+    glfwGetFramebufferSize(window, &frame_buffer_width_px, &frame_buffer_height_px);  // Note, this will be 2x the resolution given to glfwCreateWindow on retina displays
+    if (frame_buffer_width_px != window_width_px)
+    {
+        printf("WARNING: retina display! https://stackoverflow.com/questions/36672935/why-retina-screen-coordinate-value-is-twice-the-value-of-pixel-value\n");
+        printf("glfwGetFramebufferSize = %d,%d\n", frame_buffer_width_px, frame_buffer_height_px);
+        printf("window width_height = %d,%d\n", window_width_px, window_height_px);
+    }
 
 	// We are not really using VAO's but without at least one bound we will crash in
 	// some systems.
@@ -183,6 +191,21 @@ void RenderSystem::initializeGlGeometryBuffers()
 	// Counterclockwise as it's the default opengl front winding direction.
 	const std::vector<uint16_t> screen_indices = { 0, 1, 2 };
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE, screen_vertices, screen_indices);
+
+	// geometry buffer for help screen
+    std::vector<TexturedVertex> help_screen_vertices(4);
+    help_screen_vertices[0].position = { -1.f/2, +1.f/4, 0.f };
+    help_screen_vertices[1].position = { +1.f/2, +1.f/4, 0.f };
+    help_screen_vertices[2].position = { +1.f/2, -1.f/4, 0.f };
+    help_screen_vertices[3].position = { -1.f/2, -1.f/4, 0.f };
+    help_screen_vertices[0].texcoord = { 0.f, 1.f };
+    help_screen_vertices[1].texcoord = { 1.f, 1.f };
+    help_screen_vertices[2].texcoord = { 1.f, 0.f };
+    help_screen_vertices[3].texcoord = { 0.f, 0.f };
+
+    // Counterclockwise as it's the default opengl front winding direction.
+    const std::vector<uint16_t> help_screen_indices = { 0, 3, 1, 1, 3, 2 };
+    bindVBOandIBO(GEOMETRY_BUFFER_ID::HELP_SCREEN, help_screen_vertices, help_screen_indices);
 }
 
 RenderSystem::~RenderSystem()

@@ -20,7 +20,6 @@ class WorldSystem
 {
 public:
 	WorldSystem();
-    PhysicsSystem s;
 	// Creates a window
 	GLFWwindow* create_window(int width, int height);
 
@@ -40,13 +39,44 @@ public:
 	bool is_over()const;
 
     void setRenderRequests();
+	void progressTutorial(float elapsed_ms_since_last_update);
+	void escapeTutorial(bool isComplete);
+
+	void swap_help_screen();
+
+	// Handles removing components of battle window, should only be called by BattleSystem
+	void destroyBattleWindow();
+	void attach(std::function<void(Entity)> fn);
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 pos);
-
+	void on_mouse_click(int button, int action, int mods);
+	void openMenuOverlayScreen();
+	void closeMenuOverlayScreen();
 	// restart level
 	void restart_game();
+
+	// creates the battle window and all its UI elements
+	void drawBattleWindow();
+
+	// helper function that scales UI assets
+	void scaleUIAsset(Entity entity, vec2 originalDimensions, float scaleFactor);
+
+	// handles a button click from the battle screen
+	void handleBattleScreenButtonClick(BattleMenuItemType button_clicked);
+
+	// clears the player move options from the battle menu's text area
+	void clearBattlePlayerMoveButtons();
+
+	// returns which button was clicked on the battle screen, if any
+	BattleMenuItemType getBattleScreenButtonClicked(double x, double y);
+
+	// helper function that returns whether a mouse click on coordinates x, y occured in a given (rectangular) region
+	// where top_left_coords is the coordinate of the region's top left corner
+	bool isClickInRegion(double x, double y, vec2 top_left_coords, double height, double width);
+
+	void getScreenSize();
 
 	// OpenGL window handle
 	GLFWwindow* window;
@@ -54,6 +84,7 @@ private:
 	// Number of fish eaten by the salmon, displayed in the window title
 	unsigned int points;
 
+	std::vector<std::function<void(Entity)>> callbacks;
 	// Game state
 	RenderSystem* renderer;
 	float current_speed;
@@ -62,7 +93,25 @@ private:
 	Entity player_doll;
 	Entity background;
 	Entity helpScreen;
+	Entity menuButton;
+	Entity menuOverlay;
+	Entity tutorialScreen;
 
+	// Entities related to rendering battle screen
+    Entity battle_screen;
+    Entity battle_doll;
+    Entity battle_enemy;
+	Entity battle_menu_button_area;
+	Entity battle_menu_text_area;
+	Entity battle_menu_button_attack;
+	Entity battle_menu_button_magic;
+	Entity battle_menu_button_items;
+	Entity battle_menu_button_learn;
+	Entity battle_menu_button_go;
+	Entity punch_button;
+
+	// Other variables related to battle screen
+	BattleMenuItemType selected_move_menu; // Either attack, magic, or items
 
 	// music references
 	Mix_Music* background_music;
