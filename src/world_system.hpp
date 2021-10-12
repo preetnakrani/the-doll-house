@@ -58,6 +58,12 @@ private:
 	// helper function that scales UI assets
 	void scaleUIAsset(Entity entity, vec2 originalDimensions, float scaleFactor);
 
+	// handles a button click from the battle screen
+	void handleBattleScreenButtonClick(BattleMenuItemType button_clicked);
+
+	// clears the player move options from the battle menu's text area
+	void clearBattlePlayerMoveButtons();
+
 	// returns which button was clicked on the battle screen, if any
 	BattleMenuItemType getBattleScreenButtonClicked(double x, double y);
 
@@ -93,6 +99,10 @@ private:
 	Entity battle_menu_button_items;
 	Entity battle_menu_button_learn;
 	Entity battle_menu_button_go;
+	Entity punch_button;
+
+	// Other variables related to battle screen
+	BattleMenuItemType selected_move_menu; // Either attack, magic, or items
 
 	// music references
 	Mix_Music* background_music;

@@ -76,6 +76,28 @@ struct AttackList {
 		attack.damage = damage;
 		available_attacks.push_back(attack);
 	}
+
+	bool hasAttack(std::string name) {
+		// https://stackoverflow.com/questions/15517991/search-a-vector-of-objects-by-object-attribute
+		auto iterator = find_if(available_attacks.begin(), available_attacks.end(), [&name](const Attack& attack) {
+			return attack.name == name;
+		});
+
+		return iterator != available_attacks.end();
+	}
+
+	Attack getAttack(std::string name) {
+		auto iterator = find_if(available_attacks.begin(), available_attacks.end(), [&name](const Attack& attack) {
+			return attack.name == name;
+			});
+
+		if (iterator != available_attacks.end()) {
+			return *iterator;
+		}
+		else {
+			return {};
+		}
+	}
 };
 
 enum class MagicType {
@@ -142,7 +164,7 @@ struct GameItem {
 // Idea - could be used to apply to the entity who has the currently active turn
 struct Turn {
 	// float timer = 0;
-	int key;
+	std::string move;
 };
 
 // Data structure for toggling debug mode
@@ -218,7 +240,8 @@ enum class BattleMenuItemType {
 	MAGIC_BUTTON = 4,
 	ITEMS_BUTTON = 5,
 	LEARN_BUTTON = 6, // User can click on this to learn more about the move they selected
-	GO_BUTTON = 7 // It's more like a "submit" button, but I wanted to save space on the UI - Naoreen
+	GO_BUTTON = 7, // It's more like a "submit" button, but I wanted to save space on the UI - Naoreen
+	ATTACK_PUNCH = 8,
 };
 
 struct BattleMenu {
@@ -227,6 +250,10 @@ struct BattleMenu {
 
 struct BattleMenuButton {
 	BattleMenuItemType button_type;
+};
+
+struct BattleMenuPlayerMove {
+	BattleMenuItemType move_type;
 };
 
 // Mesh data structure for storing vertex and index buffers
@@ -291,7 +318,9 @@ enum class TEXTURE_ASSET_ID {
 	BATTLE_MENU_BUTTON_ITEMS = BATTLE_MENU_BUTTON_MAGIC + 1,
 	BATTLE_MENU_BUTTON_LEARN = BATTLE_MENU_BUTTON_ITEMS + 1,
 	BATTLE_MENU_BUTTON_GO = BATTLE_MENU_BUTTON_LEARN + 1,
-	TEXTURE_COUNT = BATTLE_MENU_BUTTON_GO + 1
+	ATTACK_OPTIONS_PUNCH = BATTLE_MENU_BUTTON_GO + 1,
+	ATTACK_OPTIONS_PUNCH_SELECTED = ATTACK_OPTIONS_PUNCH + 1,
+	TEXTURE_COUNT = ATTACK_OPTIONS_PUNCH_SELECTED + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

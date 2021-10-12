@@ -103,6 +103,9 @@ Entity createBattleMenuItem(RenderSystem* renderer, vec2 pos, BattleMenuItemType
         BattleMenuButton& battle_menu_button = registry.battleMenuButtons.emplace(entity);
         battle_menu_button.button_type = item_type;
     }
+    else if (item_type == BattleMenuItemType::ATTACK_PUNCH) {
+        BattleMenuPlayerMove& player_move = registry.battleMenuPlayerMoves.emplace(entity);
+    }
 
     registry.renderRequests.insert(
         entity,

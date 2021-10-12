@@ -36,6 +36,7 @@ public:
     ComponentContainer<BattleEnemy> battleEnemies;
 	ComponentContainer<BattleMenu> battleMenus;
 	ComponentContainer<BattleMenuButton> battleMenuButtons;
+	ComponentContainer<BattleMenuPlayerMove> battleMenuPlayerMoves;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
@@ -66,6 +67,7 @@ public:
         registry_list.push_back(&battleEnemies);
 		registry_list.push_back(&battleMenus);
 		registry_list.push_back(&battleMenuButtons);
+		registry_list.push_back(&battleMenuPlayerMoves);
 	}
 
 	void clear_all_components() {

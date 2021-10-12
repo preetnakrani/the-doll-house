@@ -227,6 +227,7 @@ void WorldSystem::restart_game() {
 }
 
 void WorldSystem::drawBattleWindow() {
+	selected_move_menu = BattleMenuItemType::NONE;
 	battle_screen = createBattleWindow(renderer, { SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f });
     battle_doll = createBattleDoll(renderer, { SCREEN_WIDTH / 3.f, SCREEN_HEIGHT / 2.f });
     battle_enemy = createBattleEnemy(renderer, { SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f });
@@ -253,14 +254,15 @@ void WorldSystem::drawBattleWindow() {
 	vec2 ITEMS_BUTTON_POSITION = { 32 * SCALE, 132 * SCALE + 73 };
 	battle_menu_button_items = createBattleMenuItem(renderer, ITEMS_BUTTON_POSITION, BattleMenuItemType::ITEMS_BUTTON, TEXTURE_ASSET_ID::BATTLE_MENU_BUTTON_ITEMS);
 	scaleUIAsset(battle_menu_button_items, { 52, 13 }, 5);
+	
+	// Commented these out for now - implementation of the buttons below is a TODO
+	//vec2 LEARN_BUTTON_POSITION = { 224 * SCALE, 132 * SCALE };
+	//battle_menu_button_learn = createBattleMenuItem(renderer, LEARN_BUTTON_POSITION, BattleMenuItemType::LEARN_BUTTON, TEXTURE_ASSET_ID::BATTLE_MENU_BUTTON_LEARN);
+	//scaleUIAsset(battle_menu_button_learn, { 18, 13 }, 5);
 
-	vec2 LEARN_BUTTON_POSITION = { 224 * SCALE, 132 * SCALE };
-	battle_menu_button_learn = createBattleMenuItem(renderer, LEARN_BUTTON_POSITION, BattleMenuItemType::LEARN_BUTTON, TEXTURE_ASSET_ID::BATTLE_MENU_BUTTON_LEARN);
-	scaleUIAsset(battle_menu_button_learn, { 18, 13 }, 5);
-
-	vec2 GO_BUTTON_POSITION = { 224 * SCALE, 132 * SCALE + 73 };
-	battle_menu_button_go = createBattleMenuItem(renderer, GO_BUTTON_POSITION, BattleMenuItemType::GO_BUTTON, TEXTURE_ASSET_ID::BATTLE_MENU_BUTTON_GO);
-	scaleUIAsset(battle_menu_button_go, { 18, 13 }, SCALE);
+	//vec2 GO_BUTTON_POSITION = { 224 * SCALE, 132 * SCALE + 73 };
+	//battle_menu_button_go = createBattleMenuItem(renderer, GO_BUTTON_POSITION, BattleMenuItemType::GO_BUTTON, TEXTURE_ASSET_ID::BATTLE_MENU_BUTTON_GO);
+	//scaleUIAsset(battle_menu_button_go, { 18, 13 }, SCALE);
 }
 
 void WorldSystem::scaleUIAsset(Entity entity, vec2 originalDimensions, float scaleFactor) {
@@ -271,6 +273,7 @@ void WorldSystem::scaleUIAsset(Entity entity, vec2 originalDimensions, float sca
 }
 
 void WorldSystem::destroyBattleWindow() {
+	clearBattlePlayerMoveButtons();
 	registry.remove_all_components_of(battle_screen);
 	registry.remove_all_components_of(battle_doll);
 	registry.remove_all_components_of(battle_enemy);
@@ -410,16 +413,6 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		printf("Current speed = %f\n", current_speed);
 	}
 	current_speed = fmax(0.f, current_speed);
-
-	// Temporary logic for keyboard-input battles
-	Game& game = registry.game.get(player_doll);
-	if (game.state == GameState::BATTLE) {
-		if (action == GLFW_PRESS && key == GLFW_KEY_SPACE) {
-			registry.turns.emplace(player_doll);
-			Turn& turn = registry.turns.get(player_doll);
-			turn.key = key; //FIX ME -> use constructor
-		}
-	}
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
@@ -428,10 +421,13 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 
 void WorldSystem::on_mouse_click(int button, int action, int mods)
 {
-	if (registry.game.get(player_doll).state == GameState::BATTLE) {
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && registry.game.get(player_doll).state == GameState::BATTLE) {
 		double xPos, yPos;
 		glfwGetCursorPos(window, &xPos, &yPos);
 		BattleMenuItemType button_clicked = getBattleScreenButtonClicked(xPos, yPos);	
+		if (button_clicked != BattleMenuItemType::NONE) {
+			handleBattleScreenButtonClick(button_clicked);
+		}
 	}
 }
 
@@ -449,7 +445,44 @@ void WorldSystem::setRenderRequests() {
             rr.used_texture = TEXTURE_ASSET_ID::DOLL_LEFT;
         }
     }
+}
 
+void WorldSystem::handleBattleScreenButtonClick(BattleMenuItemType button_clicked) {
+	assert(registry.game.get(player_doll).state == GameState::BATTLE);
+
+	if (button_clicked == BattleMenuItemType::ATTACK_BUTTON) {
+		selected_move_menu = button_clicked;
+		float SCALE = SCREEN_HEIGHT / 160;
+
+		AttackList& player_attacks = registry.attackLists.get(player_doll);
+		if (player_attacks.hasAttack("PUNCH") && !registry.battleMenuPlayerMoves.has(punch_button)) {
+			vec2 PUNCH_BUTTON_POSITION = { 90 * SCALE, 132 * SCALE - 73 };
+			punch_button = createBattleMenuItem(renderer, PUNCH_BUTTON_POSITION, BattleMenuItemType::ATTACK_PUNCH, TEXTURE_ASSET_ID::ATTACK_OPTIONS_PUNCH);
+			scaleUIAsset(punch_button, { 37, 11 }, SCALE);
+		}		
+	}
+	else if (button_clicked == BattleMenuItemType::MAGIC_BUTTON || button_clicked == BattleMenuItemType::ITEMS_BUTTON) {
+		selected_move_menu = button_clicked;
+		// Just have it clear the menu for now
+		clearBattlePlayerMoveButtons();
+	}
+	else if (selected_move_menu == BattleMenuItemType::ATTACK_BUTTON && button_clicked == BattleMenuItemType::ATTACK_PUNCH) {
+		// Make the button look selected
+		RenderRequest& rr = registry.renderRequests.get(punch_button);
+		rr.used_texture = TEXTURE_ASSET_ID::ATTACK_OPTIONS_PUNCH_SELECTED;
+
+		// Issue attack - in future we may want to add an additional step (using the "Go" button)
+		registry.turns.emplace(player_doll);
+		Turn& turn = registry.turns.get(player_doll);
+		turn.move = "PUNCH";
+	}
+}
+
+void WorldSystem::clearBattlePlayerMoveButtons() {
+	assert(registry.game.get(player_doll).state == GameState::BATTLE);
+	if (registry.battleMenuPlayerMoves.has(punch_button)) {
+		registry.remove_all_components_of(punch_button);
+	}
 }
 
 BattleMenuItemType WorldSystem::getBattleScreenButtonClicked(double x, double y) {
@@ -465,29 +498,27 @@ BattleMenuItemType WorldSystem::getBattleScreenButtonClicked(double x, double y)
 	const vec2 ITEMS_BUTTON_COORDS = { 33, 703 };
 	const vec2 LEARN_BUTTON_COORDS = { 1075, 631 };
 	const vec2 GO_BUTTON_COORDS = { 1075, 703 };
+	const vec2 PUNCH_BUTTON_COORDS = { 364, 569 };
 
 	if (isClickInRegion(x, y, ACTION_BUTTON_COORDS, BUTTON_HEIGHT, BUTTON_WIDTH_LARGER)) {
-		printf("ACTION BUTTON CLICKED");
 		return BattleMenuItemType::ATTACK_BUTTON;
 	}
 	else if (isClickInRegion(x, y, MAGIC_BUTTON_COORDS, BUTTON_HEIGHT, BUTTON_WIDTH_LARGER)) {
-		printf("MAGIC BUTTON CLICKED");
 		return BattleMenuItemType::MAGIC_BUTTON;
 	}
 	else if (isClickInRegion(x, y, ITEMS_BUTTON_COORDS, BUTTON_HEIGHT, BUTTON_WIDTH_LARGER)) {
-		printf("ITEMS BUTTON CLICKED");
 		return BattleMenuItemType::ITEMS_BUTTON;
 	}
 	else if (isClickInRegion(x, y, LEARN_BUTTON_COORDS, BUTTON_HEIGHT, BUTTON_WIDTH_SMALLER)) {
-		printf("LEARN BUTTON CLICKED");
 		return BattleMenuItemType::LEARN_BUTTON;
 	}
 	else if (isClickInRegion(x, y, GO_BUTTON_COORDS, BUTTON_HEIGHT, BUTTON_WIDTH_SMALLER)) {
-		printf("GO BUTTON CLICKED");
 		return BattleMenuItemType::GO_BUTTON;
 	}
+	else if (selected_move_menu == BattleMenuItemType::ATTACK_BUTTON && isClickInRegion(x, y, PUNCH_BUTTON_COORDS, 37, 174)) {
+		return BattleMenuItemType::ATTACK_PUNCH;
+	}
 	else {
-		printf("CLICK OUTSIDE REGION");
 		return BattleMenuItemType::NONE;
 	}
 }

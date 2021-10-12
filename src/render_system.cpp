@@ -387,7 +387,7 @@ void RenderSystem::draw()
 		if (registry.battleMenus.has(entity)) {
 			drawOverlayWindow(entity, projection_2D);
 		}
-		if (registry.battleMenuButtons.has(entity)) {
+		if (registry.battleMenuButtons.has(entity) || registry.battleMenuPlayerMoves.has(entity)) {
 			drawOverlayWindow(entity, projection_2D);
 		}
 	}

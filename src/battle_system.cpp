@@ -32,14 +32,12 @@ void BattleSystem::handle_battle() {
     Health& enemy_health = registry.health.get(current_enemies[0]);
     if (!registry.turns.entities.empty()) {
         Turn& player_turn = registry.turns.get(player_doll);
-        if (player_turn.key == GLFW_KEY_SPACE) {
-            AttackList& player_attacks = registry.attackLists.get(player_doll);
-            Attack& chosen_attack = player_attacks.available_attacks.at(0); // grab first one for now - change soon - Naoreen
-            enemy_health.healthDecrement = chosen_attack.damage;
-            enemy_health.health -= enemy_health.healthDecrement;
-            printf("You used the attack: %s", chosen_attack.name.c_str());
-            printf("! The enemy now has health : %d\n",enemy_health.health);
-        }
+        AttackList& player_attacks = registry.attackLists.get(player_doll);
+        Attack chosen_attack = player_attacks.getAttack("PUNCH"); // grab first one for now - change soon - Naoreen
+        enemy_health.healthDecrement = chosen_attack.damage;
+        enemy_health.health -= enemy_health.healthDecrement;
+        printf("You used the attack: %s", chosen_attack.name.c_str());
+        printf("! The enemy now has health : %d\n",enemy_health.health);
 
         // Done processing the turn, so remove component from the player
         registry.turns.remove(player_doll);
