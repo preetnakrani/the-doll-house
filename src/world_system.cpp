@@ -570,8 +570,8 @@ void WorldSystem::on_mouse_click(int button, int action, int mods)
         }
         if (game.state == GameState::MENUOVERLAY) {
             // do actions associated with the overlay
-            std::cout << xPos << std::endl;
-            std::cout << yPos << std::endl;
+            // std::cout << xPos << std::endl;
+            // std::cout << yPos << std::endl;
             // clicked Restart Game
             if (460 < xPos && xPos< 730 && 320 < yPos && yPos < 360) {
                 closeMenuOverlayScreen();
