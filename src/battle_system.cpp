@@ -33,7 +33,7 @@ void BattleSystem::handle_battle() {
     if (!registry.turns.entities.empty()) {
         Turn& player_turn = registry.turns.get(player_doll);
         AttackList& player_attacks = registry.attackLists.get(player_doll);
-        Attack chosen_attack = player_attacks.getAttack("PUNCH"); // grab first one for now - change soon - Naoreen
+        Attack chosen_attack = player_attacks.getAttack(player_turn.move);
         enemy_health.healthDecrement = chosen_attack.damage;
         enemy_health.health -= enemy_health.healthDecrement;
         printf("You used the attack: %s", chosen_attack.name.c_str());
