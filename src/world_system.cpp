@@ -159,14 +159,17 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
                 vec2(50.f + uniform_dist(rng) * (screen_width - 100.f),
 					50.f + screen_height / 3 + uniform_dist(rng) * (2 * screen_height/3 - 100.f));
 
-        vec2 bounding = vec2(50.f, 50.f);
+        vec2 bounding = vec2(100.f, 100.f);
 		Entity new_enemy = createEnemy(renderer, position);
 		registry.motions.get(new_enemy).position = position;
 		registry.motions.get(new_enemy).scale = bounding;
-		registry.motions.get(new_enemy).scale = registry.motions.get(new_enemy).scale * float(screen_width / 8);
 
 		for (std::function<void(Entity)> fn : callbacks) {
 			fn(new_enemy);
+		}
+		
+		if (registry.motions.has(new_enemy)) {
+			registry.motions.get(new_enemy).scale = vec2(64.f, 64.f);
 		}
     }
 
