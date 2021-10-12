@@ -400,11 +400,9 @@ mat3 RenderSystem::createProjectionMatrix()
     float left = 0.f;
     float top = 0.f;
 
-    int w, h;
-    glfwGetFramebufferSize(window, &w, &h);
     gl_has_errors();
-    float right = (float)w / screen_scale;
-    float bottom = (float)h / screen_scale;
+    float right = (float) window_width_px;
+    float bottom = (float) window_height_px;
 
     float sx = 2.f / (right - left);
     float sy = 2.f / (top - bottom);

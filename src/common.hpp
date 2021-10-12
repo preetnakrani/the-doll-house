@@ -34,6 +34,9 @@ inline std::string mesh_path(const std::string& name) {return data_path() + "/me
 #define M_PI 3.14159265358979323846f
 #endif
 
+const int window_width_px = 1200;
+const int window_height_px = 800;
+
 // The 'Transform' component handles transformations passed to the Vertex shader
 // (similar to the gl Immediate mode equivalent, e.g., glTranslate()...)
 // We recomment making all components non-copyable by derving from ComponentNonCopyable

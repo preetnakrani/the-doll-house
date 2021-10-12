@@ -132,9 +132,9 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 	fprintf(stderr, "Loaded music\n");
 
     int screen_width, screen_height;
-    glfwGetFramebufferSize(window, &screen_width, &screen_height);
-    SCREEN_HEIGHT = screen_height;
-    SCREEN_WIDTH = screen_width;
+//    glfwGetFramebufferSize(window, &screen_width, &screen_height);
+    SCREEN_HEIGHT = window_height_px;
+    SCREEN_WIDTH = window_width_px;
 
 	// Set all states to default
     restart_game();
@@ -154,9 +154,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
     }
 	// Get the screen dimensions
 	int screen_width, screen_height;
-	glfwGetFramebufferSize(window, &screen_width, &screen_height);
-    SCREEN_HEIGHT = screen_height;
-    SCREEN_WIDTH = screen_width;
+    screen_height = window_height_px;
+    screen_width = window_width_px;
+//	glfwGetFramebufferSize(window, &screen_width, &screen_height);
+    SCREEN_HEIGHT = window_height_px;
+    SCREEN_WIDTH = window_width_px;
 
 	// Updating window title with points
 	std::stringstream title_ss;
@@ -263,7 +265,9 @@ void WorldSystem::restart_game() {
 
 	// create a background
 	int screen_width, screen_height;
-	glfwGetFramebufferSize(window, &screen_width, &screen_height);
+//	glfwGetFramebufferSize(window, &screen_width, &screen_height);
+    screen_height = window_height_px;
+    screen_width = window_width_px;
 	background = createBackground(renderer, { screen_width / 2.f, screen_height / 2.f });
 
 	// Create a new doll
@@ -279,7 +283,7 @@ void WorldSystem::restart_game() {
 	help_motion.scale = help_motion.scale * float(screen_width / 4);
 
 	// create a clickable menu button
-	menuButton = createMenuButton(renderer, { screen_width - 100, screen_width / 40 });
+	menuButton = createMenuButton(renderer, { screen_width - 50, 25 });
     Motion& menuButton_motion = registry.motions.get(menuButton);
     menuButton_motion.scale = menuButton_motion.scale * float(screen_width / 16);
 
