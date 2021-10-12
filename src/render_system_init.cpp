@@ -183,6 +183,21 @@ void RenderSystem::initializeGlGeometryBuffers()
 	// Counterclockwise as it's the default opengl front winding direction.
 	const std::vector<uint16_t> screen_indices = { 0, 1, 2 };
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE, screen_vertices, screen_indices);
+
+	// geometry buffer for help screen
+    std::vector<TexturedVertex> help_screen_vertices(4);
+    help_screen_vertices[0].position = { -1.f/2, +1.f/4, 0.f };
+    help_screen_vertices[1].position = { +1.f/2, +1.f/4, 0.f };
+    help_screen_vertices[2].position = { +1.f/2, -1.f/4, 0.f };
+    help_screen_vertices[3].position = { -1.f/2, -1.f/4, 0.f };
+    help_screen_vertices[0].texcoord = { 0.f, 1.f };
+    help_screen_vertices[1].texcoord = { 1.f, 1.f };
+    help_screen_vertices[2].texcoord = { 1.f, 0.f };
+    help_screen_vertices[3].texcoord = { 0.f, 0.f };
+
+    // Counterclockwise as it's the default opengl front winding direction.
+    const std::vector<uint16_t> help_screen_indices = { 0, 3, 1, 1, 3, 2 };
+    bindVBOandIBO(GEOMETRY_BUFFER_ID::HELP_SCREEN, help_screen_vertices, help_screen_indices);
 }
 
 RenderSystem::~RenderSystem()

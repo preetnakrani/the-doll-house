@@ -12,6 +12,10 @@
 #include "world_system.hpp"
 #include "battle_system.hpp"
 
+#ifdef __APPLE__
+#
+#endif
+
 using Clock = std::chrono::high_resolution_clock;
 
 const int window_width_px = 1200; //* 2;
@@ -38,6 +42,13 @@ int main()
 	}
 
 	// initialize the main systems
+	// if app is running on macos, double the size of the renderer to display the entire screen.
+	//if (__APPLE__) {
+        //renderer.init(window_width_px * 2, window_height_px * 2, window);
+    //} else {
+        //renderer.init(window_width_px, window_height_px, window);
+    //}
+
 	renderer.init(window_width_px, window_height_px, window);
 	world.init(&renderer);
     battle.init(&world);

@@ -40,6 +40,10 @@ public:
 	bool is_over()const;
 
     void setRenderRequests();
+	void progressTutorial(float elapsed_ms_since_last_update);
+	void escapeTutorial(bool isComplete);
+
+	void swap_help_screen();
 
 	// Handles removing components of battle window, should only be called by BattleSystem
 	void destroyBattleWindow();
@@ -48,7 +52,8 @@ private:
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 pos);
 	void on_mouse_click(int button, int action, int mods);
-
+	void openMenuOverlayScreen();
+	void closeMenuOverlayScreen();
 	// restart level
 	void restart_game();
 
@@ -87,6 +92,9 @@ private:
 	Entity player_doll;
 	Entity background;
 	Entity helpScreen;
+	Entity menuButton;
+	Entity menuOverlay;
+	Entity tutorialScreen;
 
 	// Entities related to rendering battle screen
     Entity battle_screen;

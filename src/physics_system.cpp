@@ -30,6 +30,7 @@ bool PhysicsSystem::checkFakeCollision(vec2 position, vec2 box) {
     ComponentContainer<Motion> &motion_container = registry.motions;
     for(uint i = 0; i<motion_container.components.size(); i++)
     {
+		// Background or future collisionless exception
         Motion& motion_i = motion_container.components[i];
 		if (motion_i.collision_proof == 1) {
 			return false;

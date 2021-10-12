@@ -22,6 +22,14 @@ Entity createEnemy(RenderSystem *renderer, vec2 pos);
 
 Entity createDoll(RenderSystem *renderer, vec2 pos);
 
-Entity createBattleDoll(RenderSystem *renderer, vec2 pos);
+Entity createBattleDoll(RenderSystem* renderer, vec2 pos);
 
-Entity createBattleEnemy(RenderSystem *renderer, vec2 pos);
+Entity createBattleEnemy(RenderSystem* renderer, vec2 pos);
+
+Entity createHelpWindow(RenderSystem* renderer, vec2 pos);
+
+Entity createMenuButton(RenderSystem* renderer, vec2 pos);
+
+Entity createMenuOverlay(RenderSystem* renderer, vec2 pos);
+
+Entity createTutorial(RenderSystem* renderer, vec2 pos);
