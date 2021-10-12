@@ -26,28 +26,29 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	return false;
 }
 
-bool PhysicsSystem::checkFakeCollision(vec2 position, vec2 box) {
-    ComponentContainer<Motion> &motion_container = registry.motions;
-    for(uint i = 0; i<motion_container.components.size(); i++)
-    {
-		// Background or future collisionless exception
-        Motion& motion_i = motion_container.components[i];
+void checkFakeCollision(Entity e) {
+	ComponentContainer<Motion>& motion_container = registry.motions;
+	Motion m = registry.motions.get(e);
+	for (uint i = 0; i < motion_container.components.size(); i++)
+	{
+		Motion& motion_i = motion_container.components[i];
 		if (motion_i.collision_proof == 1) {
-			return false;
+			continue;
 		}
 
-            Motion m;
-            m.position = position;
-            m.scale = box;
-
-            if (collides(motion_i, m))
-            {
-                return true;
-            }
-    }
-    return false;
+		if (collides(motion_i, registry.motions.get(e)))
+		{
+			registry.remove_all_components_of(e);
+			return;
+		}
+	}
 
 }
+
+std::function<void(Entity)> PhysicsSystem::getCollisionFunction() {
+	return checkFakeCollision;
+}
+
 
 void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_height_px)
 {
@@ -62,7 +63,11 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 			Motion& motion = motion_registry.components[i];
 			Entity entity = motion_registry.entities[i];
 			float step_seconds = 1.0f * (elapsed_ms / 1000.f);
-			motion.position = motion.position + (motion.velocity * step_seconds);
+			// Check that step does not take player out of bounds
+			vec2 potential_pos = motion.position + (motion.velocity * step_seconds);
+			if (potential_pos[0] > 40 && potential_pos[0] < window_width_px  - 40 && potential_pos[1] > 40 && potential_pos[1] < window_height_px - 40) {
+				motion.position = motion.position + (motion.velocity * step_seconds);
+			}
 		}
 
 		// Check for collisions between all moving entities

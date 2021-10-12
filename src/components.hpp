@@ -19,6 +19,10 @@ struct CurrentEnemy {
 
 };
 
+struct Wall {
+
+};
+
 struct Health {
     int health = 0;
     int healthDecrement  = 0;

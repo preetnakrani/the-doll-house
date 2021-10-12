@@ -181,22 +181,25 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
     // Spawning new enemy
-	
-    next_enemy_spawn -= elapsed_ms_since_last_update * current_speed;
+
+	next_enemy_spawn -= elapsed_ms_since_last_update * current_speed;
     if (registry.enemies.components.size() < MAX_ENEMY && next_enemy_spawn < 0.f && registry.game.has(player_doll) && registry.game.get(player_doll).state == GameState::PLAYING ) {
         // Reset timer
-        next_enemy_spawn = (ENEMY_DELAY_MS / 2) + uniform_dist(rng) * (ENEMY_DELAY_MS / 2);
+		next_enemy_spawn = (ENEMY_DELAY_MS / 2) + uniform_dist(rng) * (ENEMY_DELAY_MS / 2);
 
         vec2 position =
                 vec2(50.f + uniform_dist(rng) * (screen_width - 100.f),
 					50.f + screen_height / 3 + uniform_dist(rng) * (2 * screen_height/3 - 100.f));
 
-        vec2 bounding = vec2(10.f, 10.f);
-        if (!s.checkFakeCollision(position, bounding)) {
-			Entity new_enemy = createEnemy(renderer, position);
-			registry.motions.get(new_enemy).scale = registry.motions.get(new_enemy).scale * float(screen_width / 8);
-			//createEnemy(renderer, position);
-        }
+        vec2 bounding = vec2(50.f, 50.f);
+		Entity new_enemy = createEnemy(renderer, position);
+		registry.motions.get(new_enemy).position = position;
+		registry.motions.get(new_enemy).scale = bounding;
+		registry.motions.get(new_enemy).scale = registry.motions.get(new_enemy).scale * float(screen_width / 8);
+
+		for (std::function<void(Entity)> fn : callbacks) {
+			fn(new_enemy);
+		}
     }
     // display the enum number that corresponds to the current state of the game
 //    Game& game = registry.game.get(player_doll);
@@ -291,6 +294,21 @@ void WorldSystem::restart_game() {
         Game& game = registry.game.get(player_doll);
         game.state = GameState::TUTORIAL;
     }
+
+	//hardcoded for now while we figure out save/load
+	createWallBlock({ 50.f, 150.f });
+	createWallBlock({ 150.f, 150.f });
+	createWallBlock({ 250.f, 150.f });
+	createWallBlock({ 350.f, 150.f });
+	createWallBlock({ 450.f, 150.f });
+	createWallBlock({ 550.f, 150.f });
+	createWallBlock({ 650.f, 150.f });
+	createWallBlock({ 750.f, 150.f });
+	createWallBlock({ 850.f, 150.f });
+	createWallBlock({ 950.f, 150.f });
+	createWallBlock({ 1050.f, 150.f });
+	createWallBlock({ 1150.f, 150.f });
+	createWallBlock({ 1250.f, 150.f });
 }
 
 
@@ -376,6 +394,25 @@ void WorldSystem::handle_collisions() {
                     drawBattleWindow();
 				}
 				
+			}
+
+			// bounce off walls
+			if (registry.walls.has(entity_other)) {
+				Motion& motion = registry.motions.get(entity);
+				motion.velocity = vec2(0.f, 0.f);
+
+				if (motion.dir == Direction::UP) {
+					motion.position = vec2(motion.position[0], motion.position[1] + 0.07f);
+				} else if (motion.dir == Direction::RIGHT) {
+					motion.position = vec2(motion.position[0] - 0.07f, motion.position[1]);
+
+				} else if (motion.dir == Direction::DOWN) {
+					motion.position = vec2(motion.position[0], motion.position[1] - 0.07f);
+
+				} else if (motion.dir == Direction::LEFT) {
+					motion.position = vec2(motion.position[0] + 0.07f, motion.position[1]);
+
+				}
 			}
 		}
 	}
@@ -465,31 +502,19 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
     Motion& motion = registry.motions.get(player_doll);
-	if (action == GLFW_REPEAT) {
-		if (key == GLFW_KEY_W) {
-			motion.dir = Direction::UP;
-			motion.velocity = vec2{ 0, -player_speed };
-		}
-		else if (key == GLFW_KEY_S) {
-			motion.dir = Direction::DOWN;
-			motion.velocity = vec2{ 0, +player_speed };
-		}
-		else if (key == GLFW_KEY_A) {
-			motion.dir = Direction::LEFT;
-			motion.velocity = vec2{ -player_speed, 0 };
-		}
-		else if (key == GLFW_KEY_D) {
-			motion.dir = Direction::RIGHT;
-			motion.velocity = vec2{ +player_speed, 0 };
-		}
-    } else if (action == GLFW_PRESS) {
+    Direction prev = motion.dir;
+ if (action == GLFW_PRESS) {
         if (key == GLFW_KEY_W) {
+			motion.velocity = vec2{ 0, -player_speed };
             motion.dir = Direction::UP;
         } else if (key == GLFW_KEY_S) {
+			motion.velocity = vec2{ 0, +player_speed };
             motion.dir = Direction::DOWN;
         } else if (key == GLFW_KEY_A) {
+			motion.velocity = vec2{ -player_speed, 0 };
             motion.dir = Direction::LEFT;
         } else if (key == GLFW_KEY_D) {
+			motion.velocity = vec2{ +player_speed, 0 };
             motion.dir = Direction::RIGHT;
         }
     } else if (action == GLFW_RELEASE) {
@@ -503,6 +528,10 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
             motion.velocity = vec2{0, motion.velocity[1]};
         }
     }
+    if (prev != motion.dir) {
+        this->setRenderRequests();
+    }
+
 
 	// Control the current speed with `<` `>`
 	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_COMMA) {
@@ -591,7 +620,9 @@ void WorldSystem::closeMenuOverlayScreen() {
     game.state = GameState::PLAYING;
 }
 
-
+void WorldSystem::attach(std::function<void(Entity)> fn) {
+	callbacks.push_back(fn);
+}
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	(vec2)mouse_position; // dummy to avoid compiler warning

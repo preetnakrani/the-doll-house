@@ -33,3 +33,7 @@ Entity createMenuButton(RenderSystem* renderer, vec2 pos);
 Entity createMenuOverlay(RenderSystem* renderer, vec2 pos);
 
 Entity createTutorial(RenderSystem* renderer, vec2 pos);
+
+Entity createHelpWindow(RenderSystem *renderer, vec2 pos);
+
+Entity createWallBlock(vec2 pos);

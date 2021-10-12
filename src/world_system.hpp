@@ -20,7 +20,6 @@ class WorldSystem
 {
 public:
 	WorldSystem();
-    PhysicsSystem s;
 	// Creates a window
 	GLFWwindow* create_window(int width, int height);
 
@@ -47,6 +46,7 @@ public:
 
 	// Handles removing components of battle window, should only be called by BattleSystem
 	void destroyBattleWindow();
+	void attach(std::function<void(Entity)> fn);
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
@@ -84,6 +84,7 @@ private:
 	// Number of fish eaten by the salmon, displayed in the window title
 	unsigned int points;
 
+	std::vector<std::function<void(Entity)>> callbacks;
 	// Game state
 	RenderSystem* renderer;
 	float current_speed;

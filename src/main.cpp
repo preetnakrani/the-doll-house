@@ -28,7 +28,6 @@ int main()
 	WorldSystem world;
 	RenderSystem renderer;
 	PhysicsSystem physics;
-    world.s = physics;
 	AISystem ai;
 	BattleSystem battle;
 
@@ -52,6 +51,7 @@ int main()
 	renderer.init(window_width_px, window_height_px, window);
 	world.init(&renderer);
     battle.init(&world);
+	world.attach(physics.getCollisionFunction());
 
 	// variable timestep loop
 	auto t = Clock::now();
@@ -71,7 +71,6 @@ int main()
 		physics.step(elapsed_ms, window_width_px, window_height_px);
 		world.handle_collisions();
 		battle.handle_battle();
-        world.setRenderRequests();
 		renderer.draw();
 	}
 
