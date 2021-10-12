@@ -166,13 +166,13 @@ Entity createBattleDoll(RenderSystem* renderer, vec2 pos)
     motion.position = pos;
     motion.angle = 0.f;
     motion.velocity = { 0.f, 0.f };
-    motion.scale = {100,100};
+    motion.scale = {200,100};
 //    motion.scale = mesh.original_size;
     motion.collision_proof = 1;
     registry.battleDolls.emplace(entity);
     registry.renderRequests.insert(
             entity,
-            { TEXTURE_ASSET_ID::DOLL_RIGHT,
+            { TEXTURE_ASSET_ID::PLAYER_TEMP,
                     // help screen effect just renders it like the help screen
               EFFECT_ASSET_ID::HELP_SCREEN,
               GEOMETRY_BUFFER_ID::SPRITE});
@@ -225,7 +225,7 @@ Entity createBattleEnemy(RenderSystem* renderer, vec2 pos)
     motion.position = pos;
     motion.angle = 0.f;
     motion.velocity = { 0.f, 0.f };
-    motion.scale = {100, 100};
+    motion.scale = {200, 100};
     motion.collision_proof = 1;
 //    motion.scale.x *= -1; // point front to the right
 
@@ -233,7 +233,7 @@ Entity createBattleEnemy(RenderSystem* renderer, vec2 pos)
     registry.battleEnemies.emplace(entity);
     registry.renderRequests.insert(
             entity,
-            { TEXTURE_ASSET_ID::DOLL_LEFT, // TEXTURE_COUNT indicates that no txture is needed
+            { TEXTURE_ASSET_ID::ENEMY_TEMP,
               EFFECT_ASSET_ID::HELP_SCREEN,
               GEOMETRY_BUFFER_ID::SPRITE });
 
