@@ -1,7 +1,6 @@
 // Header
 #include "world_system.hpp"
 #include "world_init.hpp"
-
 // stlib
 #include <cassert>
 #include <sstream>
@@ -226,11 +225,12 @@ void WorldSystem::restart_game() {
 	help_motion.scale = help_motion.scale * float(screen_width / 8);
 }
 
+
 void WorldSystem::drawBattleWindow() {
 	selected_move_menu = BattleMenuItemType::NONE;
 	battle_screen = createBattleWindow(renderer, { SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f });
     battle_doll = createBattleDoll(renderer, { SCREEN_WIDTH / 3.f, SCREEN_HEIGHT / 2.f });
-    battle_enemy = createBattleEnemy(renderer, { SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f });
+    battle_enemy = createBattleEnemy(renderer, { SCREEN_WIDTH - SCREEN_WIDTH / 3.f, SCREEN_HEIGHT / 2.f });
 
 	float SCALE = SCREEN_HEIGHT / 160; // 160 px is the height of the Aseprite drawing of the battle screen
 	
@@ -311,7 +311,6 @@ void WorldSystem::handle_collisions() {
 			}
 		}
 	}
-
 	// Remove all collisions from this simulation step
 	registry.collisions.clear();
 }

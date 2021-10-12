@@ -60,6 +60,8 @@ class RenderSystem {
 			textures_path("battle_menu_button_go.png"),
 			textures_path("battle_menu_attackOptions_PUNCH.png"),
 			textures_path("battle_menu_attackOptions_PUNCH_selected.png"),
+			textures_path("player_temp.png"),
+			textures_path("enemy_temp.png"),
     };
 
 	std::array<GLuint, effect_count> effects;
