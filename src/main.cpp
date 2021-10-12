@@ -12,10 +12,6 @@
 #include "world_system.hpp"
 #include "battle_system.hpp"
 
-#ifdef __APPLE__
-#
-#endif
-
 using Clock = std::chrono::high_resolution_clock;
 
 const int window_width_px = 1200; //* 2;

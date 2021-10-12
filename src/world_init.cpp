@@ -193,7 +193,6 @@ Entity createDoll(RenderSystem* renderer, vec2 pos)
     motion.angle = 0.f;
     motion.velocity = { 0.f, 0.f };
     motion.scale = mesh.original_size;
-    // motion.scale.x *= 1; // point front to the right
 
     Health& health = registry.health.emplace(entity);
     health.health = 100;
@@ -232,8 +231,7 @@ Entity createBattleDoll(RenderSystem* renderer, vec2 pos)
     motion.position = pos;
     motion.angle = 0.f;
     motion.velocity = { 0.f, 0.f };
-    motion.scale = {200,100};
-//    motion.scale = mesh.original_size;
+    motion.scale = { 200, 100 };
     motion.collision_proof = 1;
     registry.battleDolls.emplace(entity);
     registry.renderRequests.insert(
@@ -270,7 +268,7 @@ Entity createEnemy(RenderSystem* renderer, vec2 pos)
     registry.enemies.emplace(entity);
     registry.renderRequests.insert(
             entity,
-            { TEXTURE_ASSET_ID::DUST_BUNNY, // TEXTURE_COUNT indicates that no txture is needed
+            { TEXTURE_ASSET_ID::DUST_BUNNY,
               EFFECT_ASSET_ID::TEXTURED,
               GEOMETRY_BUFFER_ID::SPRITE });
 
