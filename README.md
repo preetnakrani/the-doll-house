@@ -6,6 +6,8 @@ Here is a summary of what to expect with our milestone 1 implementation:
 **Wall collisions**
 
 Collision resolution was accomplished by stopping the player's motion when they hit the attic wall, or try to walk off screen.
+Note that when you walk into the wall at the top, and then try to walk sideways, you may get stuck. This has to do with how we are currently implementing the wall.
+We aim to fix this in a future milestone.
 
 **Battle screen**
 
