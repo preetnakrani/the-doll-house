@@ -30,17 +30,57 @@ class RenderSystem {
 
 	// Make sure these paths remain in sync with the associated enumerators.
 	const std::array<std::string, texture_count> texture_paths = {
+			textures_path("dust_bunny.png"),
+			textures_path("doll_up.png"),
+			textures_path("doll_right.png"),
+			textures_path("doll_down.png"),
+			textures_path("doll_left.png"),
+			textures_path("turtle.png"),
 			textures_path("fish.png"),
-			textures_path("turtle.png") };
+			textures_path("turtle.png"),
+			textures_path("fish.png"),
+			textures_path("turtle.png"),
+			textures_path("fish.png"),
+			textures_path("turtle.png"),
+			textures_path("fish.png"),
+			textures_path("turtle.png"),
+			textures_path("fish.png"),
+			textures_path("attic.png"),
+			textures_path("PressA.png"),
+			textures_path("PressD.png"),
+			textures_path("PressS.png"),
+			textures_path("PressW.png"),
+			textures_path("StayAway.png"),
+			textures_path("Menu Button.png"),
+			textures_path("Menu Overlay.png"),
+			textures_path("Tutorial1.png"),
+			textures_path("Tutorial2.png"),
+			textures_path("Tutorial3.png"),
+			textures_path("Tutorial4.png"),
+			textures_path("Tutorial5.png"),
+			textures_path("battle_screen_1.png"),
+			textures_path("battle_menu_button_area.png"),
+			textures_path("battle_menu_text_area.png"),
+			textures_path("battle_menu_button_attack.png"),
+			textures_path("battle_menu_button_magic.png"),
+			textures_path("battle_menu_button_items.png"),
+			textures_path("battle_menu_button_learn.png"),
+			textures_path("battle_menu_button_go.png"),
+			textures_path("battle_menu_attackOptions_PUNCH.png"),
+			textures_path("battle_menu_attackOptions_PUNCH_selected.png"),
+			textures_path("player_temp.png"),
+			textures_path("enemy_temp.png"),
+    };
 
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.
 	const std::array<std::string, effect_count> effect_paths = {
 		shader_path("coloured"),
-		shader_path("pebble"),
 		shader_path("salmon"),
 		shader_path("textured"),
-		shader_path("water") };
+		shader_path("verticalBlur"),
+		shader_path("horizontalBlur"),
+		shader_path("helpScreen")};
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
@@ -78,6 +118,9 @@ private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
 	void drawToScreen();
+	void horizontalBlur();
+	void drawOverlayWindow(Entity entity,
+                           const mat3 &projection);
 
 	// Window handle
 	GLFWwindow* window;

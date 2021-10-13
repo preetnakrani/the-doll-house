@@ -26,61 +26,79 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	return false;
 }
 
-void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_height_px)
-{
-	// Move fish based on how much time has passed, this is to (partially) avoid
-	// having entities move at different speed based on the machine.
-	auto& motion_registry = registry.motions;
-	for(uint i = 0; i< motion_registry.size(); i++)
-	{
-		// !!! TODO A1: update motion.position based on step_seconds and motion.velocity
-		//Motion& motion = motion_registry.components[i];
-		//Entity entity = motion_registry.entities[i];
-		//float step_seconds = 1.0f * (elapsed_ms / 1000.f);
-		(void)elapsed_ms; // placeholder to silence unused warning until implemented
-	}
+void checkFakeCollision(Entity e) {
+	ComponentContainer<Motion>& motion_container = registry.motions;
+	Motion m = registry.motions.get(e);
+	std::vector<Entity> entities = registry.motions.entities;
 
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A3: HANDLE PEBBLE UPDATES HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 3
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-	// Check for collisions between all moving entities
-    ComponentContainer<Motion> &motion_container = registry.motions;
-	for(uint i = 0; i<motion_container.components.size(); i++)
+	for (uint i = 0; i < motion_container.components.size(); i++)
 	{
 		Motion& motion_i = motion_container.components[i];
-		Entity entity_i = motion_container.entities[i];
-		for(uint j = 0; j<motion_container.components.size(); j++) // i+1
-		{
-			if (i == j)
-				continue;
+		if (motion_i.collision_proof == 1 || (unsigned int)entities[i] == (unsigned int)e) {
+			continue;
+		}
 
-			Motion& motion_j = motion_container.components[j];
-			if (collides(motion_i, motion_j))
+		if (collides(motion_i, m))
+		{
+;			registry.remove_all_components_of(e);
+			return;
+		}
+	}
+
+}
+
+std::function<void(Entity)> PhysicsSystem::getCollisionFunction() {
+	return checkFakeCollision;
+}
+
+
+void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_height_px)
+{
+	// Move entity based on how much time has passed, this is to (partially) avoid
+	// having entities move at different speed based on the machine.
+	auto& motion_registry = registry.motions;
+	ComponentContainer<Motion>& motion_container = registry.motions;
+
+	if (registry.game.get(registry.players.entities[0]).state == GameState::PLAYING) {
+		for (uint i = 0; i < motion_registry.size(); i++)
+		{
+			Motion& motion = motion_registry.components[i];
+			Entity entity = motion_registry.entities[i];
+			float step_seconds = 1.0f * (elapsed_ms / 1000.f);
+			// Check that step does not take player out of bounds
+			vec2 potential_pos = motion.position + (motion.velocity * step_seconds);
+			if (potential_pos[0] > 40 && potential_pos[0] < window_width_px  - 40 && potential_pos[1] > 40 && potential_pos[1] < window_height_px - 40) {
+				motion.position = motion.position + (motion.velocity * step_seconds);
+			}
+		}
+
+		// Check for collisions between all moving entities
+		for (uint i = 0; i < motion_container.components.size(); i++)
+		{
+			Motion& motion_i = motion_container.components[i];
+			Entity entity_i = motion_container.entities[i];
+			for (uint j = 0; j < motion_container.components.size(); j++) // i+1
 			{
-				Entity entity_j = motion_container.entities[j];
-				// Create a collisions event
-				// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
-				registry.collisions.emplace_with_duplicates(entity_i, entity_j);
-				registry.collisions.emplace_with_duplicates(entity_j, entity_i);
+				if (i == j)
+					continue;
+
+				Motion& motion_j = motion_container.components[j];
+				if (collides(motion_i, motion_j))
+				{
+					Entity entity_j = motion_container.entities[j];
+					// Create a collisions event
+					// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
+					registry.collisions.emplace_with_duplicates(entity_i, entity_j);
+					registry.collisions.emplace_with_duplicates(entity_j, entity_i);
+				}
 			}
 		}
 	}
 
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A2: HANDLE SALMON - WALL collisions HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 
 	// you may need the following quantities to compute wall positions
 	(float)window_width_px; (float)window_height_px;
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A2: DRAW DEBUG INFO HERE on Salmon mesh collision
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
-	// You will want to use the createLine from world_init.hpp
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	// debugging of bounding boxes
 	if (debugging.in_debug_mode)
@@ -94,17 +112,12 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 			// visualize the radius with two axis-aligned lines
 			const vec2 bonding_box = get_bounding_box(motion_i);
 			float radius = sqrt(dot(bonding_box/2.f, bonding_box/2.f));
-			vec2 line_scale1 = { motion_i.scale.x / 10, 2*radius };
-			Entity line1 = createLine(motion_i.position, line_scale1);
-			vec2 line_scale2 = { 2*radius, motion_i.scale.x / 10};
-			Entity line2 = createLine(motion_i.position, line_scale2);
+			//vec2 line_scale1 = { motion_i.scale.x / 10, 2*radius };
+			//Entity line1 = createLine(motion_i.position, line_scale1);
+			//vec2 line_scale2 = { 2*radius, motion_i.scale.x / 10};
+			//Entity line2 = createLine(motion_i.position, line_scale2);
 
 			// !!! TODO A2: implement debugging of bounding boxes and mesh
 		}
 	}
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A3: HANDLE PEBBLE collisions HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 3
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }

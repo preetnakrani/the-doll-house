@@ -14,4 +14,6 @@ public:
 	PhysicsSystem()
 	{
 	}
+
+	std::function<void(Entity)> getCollisionFunction();
 };

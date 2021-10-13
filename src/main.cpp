@@ -10,11 +10,12 @@
 #include "physics_system.hpp"
 #include "render_system.hpp"
 #include "world_system.hpp"
+#include "battle_system.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 
-const int window_width_px = 1200;
-const int window_height_px = 800;
+//const int window_width_px = 1200;
+//const int window_height_px = 800; //* 2;
 
 // Entry point
 int main()
@@ -24,6 +25,7 @@ int main()
 	RenderSystem renderer;
 	PhysicsSystem physics;
 	AISystem ai;
+	BattleSystem battle;
 
 	// Initializing window
 	GLFWwindow* window = world.create_window(window_width_px, window_height_px);
@@ -35,8 +37,17 @@ int main()
 	}
 
 	// initialize the main systems
+	// if app is running on macos, double the size of the renderer to display the entire screen.
+	//if (__APPLE__) {
+//	renderer.init(window_width_px * 2, window_height_px * 2, window);
+    //} else {
+        //renderer.init(window_width_px, window_height_px, window);
+    //}
+
 	renderer.init(window_width_px, window_height_px, window);
 	world.init(&renderer);
+    battle.init(&world);
+	world.attach(physics.getCollisionFunction());
 
 	// variable timestep loop
 	auto t = Clock::now();
@@ -55,10 +66,8 @@ int main()
 		ai.step(elapsed_ms);
 		physics.step(elapsed_ms, window_width_px, window_height_px);
 		world.handle_collisions();
-
+		battle.handle_battle();
 		renderer.draw();
-
-		// TODO A2: you can implement the debug freeze here but other places are possible too.
 	}
 
 	return EXIT_SUCCESS;
