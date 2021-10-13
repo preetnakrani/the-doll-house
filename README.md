@@ -11,4 +11,5 @@ Collision resolution was accomplished by stopping the player's motion when they 
 
 When you collide with a dust bunny, you will enter battle mode. Currently, the battle feedback is provided in the console.
 So please look there for the relevant print statements.
-You will want to click the "punch" attack until the enemy's HP reaches 0 (the enemy's HP is printed to the console).
+You will want to click the "punch" attack on the battle screen until the enemy's HP reaches 0 (the enemy's HP is printed to the console).
+Once you defeat the enemy, you should automatically be exited from the battle.
