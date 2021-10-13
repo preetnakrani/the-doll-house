@@ -1,7 +1,7 @@
 # team11
 
 # Milestone 1
-Here is a summary of what to expect with our milestone 1 implementation:
+Here is a summary of what to expect with our Milestone 1 implementation:
 
 **Wall collisions**
 
