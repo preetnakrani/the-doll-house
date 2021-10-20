@@ -44,19 +44,17 @@ void BattleSystem::handle_battle() {
     }
 
     if (enemy_health.health < 1) {
-        for (int i = 0; i < current_enemies.size(); i++) {
-            Entity enemy = current_enemies[0];
-            registry.remove_all_components_of(enemy);
-            world_system->destroyBattleWindow();
-        }
-        is_active_battle = false;
-        game.state = GameState::PLAYING;
-        printf("=====Battle ended=====\n");
+        end_battle(game, current_enemies);
     }
 };
 
-// TODO: It might be nice to put the battle ending logic into a helper
-// Currently it gives me an error - Naoreen
-//void BattleSystem::end_battle(Game& game, vector<Entity> current_enemies) {
-    
-//}
+void BattleSystem::end_battle(Game& game, std::vector<Entity> current_enemies) {
+    for (int i = 0; i < current_enemies.size(); i++) {
+        Entity enemy = current_enemies[0];
+        registry.remove_all_components_of(enemy);
+        world_system->destroyBattleWindow();
+    }
+    is_active_battle = false;
+    game.state = GameState::PLAYING;
+    printf("=====Battle ended=====\n");
+}

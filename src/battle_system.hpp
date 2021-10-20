@@ -15,6 +15,7 @@ public:
     void handle_battle();
 
 private:
-    //void end_battle(Game& game, vector<Entity> current_enemies); // causes an error right now - commenting temporarily - Naoreen
+    void end_battle(Game& game, std::vector<Entity> current_enemies);
+
     WorldSystem* world_system;
 };
