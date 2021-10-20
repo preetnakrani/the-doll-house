@@ -200,13 +200,13 @@ Entity createDoll(RenderSystem* renderer, vec2 pos)
 
     // Give the player an attack list, magic list, and add some default moves
     AttackList& player_attacks = registry.attackLists.emplace(entity);
-    player_attacks.addAttack("PUNCH", AttackType::NORMAL, 10);
-    player_attacks.addAttack("TAUNT", AttackType::NORMAL, 20);
+    player_attacks.addAttack(AttackName::PUNCH, AttackType::NORMAL, 10);
+    player_attacks.addAttack(AttackName::TAUNT, AttackType::NORMAL, 20);
 
     MagicList& player_magic = registry.magicLists.emplace(entity);
-    player_magic.addMagicAttack("LIGHTNING", AttackType::NORMAL, 30);
-    player_magic.addMagicDefense("SHIELD", 30, 0);
-    player_magic.addMagicEffect("POISON", false, 0);
+    player_magic.addMagicAttack(MagicName::LIGHTNING, AttackType::NORMAL, 30);
+    player_magic.addMagicDefense(MagicName::SHIELD, 30, 0);
+    player_magic.addMagicEffect(MagicName::POISON, false, 0);
 
     Game& game = registry.game.emplace(entity);
     game.state = GameState::PLAYING;
@@ -263,6 +263,10 @@ Entity createEnemy(RenderSystem* renderer, vec2 pos)
     Health& health = registry.health.emplace(entity);
     health.health = 100;
     health.healthDecrement = 0;
+
+    // TEMPORARY - We will want to give different enemies different attacks/moves, but for now I'm just assuming dust bunny here - Naoreen
+    AttackList& enemy_attacks = registry.attackLists.emplace(entity);
+    enemy_attacks.addAttack(AttackName::SNEEZE, AttackType::NORMAL, 5);
 
     // Create an enemy
     registry.enemies.emplace(entity);

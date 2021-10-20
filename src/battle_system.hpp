@@ -13,8 +13,11 @@ public:
 
     // run the battle 
     void handle_battle();
-
 private:
+    void process_player_turn(Turn& turn);
+
+    void process_enemy_turn(Turn& turn, Entity enemy);
+
     void end_battle(Game& game, std::vector<Entity> current_enemies);
 
     WorldSystem* world_system;

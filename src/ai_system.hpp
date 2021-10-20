@@ -9,4 +9,6 @@ class AISystem
 {
 public:
 	void step(float elapsed_ms);
+private:
+	void do_enemy_turn();
 };

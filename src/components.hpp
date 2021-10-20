@@ -59,21 +59,57 @@ struct Collision
 	Collision(Entity& other) { this->other = other; };
 };
 
+enum class BattleState {
+	NONE = 1,
+	START = 2,
+	PLAYER_TURN = 3,
+	ENEMY_TURN = 4,
+	WON = 5,
+	LOST = 6,
+};
+
+enum class MoveType {
+	NONE = 0,
+	ATTACK = 1,
+	MAGIC = 2,
+	ITEM = 3,
+};
+
+enum class AttackName {
+	NONE = 0,
+	PUNCH = 1,
+	TAUNT = 2,
+	SNEEZE = 3, // dust bunny
+};
+
 enum class AttackType {
     NORMAL = 0,
     NOTNORMAL = 1
 };
 
 struct Attack {
-    std::string name = "";
+	AttackName name;
     AttackType type = AttackType::NORMAL;
     int damage = 0;
+
+	std::string nameAsString() {
+		switch (this->name) {
+			case AttackName::PUNCH :
+				return "PUNCH";
+			case AttackName::TAUNT :
+				return "TAUNT";
+			case AttackName::SNEEZE :
+				return "SNEEZE";
+			default:
+				return "";
+		}
+	}
 };
 
 struct AttackList {
 	std::vector<Attack> available_attacks;
 
-	void addAttack(std::string name, AttackType type, int damage) {
+	void addAttack(AttackName name, AttackType type, int damage) {
 		Attack attack = {};
 		attack.name = name;
 		attack.type = type;
@@ -81,7 +117,7 @@ struct AttackList {
 		available_attacks.push_back(attack);
 	}
 
-	bool hasAttack(std::string name) {
+	bool hasAttack(AttackName name) {
 		// https://stackoverflow.com/questions/15517991/search-a-vector-of-objects-by-object-attribute
 		auto iterator = find_if(available_attacks.begin(), available_attacks.end(), [&name](const Attack& attack) {
 			return attack.name == name;
@@ -90,7 +126,7 @@ struct AttackList {
 		return iterator != available_attacks.end();
 	}
 
-	Attack getAttack(std::string name) {
+	Attack getAttack(AttackName name) {
 		auto iterator = find_if(available_attacks.begin(), available_attacks.end(), [&name](const Attack& attack) {
 			return attack.name == name;
 			});
@@ -104,6 +140,13 @@ struct AttackList {
 	}
 };
 
+enum class MagicName {
+	NONE = 0,
+	LIGHTNING = 1,
+	SHIELD = 2,
+	POISON = 3,
+};
+
 enum class MagicType {
 	ATTACK = 0,
 	DEFENSE = 1,
@@ -111,7 +154,20 @@ enum class MagicType {
 };
 
 struct Magic {
-	std::string name = "";
+	MagicName name;
+
+	std::string nameAsString() {
+		switch (this->name) {
+			case MagicName::LIGHTNING :
+				return "LIGHTNING";
+			case MagicName::SHIELD :
+				return "SHIELD";
+			case MagicName::POISON :
+				return "POISON";
+			default:
+				return "";
+		}
+	}
 };
 
 struct MagicAttack : Magic {
@@ -135,21 +191,21 @@ struct MagicEffect : Magic {
 struct MagicList {
 	std::vector<Magic> available_magic;
 
-	void addMagicAttack(std::string name, AttackType attack_type, int damage) {
+	void addMagicAttack(MagicName name, AttackType attack_type, int damage) {
 		MagicAttack magic_attack = {};
 		magic_attack.name = name;
 		magic_attack.attack_type = attack_type;
 		magic_attack.damage = damage;
 	}
 
-	void addMagicDefense(std::string name, int physical_defense_boost, int magic_defense_boost) {
+	void addMagicDefense(MagicName name, int physical_defense_boost, int magic_defense_boost) {
 		MagicDefense magic_defense = {};
 		magic_defense.name = name;
 		magic_defense.physical_defense_boost = physical_defense_boost;
 		magic_defense.magic_defense_boost = magic_defense_boost;
 	}
 
-	void addMagicEffect(std::string name, bool isTemporary, float timer) {
+	void addMagicEffect(MagicName name, bool isTemporary, float timer) {
 		MagicEffect magic_effect = {};
 		magic_effect.name = name;
 		magic_effect.isTemporary = isTemporary;
@@ -157,7 +213,13 @@ struct MagicList {
 	}
 };
 
+enum class GameItemName {
+	NONE = 0,
+	HEALING_POTION = 1,
+};
+
 struct GameItem {
+	GameItemName item_name;
     float timer = 0;
     int health = 0;
     int speed = 0;
@@ -165,16 +227,33 @@ struct GameItem {
     bool timed = false;
 };
 
+// Register this with a player or enemy so their turns can be applied in the Battle system
+struct Turn {
+	MoveType move_type = MoveType::NONE;
+	AttackName attack_name = AttackName::NONE;
+	MagicName magic_name = MagicName::NONE;
+	GameItemName item_name = GameItemName::NONE;
+
+	Turn(AttackName attack_name) {
+		this->move_type = MoveType::ATTACK;
+		this->attack_name = attack_name;
+	}
+
+	Turn(MagicName magic_name) {
+		this->move_type = MoveType::MAGIC;
+		this->magic_name = magic_name;
+	}
+
+	Turn(GameItemName item_name) {
+		this->move_type = MoveType::ITEM;
+		this->item_name = item_name;
+	}
+};
+
 struct TutorialTimer {
 	float timePerSprite = 7000.f;
 	bool tutorialCompleted = false;
 	int tutorialIndex = 0;
-};
-
-// Idea - could be used to apply to the entity who has the currently active turn
-struct Turn {
-	// float timer = 0;
-	std::string move;
 };
 
 // Data structure for toggling debug mode
@@ -198,6 +277,7 @@ enum class GameState {
 struct Game
 {
 	GameState state = GameState::PLAYING;
+	BattleState battle_state = BattleState::NONE;
 };
 
 // A struct to refer to debugging graphics in the ECS
