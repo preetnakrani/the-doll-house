@@ -659,7 +659,7 @@ void WorldSystem::handleBattleScreenButtonClick(BattleMenuItemType button_clicke
 		float SCALE = SCREEN_HEIGHT / 160;
 
 		AttackList& player_attacks = registry.attackLists.get(player_doll);
-		if (player_attacks.hasAttack("PUNCH") && !registry.battleMenuPlayerMoves.has(punch_button)) {
+		if (player_attacks.hasAttack(AttackName::PUNCH) && !registry.battleMenuPlayerMoves.has(punch_button)) {
 			vec2 PUNCH_BUTTON_POSITION = { 90 * SCALE, 132 * SCALE - 73 };
 			punch_button = createBattleMenuItem(renderer, PUNCH_BUTTON_POSITION, BattleMenuItemType::ATTACK_PUNCH, TEXTURE_ASSET_ID::ATTACK_OPTIONS_PUNCH);
 			scaleUIAsset(punch_button, { 37, 11 }, SCALE);
@@ -675,10 +675,13 @@ void WorldSystem::handleBattleScreenButtonClick(BattleMenuItemType button_clicke
 		RenderRequest& rr = registry.renderRequests.get(punch_button);
 		rr.used_texture = TEXTURE_ASSET_ID::ATTACK_OPTIONS_PUNCH_SELECTED;
 
-		// Issue attack - in future we may want to add an additional step (using the "Go" button)
-		registry.turns.emplace(player_doll);
-		Turn& turn = registry.turns.get(player_doll);
-		turn.move = "PUNCH";
+		// Register attack turn - in future we may want to add an additional step (using the "Go" button)
+		if (registry.game.get(player_doll).battle_state == BattleState::PLAYER_TURN && !registry.turns.has(player_doll)) {
+			registry.turns.insert(player_doll, Turn(AttackName::PUNCH));
+		}
+		else {
+			printf("Wait for your turn!\n");
+		}
 	}
 }
 
