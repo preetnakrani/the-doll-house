@@ -81,6 +81,10 @@ struct AttackList {
 		available_attacks.push_back(attack);
 	}
 
+    void addAttack(const Attack& a) {
+        available_attacks.push_back(a);
+    }
+
 	bool hasAttack(std::string name) {
 		// https://stackoverflow.com/questions/15517991/search-a-vector-of-objects-by-object-attribute
 		auto iterator = find_if(available_attacks.begin(), available_attacks.end(), [&name](const Attack& attack) {
@@ -155,6 +159,10 @@ struct MagicList {
 		magic_effect.isTemporary = isTemporary;
 		magic_effect.timer = timer;
 	}
+
+    void addMagic(const Magic& m) {
+        available_magic.push_back(m);
+    }
 };
 
 struct GameItem {

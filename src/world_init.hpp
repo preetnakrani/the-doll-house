@@ -20,7 +20,7 @@ Entity createBattleMenuItem(RenderSystem* renderer, vec2 pos, BattleMenuItemType
 
 Entity createEnemy(RenderSystem *renderer, vec2 pos);
 
-Entity createDoll(RenderSystem *renderer, vec2 pos);
+Entity createDoll(RenderSystem *renderer, vec2 pos, std::vector<Attack> attackList, std::vector<Magic> magicList, int hp = 100, int hd = 0);
 
 Entity createBattleDoll(RenderSystem* renderer, vec2 pos);
 
@@ -37,3 +37,18 @@ Entity createTutorial(RenderSystem* renderer, vec2 pos);
 Entity createHelpWindow(RenderSystem *renderer, vec2 pos);
 
 Entity createWallBlock(vec2 pos, vec2 scale);
+
+Entity createBed(RenderSystem* renderer, vec2 pos, Direction dir = Direction::DOWN, float angle = 0);
+
+Entity createTable(RenderSystem* renderer, vec2 pos, Direction dir = Direction::DOWN, float angle = 0);
+
+Entity createLamp(RenderSystem* renderer, vec2 pos, Direction dir = Direction::DOWN, float angle = 0);
+
+Attack createAttack(std::string name, AttackType type, int damage);
+
+Magic createMagicAttack(std::string name, MagicType magicType, AttackType attackType, int damage);
+
+Magic createMagicEffect(std::string name, MagicType magicType, bool isTemporary, float timer);
+
+Magic createMagicDefense(std::string name, MagicType magicType, int physical_defense_boost, int magic_defense_boost);
+
