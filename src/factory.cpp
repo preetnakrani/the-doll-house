@@ -12,7 +12,7 @@ public:
     json readFile(int level) {
         std::string levelName = "../data/levels/level_" +  to_string(level) + ".json";
         json obj;
-        std::ifstream file(levelName, std::ifstream::binary);
+        std::ifstream file(levelName);
         file >> obj;
         return obj;
     }
@@ -23,7 +23,8 @@ class Factory {
          virtual void create(json components);
          static void test() {
              JsonReader j;
-             j.readFile(1);
+             json obj = j.readFile(1);
+             std::cout << obj << endl;
          }
 };
 
