@@ -110,6 +110,9 @@ private:
 	Entity battle_menu_button_go;
 	Entity punch_button;
 
+    std::unordered_map<std::string, int> enemyMap;
+    std::vector<std::string> enemyTypes;
+
 	// Other variables related to battle screen
 	BattleMenuItemType selected_move_menu; // Either attack, magic, or items
 
