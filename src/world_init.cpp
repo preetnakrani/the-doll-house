@@ -178,7 +178,8 @@ Entity createBattleMenuItem(RenderSystem* renderer, vec2 pos, BattleMenuItemType
           GEOMETRY_BUFFER_ID::SPRITE });
     return entity;
 }
-Entity createDoll(RenderSystem* renderer, vec2 pos)
+
+Entity createDoll(RenderSystem* renderer, vec2 pos, std::vector<Attack> attackList, std::vector<Magic> magicList, int hp, int hd)
 {
     auto entity = Entity();
 
@@ -195,18 +196,24 @@ Entity createDoll(RenderSystem* renderer, vec2 pos)
     motion.scale = mesh.original_size;
 
     Health& health = registry.health.emplace(entity);
-    health.health = 100;
-    health.healthDecrement = 0;
+    health.health = hp;
+    health.healthDecrement = hd;
 
     // Give the player an attack list, magic list, and add some default moves
     AttackList& player_attacks = registry.attackLists.emplace(entity);
-    player_attacks.addAttack("PUNCH", AttackType::NORMAL, 10);
-    player_attacks.addAttack("TAUNT", AttackType::NORMAL, 20);
+    for(Attack a: attackList) {
+        player_attacks.addAttack(a);
+    }
+//    player_attacks.addAttack("PUNCH", AttackType::NORMAL, 10);
+//    player_attacks.addAttack("TAUNT", AttackType::NORMAL, 20);
 
     MagicList& player_magic = registry.magicLists.emplace(entity);
-    player_magic.addMagicAttack("LIGHTNING", AttackType::NORMAL, 30);
-    player_magic.addMagicDefense("SHIELD", 30, 0);
-    player_magic.addMagicEffect("POISON", false, 0);
+    for(Magic m: magicList) {
+        player_magic.addMagic(m);
+    }
+//    player_magic.addMagicAttack("LIGHTNING", AttackType::NORMAL, 30);
+//    player_magic.addMagicDefense("SHIELD", 30, 0);
+//    player_magic.addMagicEffect("POISON", false, 0);
 
     Game& game = registry.game.emplace(entity);
     game.state = GameState::PLAYING;
@@ -275,6 +282,7 @@ Entity createEnemy(RenderSystem* renderer, vec2 pos)
     return entity;
 }
 
+
 Entity createBattleEnemy(RenderSystem* renderer, vec2 pos)
 {
     auto entity = Entity();
@@ -318,4 +326,117 @@ Entity createWallBlock(vec2 pos)
 
     registry.walls.emplace(entity);
     return entity;
+}
+
+Entity createBed(RenderSystem* renderer, vec2 pos, Direction dir, float angle) {
+    auto entity = Entity();
+
+    // TODO: fix rendering
+    // Store a reference to the potentially re-used mesh object
+    Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+    registry.meshPtrs.emplace(entity, &mesh);
+
+    // Setting initial motion values
+    Motion& motion = registry.motions.emplace(entity);
+    motion.dir = dir;
+    motion.position = pos;
+    motion.angle = angle;
+    motion.velocity = { 0.f, 0.f };
+    motion.scale = mesh.original_size;
+
+    registry.players.emplace(entity);
+    registry.renderRequests.insert(
+            entity,
+            { TEXTURE_ASSET_ID::DOLL_DOWN,
+              EFFECT_ASSET_ID::TEXTURED,
+              GEOMETRY_BUFFER_ID::SPRITE });
+
+    return entity;
+}
+
+
+Entity createTable(RenderSystem* renderer, vec2 pos, Direction dir, float angle) {
+    auto entity = Entity();
+
+    // TODO: fix rendering
+    // Store a reference to the potentially re-used mesh object
+    Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+    registry.meshPtrs.emplace(entity, &mesh);
+
+    // Setting initial motion values
+    Motion& motion = registry.motions.emplace(entity);
+    motion.dir = dir;
+    motion.position = pos;
+    motion.angle = angle;
+    motion.velocity = { 0.f, 0.f };
+    motion.scale = mesh.original_size;
+
+    registry.players.emplace(entity);
+    registry.renderRequests.insert(
+            entity,
+            { TEXTURE_ASSET_ID::DOLL_DOWN,
+              EFFECT_ASSET_ID::TEXTURED,
+              GEOMETRY_BUFFER_ID::SPRITE });
+
+    return entity;
+}
+
+Entity createLamp(RenderSystem* renderer, vec2 pos, Direction dir, float angle) {
+    auto entity = Entity();
+
+    // TODO: fix rendering
+    // Store a reference to the potentially re-used mesh object
+    Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+    registry.meshPtrs.emplace(entity, &mesh);
+
+    // Setting initial motion values
+    Motion& motion = registry.motions.emplace(entity);
+    motion.dir = dir;
+    motion.position = pos;
+    motion.angle = angle;
+    motion.velocity = { 0.f, 0.f };
+    motion.scale = mesh.original_size;
+
+    registry.players.emplace(entity);
+    registry.renderRequests.insert(
+            entity,
+            { TEXTURE_ASSET_ID::DOLL_DOWN,
+              EFFECT_ASSET_ID::TEXTURED,
+              GEOMETRY_BUFFER_ID::SPRITE });
+
+    return entity;
+}
+
+Attack createAttack(std::string name, AttackType type, int damage) {
+    Attack a = {};
+    a.name = name;
+    a.type = type;
+    a.damage = damage;
+    return a;
+}
+
+Magic createMagicAttack(std::string name, MagicType magicType, AttackType attackType, int damage) {
+    MagicAttack m;
+    m.name = name;
+    m.magic_type = magicType;
+    m.attack_type = attackType;
+    m.damage = damage;
+    return m;
+}
+
+Magic createMagicEffect(std::string name, MagicType magicType, bool isTemporary, float timer) {
+    MagicEffect m;
+    m.name = name;
+    m.magic_type = magicType;
+    m.isTemporary = isTemporary;
+    m.timer = timer;
+    return m;
+}
+
+Magic createMagicDefense(std::string name, MagicType magicType, int physical_defense_boost, int magic_defense_boost) {
+    MagicDefense m;
+    m.name = name;
+    m.magic_type = magicType;
+    m.physical_defense_boost = physical_defense_boost;
+    m.magic_defense_boost = magic_defense_boost;
 }

@@ -28,7 +28,7 @@ public:
 
 	// Releases all associated resources
 	~WorldSystem();
-
+    void clearEnemy();
 	// Steps the game ahead by ms milliseconds
 	bool step(float elapsed_ms);
 
@@ -43,7 +43,7 @@ public:
 	void escapeTutorial(bool isComplete);
 
 	void swap_help_screen();
-
+    void addEnemy(std::string type, int frequency);
 	// Handles removing components of battle window, should only be called by BattleSystem
 	void destroyBattleWindow();
 	void attach(std::function<void(Entity)> fn);
@@ -110,6 +110,7 @@ private:
 	Entity battle_menu_button_go;
 	Entity punch_button;
 
+    // enemy stuff
     std::unordered_map<std::string, int> enemyMap;
     std::vector<std::string> enemyTypes;
 
@@ -124,4 +125,6 @@ private:
 	// C++ random number generator
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
+
+
 };

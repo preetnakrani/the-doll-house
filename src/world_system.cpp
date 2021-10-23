@@ -271,7 +271,7 @@ void WorldSystem::restart_game() {
 	background = createBackground(renderer, { screen_width / 2.f, screen_height / 2.f });
 
 	// Create a new doll
-	player_doll = createDoll(renderer, { screen_width /5.f, screen_height/3.f });
+	player_doll = createDoll(renderer, { screen_width /5.f, screen_height/3.f }, std::vector<Attack>(), std::vector<Magic>());
 	Motion& motion = registry.motions.get(player_doll);
 	motion.scale = motion.scale * float(screen_width / 8);
     player_speed = 200.f;
@@ -733,4 +733,14 @@ bool WorldSystem::isClickInRegion(double x, double y, vec2 top_left_coords, doub
 		x <= top_left_coords[0] + width &&
 		y >= top_left_coords[1] &&
 		y <= top_left_coords[1] + height;
+}
+
+void WorldSystem::clearEnemy() {
+    enemyMap.clear();
+    enemyTypes.clear();
+}
+
+void WorldSystem::addEnemy(std::string type, int frequency) {
+    enemyTypes.push_back(type);
+    enemyMap.insert({type, frequency});
 }
