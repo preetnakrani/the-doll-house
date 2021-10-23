@@ -437,4 +437,5 @@ Magic createMagicDefense(std::string name, MagicType magicType, int physical_def
     m.magic_type = magicType;
     m.physical_defense_boost = physical_defense_boost;
     m.magic_defense_boost = magic_defense_boost;
+    return m;
 }
