@@ -304,16 +304,14 @@ Entity createBattleEnemy(RenderSystem* renderer, vec2 pos)
     return entity;
 }
 
-Entity createWallBlock(vec2 pos)
+Entity createWallBlock(vec2 pos, vec2 scale)
 {
     auto entity = Entity();
 
     // Setting initial motion values
     Motion& motion = registry.motions.emplace(entity);
     motion.position = pos;
-    motion.angle = 0.f;
-    motion.scale.x = 100.f;
-    motion.scale.y = 100.f;
+    motion.scale = scale;
     motion.velocity = { 0.f, 0.f };
 
     registry.walls.emplace(entity);

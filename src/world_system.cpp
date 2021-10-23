@@ -271,7 +271,7 @@ void WorldSystem::restart_game() {
 	background = createBackground(renderer, { screen_width / 2.f, screen_height / 2.f });
 
 	// Create a new doll
-	player_doll = createDoll(renderer, { screen_width /5.f, screen_height/3.f });
+	player_doll = createDoll(renderer, { screen_width /5.f, screen_height/2.f });
 	Motion& motion = registry.motions.get(player_doll);
 	motion.scale = motion.scale * float(screen_width / 8);
     player_speed = 200.f;
@@ -303,19 +303,7 @@ void WorldSystem::restart_game() {
     }
 
 	//hardcoded for now while we figure out save/load
-	createWallBlock({ 50.f, 150.f });
-	createWallBlock({ 150.f, 150.f });
-	createWallBlock({ 250.f, 150.f });
-	createWallBlock({ 350.f, 150.f });
-	createWallBlock({ 450.f, 150.f });
-	createWallBlock({ 550.f, 150.f });
-	createWallBlock({ 650.f, 150.f });
-	createWallBlock({ 750.f, 150.f });
-	createWallBlock({ 850.f, 150.f });
-	createWallBlock({ 950.f, 150.f });
-	createWallBlock({ 1050.f, 150.f });
-	createWallBlock({ 1150.f, 150.f });
-	createWallBlock({ 1250.f, 150.f });
+	Entity block = createWallBlock({ screen_width / 2.f, 250 }, { screen_width, 100.f });
 }
 
 

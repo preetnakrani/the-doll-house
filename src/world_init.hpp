@@ -36,4 +36,4 @@ Entity createTutorial(RenderSystem* renderer, vec2 pos);
 
 Entity createHelpWindow(RenderSystem *renderer, vec2 pos);
 
-Entity createWallBlock(vec2 pos);
+Entity createWallBlock(vec2 pos, vec2 scale);

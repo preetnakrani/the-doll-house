@@ -82,7 +82,18 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 				if (i == j)
 					continue;
 
+				Entity entity_j = motion_container.entities[j];
 				Motion& motion_j = motion_container.components[j];
+				
+				if (registry.players.has(entity_i) && registry.walls.has(entity_j)) {
+					handleWallCollision(entity_i, entity_j);
+					continue;
+				}
+				else if (registry.walls.has(entity_i) && registry.players.has(entity_j)) {
+					handleWallCollision(entity_j, entity_i); 
+					continue;
+				}
+
 				if (collides(motion_i, motion_j))
 				{
 					Entity entity_j = motion_container.entities[j];
@@ -93,6 +104,8 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 				}
 			}
 		}
+
+
 	}
 
 
@@ -120,4 +133,39 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 			// !!! TODO A2: implement debugging of bounding boxes and mesh
 		}
 	}
+}
+
+void PhysicsSystem::handleWallCollision(Entity player, Entity wall) {
+	Motion& player_motion = registry.motions.get(player);
+	vec2 player_bounding_box = get_bounding_box(player_motion) / 2.0f;
+	// temporary hack to account for whitespace
+	player_bounding_box = { player_bounding_box[0] - 30, player_bounding_box[1] - 30 };
+
+	Motion& wall_motion = registry.motions.get(wall);
+	vec2 wall_bounding_box = get_bounding_box(wall_motion) / 2.0f;
+
+	vec2 player_min = { player_motion.position[0] - player_bounding_box[0], player_motion.position[1] + player_bounding_box[1] };
+	vec2 player_max = { player_motion.position[0] + player_bounding_box[0], player_motion.position[1] - player_bounding_box[1] };
+	vec2 wall_min = { wall_motion.position[0] - wall_bounding_box[0], wall_motion.position[1] + wall_bounding_box[1] }; 
+	vec2 wall_max = { wall_motion.position[0] + wall_bounding_box[0], wall_motion.position[1] - wall_bounding_box[1] };
+
+	if ((player_min[0] < wall_max[0]) && (wall_min[0] < player_max[0]) && (player_min[1] > wall_max[1]) && (wall_min[1] > player_min[1])) {
+		if (player_motion.dir == Direction::UP) {
+			float overlap = wall_min[1] - player_min[1];
+			player_motion.position[1] = player_motion.position[1] + overlap;
+		}
+		else if (player_motion.dir == Direction::DOWN) {
+			float overlap = player_min[1] - wall_max[1];
+			player_motion.position[1] = player_motion.position[1] - overlap;
+		}
+		else if (player_motion.dir == Direction::LEFT) {
+			float overlap = wall_max[0] - player_min[0];
+			player_motion.position[0] = player_motion.position[0] + overlap;
+		}
+		else if (player_motion.dir == Direction::RIGHT) {
+			float overlap = player_max[0] - wall_min[0];
+			player_motion.position[0] = player_motion.position[0] - overlap;
+		}
+	}
+	return;
 }

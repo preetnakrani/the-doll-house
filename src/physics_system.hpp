@@ -16,4 +16,5 @@ public:
 	}
 
 	std::function<void(Entity)> getCollisionFunction();
+	void handleWallCollision(Entity player, Entity wall);
 };
