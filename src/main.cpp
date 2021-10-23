@@ -22,7 +22,7 @@ using Clock = std::chrono::high_resolution_clock;
 int main()
 {
 
-    Factory::test();
+    //Factory::test();
 	// Global systems
 	WorldSystem world;
 	RenderSystem renderer;
