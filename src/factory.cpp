@@ -132,8 +132,6 @@ public:
 
 };
 
-
-
 class WallFactory : public Factory {
 public:
     void create(json components) {
@@ -142,6 +140,18 @@ public:
                 components["pos"]["y"].get<float>()),
             vec2(components["scale"]["x"].get<float>(),
                 components["scale"]["y"].get<float>())
+        );
+    }
+};
+
+class BackgroundFactory : public Factory {
+public:
+    void create(RenderSystem* render, json components) {
+        createBackground(
+            render,
+            vec2(components["pos"]["x"].get<float>(),
+                components["pos"]["y"].get<float>()),
+            (TEXTURE_ASSET_ID)components["asset_id"].get<int>()
         );
     }
 };

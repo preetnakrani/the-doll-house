@@ -2,7 +2,7 @@
 #include "tiny_ecs_registry.hpp"
 
 
-Entity createBackground(RenderSystem* renderer, vec2 pos)
+Entity createBackground(RenderSystem* renderer, vec2 pos, TEXTURE_ASSET_ID background)
 {
     auto entity = Entity();
 
@@ -24,7 +24,7 @@ Entity createBackground(RenderSystem* renderer, vec2 pos)
 
     registry.renderRequests.insert(
         entity,
-        { TEXTURE_ASSET_ID::BACKGROUND,
+        { TEXTURE_ASSET_ID(background),
           EFFECT_ASSET_ID::TEXTURED,
           GEOMETRY_BUFFER_ID::SPRITE });
 
