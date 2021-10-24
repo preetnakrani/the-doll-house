@@ -179,7 +179,7 @@ Entity createBattleMenuItem(RenderSystem* renderer, vec2 pos, BattleMenuItemType
     return entity;
 }
 
-Entity createDoll(RenderSystem* renderer, vec2 pos, std::vector<Attack> attackList, std::vector<Magic> magicList, int hp, int hd)
+Entity createDoll(RenderSystem* renderer, vec2 pos, std::vector<Attack> attackList, int hp, int hd)
 {
     auto entity = Entity();
 
@@ -208,12 +208,12 @@ Entity createDoll(RenderSystem* renderer, vec2 pos, std::vector<Attack> attackLi
 //    player_attacks.addAttack("TAUNT", AttackType::NORMAL, 20);
 
     MagicList& player_magic = registry.magicLists.emplace(entity);
-    for(Magic m: magicList) {
-        player_magic.addMagic(m);
-    }
-//    player_magic.addMagicAttack("LIGHTNING", AttackType::NORMAL, 30);
-//    player_magic.addMagicDefense("SHIELD", 30, 0);
-//    player_magic.addMagicEffect("POISON", false, 0);
+//    for(Magic m: magicList) {
+//        player_magic.addMagic(m);
+//    }
+    player_magic.addMagicAttack("LIGHTNING", AttackType::NORMAL, 30);
+    player_magic.addMagicDefense("SHIELD", 30, 0);
+    player_magic.addMagicEffect("POISON", false, 0);
 
     Game& game = registry.game.emplace(entity);
     game.state = GameState::PLAYING;
@@ -413,7 +413,7 @@ Attack createAttack(std::string name, AttackType type, int damage) {
     return a;
 }
 
-Magic createMagicAttack(std::string name, MagicType magicType, AttackType attackType, int damage) {
+MagicAttack createMagicAttack(std::string name, MagicType magicType, AttackType attackType, int damage) {
     MagicAttack m;
     m.name = name;
     m.magic_type = magicType;
@@ -422,7 +422,7 @@ Magic createMagicAttack(std::string name, MagicType magicType, AttackType attack
     return m;
 }
 
-Magic createMagicEffect(std::string name, MagicType magicType, bool isTemporary, float timer) {
+MagicEffect createMagicEffect(std::string name, MagicType magicType, bool isTemporary, float timer) {
     MagicEffect m;
     m.name = name;
     m.magic_type = magicType;
@@ -431,7 +431,7 @@ Magic createMagicEffect(std::string name, MagicType magicType, bool isTemporary,
     return m;
 }
 
-Magic createMagicDefense(std::string name, MagicType magicType, int physical_defense_boost, int magic_defense_boost) {
+MagicDefense createMagicDefense(std::string name, MagicType magicType, int physical_defense_boost, int magic_defense_boost) {
     MagicDefense m;
     m.name = name;
     m.magic_type = magicType;
@@ -458,12 +458,13 @@ Health createHealth(int health, int healthDecrement) {
     return h;
 }
 
-GameProgress createGameProgress(int level, Health health, Motion motion, std::vector<Attack> attack, std::vector<Magic> magic) {
+GameProgress createGameProgress(int level, Health health, Motion motion, std::vector<Attack> attack) {
     GameProgress g;
+
     g.level = level;
+
     g.health = health;
     g.motion = motion;
     g.attack = attack;
-    g.magic = magic;
     return g;
 }

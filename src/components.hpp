@@ -115,25 +115,29 @@ enum class MagicType {
 };
 
 struct Magic {
-	std::string name = "";
+public:
+    std::string name = "";
 };
 
 struct MagicAttack : Magic {
+public:
 	MagicType magic_type = MagicType::ATTACK;
 	AttackType attack_type = AttackType::NORMAL;
 	int damage = 0;
 };
 
 struct MagicDefense : Magic {
+public:
 	MagicType magic_type = MagicType::DEFENSE;
 	int physical_defense_boost = 0;
 	int magic_defense_boost = 0;
 };
 
 struct MagicEffect : Magic {
+public:
 	MagicType magic_type = MagicType::STATUS_EFFECT;
-	bool isTemporary;
-	float timer; // set to 0 if no timer needed (permanent effect)
+	bool isTemporary{};
+	float timer{}; // set to 0 if no timer needed (permanent effect)
 };
 
 struct MagicList {
@@ -162,6 +166,10 @@ struct MagicList {
 
     void addMagic(const Magic& m) {
         available_magic.push_back(m);
+    }
+
+    std::vector<Magic> getList() {
+        return available_magic;
     }
 };
 
@@ -387,10 +395,14 @@ struct GameProgress {
     Motion motion;
     Health health;
     std::vector<Attack> attack;
+    std::vector<MagicDefense> magicDefense;
+    std::vector<MagicAttack> magicAttack;
+    std::vector<MagicEffect> magicEffect;
     std::vector<Magic> magic;
 };
 
 enum class GameStateChange {
     RESET = 0,
     NEXT = RESET + 1,
+    LOAD = NEXT + 1,
 };

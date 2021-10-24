@@ -5,10 +5,15 @@
 #include <cassert>
 #include <sstream>
 #include <iostream>
+#include <fstream>
 
+#include "factory.cpp"
 #include "physics_system.hpp"
 #include "battle_system.hpp"
 #include <iostream>
+#include <../ext/json/single_include/nlohmann/json.hpp>
+using json = nlohmann::json;
+
 
 // Game configuration
 const size_t MAX_ENEMY = 5;
@@ -25,6 +30,9 @@ std::array<TEXTURE_ASSET_ID, 5> tutorialScreenOptions = { TEXTURE_ASSET_ID::TUTO
 													 TEXTURE_ASSET_ID::TUTORIAL_FIVE };
 int SCREEN_WIDTH;
 int SCREEN_HEIGHT;
+
+std::string createSingleAttackString(Attack &attack);
+
 // Create the fish world
 WorldSystem::WorldSystem()
 	: points(0)
@@ -139,7 +147,87 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 
 
 	// Set all states to default
-    restart_game(GameStateChange::RESET);
+    restart_game(GameStateChange::LOAD);
+}
+
+std::string createAttackString(std::vector<Attack> a) {
+    std::string result = "[";
+    std::vector<std::string> attacks;
+    attacks.reserve(a.size());
+    for(auto & i : a) {
+        attacks.push_back(createSingleAttackString(i));
+    }
+    if (!attacks.empty()) {
+        result += attacks[0];
+    }
+    for (int i = 1; i < attacks.size(); i++) {
+        result += ",";
+        result += attacks[i];
+    }
+    result += "]";
+    return result;
+}
+
+std::string createSingleAttackString(Attack &attack) {
+    std::string result = "{";
+
+    result += "\"name\":";
+    result += attack.name;
+    result += ",";
+    result += "\"damage\":";
+    result += std::to_string(attack.damage);
+    result += ",";
+    result += "\"type\":";
+    result += std::to_string((int)attack.type);
+    result += "}";
+    return result;
+}
+
+std::string createMotionString(Motion m) {
+    std::string result = "{";
+
+    result += "\"position\":";
+    result += "{";
+    result += "\"x\":";
+    result += std::to_string(m.position[0]);
+    result += ",";
+    result += "\"y\":";
+    result += std::to_string(m.position[1]);
+    result += "}";
+    result += ",";
+
+    result += "\"angle\":";
+    result += std::to_string(m.angle);
+    result += ",";
+
+    result += "\"velocity\":";
+    result += "{";
+    result += "\"x\":";
+    result += std::to_string(m.velocity[0]);
+    result += ",";
+    result += "\"y\":";
+    result += std::to_string(m.velocity[1]);
+    result += "}";
+    result += ",";
+
+    result += "\"scale\":";
+    result += "{";
+    result += "\"x\":";
+    result += std::to_string(m.scale[0]);
+    result += ",";
+    result += "\"y\":";
+    result += std::to_string(m.scale[1]);
+    result += "}";
+    result += ",";
+
+    result += "\"dir\":";
+    result += std::to_string((int)m.dir);
+    result += ",";
+
+    result += "\"collision_proof\":";
+    result += ((m.collision_proof) ? "true" : "false");
+    result += "}";
+    return result;
 }
 
 //void WorldSystem::getScreenSize() {
@@ -211,10 +299,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
     // display the enum number that corresponds to the current state of the game
 //    Game& game = registry.game.get(player_doll);
 //    std::cout << static_cast<int>(game.state) << std::endl;
-    gameProgress.health = registry.health.get(player_doll);
-    gameProgress.magic = registry.magicLists.get(player_doll).available_magic;
-    gameProgress.attack = registry.attackLists.get(player_doll).available_attacks;
-    gameProgress.motion = registry.motions.get(player_doll);
+    save();
     return true;
 }
 
@@ -252,19 +337,31 @@ void WorldSystem::escapeTutorial(bool isComplete) {
 }
 
 // Reset the world state to its initial state
-void WorldSystem::restart_game(GameStateChange gc = GameStateChange::RESET) {
+void WorldSystem::restart_game(GameStateChange gc) {
 	// Debugging for memory/component leaks
 	registry.list_all_components();
+    JsonReader jr;
     if (gc == GameStateChange::RESET) {
         printf("Restarting\n");
-    } else {
+        GameProgressFactory gpf;
+        json gp = jr.readFile("/gameData/default.json");
+        gameProgress = gpf.create(renderer, gp);
+
+    } else if (gc == GameStateChange::NEXT){
         printf("Moving to next level: ");
         std::string msg = std::to_string(gameProgress.level);
         msg += " -> ";
         msg += std::to_string(gameProgress.level + 1);
         std::cout << msg << std::endl;
+        gameProgress.level += 1;
+    } else {
+        printf("Reloading from level: %i\n", gameProgress.level);
+        GameProgressFactory gpf;
+        json gp = jr.readFile("/gameData/gameProgress.json");
+        gameProgress = gpf.create(renderer, gp);
     }
 
+    json level = jr.readLevel(gameProgress.level);
 
 	// Reset the game speed
 	current_speed = 1.f;
@@ -277,13 +374,6 @@ void WorldSystem::restart_game(GameStateChange gc = GameStateChange::RESET) {
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 
-    // DONE: at the end of each game step update game progress
-
-    // TODO: update game progress, if reset then read default from file and make that the progress, else increment, level
-    // TODO: save current point to file
-    // TODO: read level file
-    // TODO: use factories to load everything
-
 	// create a background
 	int screen_width, screen_height;
 //	glfwGetFramebufferSize(window, &screen_width, &screen_height);
@@ -291,12 +381,78 @@ void WorldSystem::restart_game(GameStateChange gc = GameStateChange::RESET) {
     screen_width = window_width_px;
 	background = createBackground(renderer, { screen_width / 2.f, screen_height / 2.f }, TEXTURE_ASSET_ID::BACKGROUND);
 
-	// Create a new doll
-	player_doll = createDoll(renderer, { screen_width /5.f, screen_height/2.f }, std::vector<Attack>(), std::vector<Magic>());
-	Motion& motion = registry.motions.get(player_doll);
-	motion.scale = motion.scale * float(screen_width / 8);
-    player_speed = 200.f;
+    if (level.contains("beds")) {
+        BedFactory bedFactory;
+        json beds = level["beds"];
+        for(auto& bed: beds) {
+            bedFactory.create(renderer, bed);
+        }
+    }
+
+    if (level.contains("lamps")) {
+        LampFactory lampFactory;
+        json lamps = level["lamps"];
+        for(auto& lamp: lamps) {
+            lampFactory.create(renderer, lamps);
+        }
+    }
+
+    if (level.contains("tables")) {
+        TableFactory tableFactory;
+        json tables = level["tables"];
+        for(auto& table: tables) {
+            tableFactory.create(renderer, table);
+        }
+    }
+
+    if (level.contains("tables")) {
+        TableFactory tableFactory;
+        json tables = level["tables"];
+        for(auto& table: tables) {
+            tableFactory.create(renderer, table);
+        }
+    }
+
+    if (level.contains("tables")) {
+        EnemyFactory enemyFactory;
+        json enemyData = level["enemies"];
+        enemyFactory.create(renderer, this, enemyData);
+    }
+
+    if (level.contains("walls")) {
+        WallFactory wallFactory;
+        json wallData = level["walls"];
+        for(auto& wall: wallData) {
+            wallFactory.create(renderer, wall);
+        }
+    }
+
+
+    // doll creation
+    if (level.contains("player_doll")) {
+        PlayerFactory pf;
+        player_doll = pf.createDollFactory(renderer, level["player_doll"]);
+    } else {
+        player_doll = createDoll(renderer, { screen_width /5.f, screen_height/2.f }, std::vector<Attack>());
+    }
+
+    Motion& motion = registry.motions.get(player_doll);
+    motion.scale = motion.scale * float(screen_width / 8);
+
+    if (gc == GameStateChange::LOAD) {
+        motion = gameProgress.motion;
+        motion.velocity = {0, 0};
+        registry.health.get(player_doll) = gameProgress.health;
+        registry.attackLists.get(player_doll).available_attacks = gameProgress.attack;
+    } else if (gc == GameStateChange::NEXT) {
+        registry.health.get(player_doll) = gameProgress.health;
+        registry.attackLists.get(player_doll).available_attacks = gameProgress.attack;
+    }
+
+
 	registry.colors.insert(player_doll, {1, 0.8f, 0.8f});
+
+    player_speed = 200.f;
 
 	// create a help screen
     helpScreen = createHelpWindow(renderer, { screen_width / 2.f, screen_height / 6.f });
@@ -325,6 +481,7 @@ void WorldSystem::restart_game(GameStateChange gc = GameStateChange::RESET) {
 
 	//hardcoded for now while we figure out save/load
 	Entity block = createWallBlock({ screen_width / 2.f, 250 }, { screen_width, 100.f });
+    save();
 }
 
 
@@ -445,6 +602,10 @@ bool WorldSystem::is_over() const {
 // On key callback
 void WorldSystem::on_key(int key, int, int action, int mod) {
     // press spacebar to close tutorial screen
+    if (action == GLFW_PRESS && key == GLFW_KEY_R) {
+        reset();
+        return;
+    }
     Game& game = registry.game.get(player_doll);
     if (game.state == GameState::TUTORIAL && key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
         TutorialTimer &tutorialTimer = registry.tutorialTimer.get(tutorialScreen);
@@ -753,3 +914,28 @@ void WorldSystem::addEnemy(std::string type, int frequency) {
     enemyTypes.push_back(type);
     enemyMap.insert({type, frequency});
 }
+
+void WorldSystem::save() {
+    gameProgress.health = registry.health.get(player_doll);
+    gameProgress.attack = registry.attackLists.get(player_doll).available_attacks;
+    gameProgress.motion = registry.motions.get(player_doll);
+    json save;
+    save["health"] = json();
+    save["health"]["health"] = gameProgress.health.health;
+    save["health"]["healthDecrement"] = gameProgress.health.healthDecrement;
+    save["level"] = gameProgress.level;
+    save["attacks"] = json::parse(createAttackString(gameProgress.attack));
+    save["motion"] = json::parse(createMotionString(gameProgress.motion));
+    std::string obj = save.dump();
+    std::ofstream myfile;
+    std::string filePath = data_path();
+    filePath += "/gameData/gameProgress.json";
+    myfile.open(filePath);
+    myfile << obj;
+    myfile.close();
+}
+
+void WorldSystem::reset() {
+    restart_game(GameStateChange::RESET);
+}
+

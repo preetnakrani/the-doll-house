@@ -47,6 +47,7 @@ public:
 	// Handles removing components of battle window, should only be called by BattleSystem
 	void destroyBattleWindow();
 	void attach(std::function<void(Entity)> fn);
+    void save();
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
@@ -55,7 +56,7 @@ private:
 	void openMenuOverlayScreen();
 	void closeMenuOverlayScreen();
 	// restart level
-	void restart_game(GameStateChange gc);
+	void restart_game(GameStateChange gc = GameStateChange::RESET);
 
 	// creates the battle window and all its UI elements
 	void drawBattleWindow();
@@ -130,6 +131,5 @@ private:
 	// C++ random number generator
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
-
-
+    void reset();
 };

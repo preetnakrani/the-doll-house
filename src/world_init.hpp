@@ -20,7 +20,7 @@ Entity createBattleMenuItem(RenderSystem* renderer, vec2 pos, BattleMenuItemType
 
 Entity createEnemy(RenderSystem *renderer, vec2 pos);
 
-Entity createDoll(RenderSystem *renderer, vec2 pos, std::vector<Attack> attackList, std::vector<Magic> magicList, int hp = 100, int hd = 0);
+Entity createDoll(RenderSystem *renderer, vec2 pos, std::vector<Attack> attackList, int hp = 100, int hd = 0);
 
 Entity createBattleDoll(RenderSystem* renderer, vec2 pos);
 
@@ -46,13 +46,13 @@ Entity createLamp(RenderSystem* renderer, vec2 pos, Direction dir = Direction::D
 
 Attack createAttack(std::string name, AttackType type, int damage);
 
-Magic createMagicAttack(std::string name, MagicType magicType, AttackType attackType, int damage);
+MagicAttack createMagicAttack(std::string name, MagicType magicType, AttackType attackType, int damage);
 
-Magic createMagicEffect(std::string name, MagicType magicType, bool isTemporary, float timer);
+MagicEffect createMagicEffect(std::string name, MagicType magicType, bool isTemporary, float timer);
 
-Magic createMagicDefense(std::string name, MagicType magicType, int physical_defense_boost, int magic_defense_boost);
+MagicDefense createMagicDefense(std::string name, MagicType magicType, int physical_defense_boost, int magic_defense_boost);
 
-GameProgress createGameProgress(int level, Health health, Motion motion, std::vector<Attack> attack, std::vector<Magic> magic);
+GameProgress createGameProgress(int level, Health health, Motion motion, std::vector<Attack> attack);
 
 Health createHealth(int health = 100, int healthDecrement = 0);
 
