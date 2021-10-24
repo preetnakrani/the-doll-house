@@ -211,7 +211,10 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
     // display the enum number that corresponds to the current state of the game
 //    Game& game = registry.game.get(player_doll);
 //    std::cout << static_cast<int>(game.state) << std::endl;
-
+    gameProgress.health = registry.health.get(player_doll);
+    gameProgress.magic = registry.magicLists.get(player_doll).available_magic;
+    gameProgress.attack = registry.attackLists.get(player_doll).available_attacks;
+    gameProgress.motion = registry.motions.get(player_doll);
     return true;
 }
 
@@ -274,7 +277,8 @@ void WorldSystem::restart_game(GameStateChange gc = GameStateChange::RESET) {
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 
-    // TODO: at the end of each game step update game progress
+    // DONE: at the end of each game step update game progress
+
     // TODO: update game progress, if reset then read default from file and make that the progress, else increment, level
     // TODO: save current point to file
     // TODO: read level file
