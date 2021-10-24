@@ -289,7 +289,7 @@ void WorldSystem::restart_game(GameStateChange gc = GameStateChange::RESET) {
 //	glfwGetFramebufferSize(window, &screen_width, &screen_height);
     screen_height = window_height_px;
     screen_width = window_width_px;
-	background = createBackground(renderer, { screen_width / 2.f, screen_height / 2.f });
+	background = createBackground(renderer, { screen_width / 2.f, screen_height / 2.f }, TEXTURE_ASSET_ID::BACKGROUND);
 
 	// Create a new doll
 	player_doll = createDoll(renderer, { screen_width /5.f, screen_height/2.f }, std::vector<Attack>(), std::vector<Magic>());

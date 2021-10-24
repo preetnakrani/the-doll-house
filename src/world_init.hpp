@@ -10,7 +10,7 @@ const float DOLL_BB_HEIGHT = 0.4f * 64.f;
 const float ENEMY_BB_WIDTH = 0.4f * 64.f;
 const float ENEMY_BB_HEIGHT = 0.4f * 64.f;
 
-Entity createBackground(RenderSystem* renderer, vec2 pos);
+Entity createBackground(RenderSystem* renderer, vec2 pos, TEXTURE_ASSET_ID background);
 
 Entity createHelpWindow(RenderSystem *renderer, vec2 pos);
 
