@@ -52,3 +52,9 @@ Magic createMagicEffect(std::string name, MagicType magicType, bool isTemporary,
 
 Magic createMagicDefense(std::string name, MagicType magicType, int physical_defense_boost, int magic_defense_boost);
 
+GameProgress createGameProgress(int level, Health health, Motion motion, std::vector<Attack> attack, std::vector<Magic> magic);
+
+Health createHealth(int health = 100, int healthDecrement = 0);
+
+Motion createMotion(vec2 scale, vec2 position, vec2 velocity, float angle, Direction dir, bool collision_proof);
+

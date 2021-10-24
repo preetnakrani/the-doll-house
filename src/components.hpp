@@ -381,3 +381,16 @@ struct RenderRequest {
 	EFFECT_ASSET_ID used_effect = EFFECT_ASSET_ID::EFFECT_COUNT;
 	GEOMETRY_BUFFER_ID used_geometry = GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 };
+
+struct GameProgress {
+    int level = 1;
+    Motion motion;
+    Health health;
+    std::vector<Attack> attack;
+    std::vector<Magic> magic;
+};
+
+enum class GameStateChange {
+    RESET = 0,
+    NEXT = RESET + 1,
+};

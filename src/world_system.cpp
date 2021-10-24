@@ -136,8 +136,10 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
     SCREEN_HEIGHT = window_height_px;
     SCREEN_WIDTH = window_width_px;
 
+
+
 	// Set all states to default
-    restart_game();
+    restart_game(GameStateChange::RESET);
 }
 
 //void WorldSystem::getScreenSize() {
@@ -247,10 +249,19 @@ void WorldSystem::escapeTutorial(bool isComplete) {
 }
 
 // Reset the world state to its initial state
-void WorldSystem::restart_game() {
+void WorldSystem::restart_game(GameStateChange gc = GameStateChange::RESET) {
 	// Debugging for memory/component leaks
 	registry.list_all_components();
-	printf("Restarting\n");
+    if (gc == GameStateChange::RESET) {
+        printf("Restarting\n");
+    } else {
+        printf("Moving to next level: ");
+        std::string msg = std::to_string(gameProgress.level);
+        msg += " -> ";
+        msg += std::to_string(gameProgress.level + 1);
+        std::cout << msg << std::endl;
+    }
+
 
 	// Reset the game speed
 	current_speed = 1.f;
@@ -262,6 +273,12 @@ void WorldSystem::restart_game() {
 
 	// Debugging for memory/component leaks
 	registry.list_all_components();
+
+    // TODO: at the end of each game step update game progress
+    // TODO: update game progress, if reset then read default from file and make that the progress, else increment, level
+    // TODO: save current point to file
+    // TODO: read level file
+    // TODO: use factories to load everything
 
 	// create a background
 	int screen_width, screen_height;

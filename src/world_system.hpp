@@ -55,7 +55,7 @@ private:
 	void openMenuOverlayScreen();
 	void closeMenuOverlayScreen();
 	// restart level
-	void restart_game();
+	void restart_game(GameStateChange gc);
 
 	// creates the battle window and all its UI elements
 	void drawBattleWindow();
@@ -77,6 +77,8 @@ private:
 	bool isClickInRegion(double x, double y, vec2 top_left_coords, double height, double width);
 
 	void getScreenSize();
+
+    GameProgress getGameProgress();
 
 	// OpenGL window handle
 	GLFWwindow* window;
@@ -113,6 +115,9 @@ private:
     // enemy stuff
     std::unordered_map<std::string, int> enemyMap;
     std::vector<std::string> enemyTypes;
+
+    // game state
+    GameProgress gameProgress;
 
 	// Other variables related to battle screen
 	BattleMenuItemType selected_move_menu; // Either attack, magic, or items

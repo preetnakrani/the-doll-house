@@ -439,3 +439,31 @@ Magic createMagicDefense(std::string name, MagicType magicType, int physical_def
     m.magic_defense_boost = magic_defense_boost;
     return m;
 }
+
+Motion createMotion(vec2 scale, vec2 position, vec2 velocity, float angle, Direction dir, bool collision_proof) {
+    Motion m;
+    m.scale = scale;
+    m.position = position;
+    m.velocity = velocity;
+    m.angle = angle;
+    m.dir = dir;
+    m.collision_proof = collision_proof;
+    return m;
+}
+
+Health createHealth(int health, int healthDecrement) {
+    Health h;
+    h.health = health;
+    h.healthDecrement = healthDecrement;
+    return h;
+}
+
+GameProgress createGameProgress(int level, Health health, Motion motion, std::vector<Attack> attack, std::vector<Magic> magic) {
+    GameProgress g;
+    g.level = level;
+    g.health = health;
+    g.motion = motion;
+    g.attack = attack;
+    g.magic = magic;
+    return g;
+}
