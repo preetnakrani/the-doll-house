@@ -14,11 +14,6 @@ struct Enemy {
 
 };
 
-// An enemy that the player is currently engaging in battle with
-struct CurrentEnemy {
-
-};
-
 struct Wall {
 
 };
@@ -26,6 +21,7 @@ struct Wall {
 struct Health {
     int health = 0;
     int healthDecrement  = 0;
+	int maxHP = 0;
 };
 
 enum class Direction {
@@ -68,6 +64,31 @@ enum class BattleState {
 	LOST = 6,
 };
 
+enum class EnemyState {
+	NONE = 1,
+	HEALTHY = 2,
+	DAMAGED = 3,
+	NEAR_DEATH = 4,
+	BOLD = 5,
+	THREATENED = 6,
+	TAUNTED = 7,
+};
+
+struct Status {
+	bool NONE = true;
+	bool TAUNTED = false;
+	bool POISONED = false;
+	bool SHIELDED = false;
+	int timer = 0;
+
+};
+
+// An enemy that the player is currently engaging in battle with
+struct CurrentEnemy {
+	EnemyState enemyState = EnemyState::HEALTHY;
+};
+
+
 enum class MoveType {
 	NONE = 0,
 	ATTACK = 1,
@@ -78,13 +99,12 @@ enum class MoveType {
 enum class AttackName {
 	NONE = 0,
 	PUNCH = 1,
-	TAUNT = 2,
 	SNEEZE = 3, // dust bunny
 };
 
 enum class AttackType {
     NORMAL = 0,
-    NOTNORMAL = 1
+    NOTNORMAL = 1,
 };
 
 struct Attack {
@@ -96,8 +116,6 @@ struct Attack {
 		switch (this->name) {
 			case AttackName::PUNCH :
 				return "PUNCH";
-			case AttackName::TAUNT :
-				return "TAUNT";
 			case AttackName::SNEEZE :
 				return "SNEEZE";
 			default:
@@ -145,17 +163,19 @@ enum class MagicName {
 	LIGHTNING = 1,
 	SHIELD = 2,
 	POISON = 3,
+	TAUNT = 4,
 };
 
 enum class MagicType {
 	ATTACK = 0,
 	DEFENSE = 1,
-	STATUS_EFFECT = 2 // Magic that changes the target's status
+	STATUS_EFFECT = 2, // Magic that changes the target's status
+	NONE = 3,
 };
 
 struct Magic {
 	MagicName name;
-
+	
 	std::string nameAsString() {
 		switch (this->name) {
 			case MagicName::LIGHTNING :
@@ -164,52 +184,92 @@ struct Magic {
 				return "SHIELD";
 			case MagicName::POISON :
 				return "POISON";
+			case MagicName::TAUNT:
+				return "TAUNT";
 			default:
 				return "";
 		}
 	}
-};
-
-struct MagicAttack : Magic {
-	MagicType magic_type = MagicType::ATTACK;
+	MagicType magicType = MagicType::NONE;
 	AttackType attack_type = AttackType::NORMAL;
 	int damage = 0;
-};
-
-struct MagicDefense : Magic {
-	MagicType magic_type = MagicType::DEFENSE;
 	int physical_defense_boost = 0;
 	int magic_defense_boost = 0;
+	int timer = 0;
+	int countdown = 0;
+	bool isTemporary;
+
 };
 
-struct MagicEffect : Magic {
-	MagicType magic_type = MagicType::STATUS_EFFECT;
-	bool isTemporary;
-	float timer; // set to 0 if no timer needed (permanent effect)
-};
+//struct MagicAttack : Magic {
+//	MagicType magic_type = MagicType::ATTACK;
+//	AttackType attack_type = AttackType::NORMAL;
+//	int damage = 0;
+//};
+//
+//struct MagicDefense : Magic {
+//	MagicType magic_type = MagicType::DEFENSE;
+//	int physical_defense_boost = 0;
+//	int magic_defense_boost = 0;
+//	int timer = 0;
+//};
+//
+//struct MagicEffect : Magic {
+//	MagicType magic_type = MagicType::STATUS_EFFECT;
+//	bool isTemporary;
+//	int timer; // set to 0 if no timer needed (permanent effect)
+//};
 
 struct MagicList {
 	std::vector<Magic> available_magic;
 
 	void addMagicAttack(MagicName name, AttackType attack_type, int damage) {
-		MagicAttack magic_attack = {};
+		Magic magic_attack = {};
 		magic_attack.name = name;
+		magic_attack.magicType = MagicType::ATTACK;
 		magic_attack.attack_type = attack_type;
 		magic_attack.damage = damage;
+		available_magic.push_back(magic_attack);
 	}
 
-	void addMagicDefense(MagicName name, int physical_defense_boost, int magic_defense_boost) {
-		MagicDefense magic_defense = {};
+	void addMagicDefense(MagicName name, int physical_defense_boost, int magic_defense_boost, int timer) {
+		Magic magic_defense = {};
 		magic_defense.name = name;
+		magic_defense.magicType = MagicType::DEFENSE;
 		magic_defense.physical_defense_boost = physical_defense_boost;
 		magic_defense.magic_defense_boost = magic_defense_boost;
+		magic_defense.timer = timer;
+		available_magic.push_back(magic_defense);
 	}
 
 	void addMagicEffect(MagicName name, bool isTemporary, float timer) {
-		MagicEffect magic_effect = {};
+		Magic magic_effect = {};
 		magic_effect.name = name;
+		magic_effect.magicType = MagicType::STATUS_EFFECT;
 		magic_effect.isTemporary = isTemporary;
 		magic_effect.timer = timer;
+		available_magic.push_back(magic_effect);
+	}
+
+	bool hasMagic(MagicName name) {
+		auto iterator = find_if(available_magic.begin(), available_magic.end(), [&name](const Magic& magic) {
+			return magic.name == name;
+			});
+
+		return iterator != available_magic.end();
+	}
+
+	Magic getAttack(MagicName name) {
+		auto iterator = find_if(available_magic.begin(), available_magic.end(), [&name](const Magic& magic) {
+			return magic.name == name;
+			});
+
+		if (iterator != available_magic.end()) {
+			return *iterator;
+		}
+		else {
+			return {};
+		}
 	}
 };
 

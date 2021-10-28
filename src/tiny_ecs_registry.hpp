@@ -39,6 +39,7 @@ public:
 	ComponentContainer<BattleMenuPlayerMove> battleMenuPlayerMoves;
 	ComponentContainer<TutorialTimer> tutorialTimer;
 	ComponentContainer<Wall> walls;
+	ComponentContainer<Status> status;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
@@ -72,6 +73,7 @@ public:
 		registry_list.push_back(&battleMenuPlayerMoves);
 		registry_list.push_back(&tutorialTimer);
 		registry_list.push_back(&walls);
+		registry_list.push_back(&status);
 	}
 
 	void clear_all_components() {
