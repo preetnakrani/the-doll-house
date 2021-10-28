@@ -80,7 +80,8 @@ class RenderSystem {
 		shader_path("textured"),
 		shader_path("verticalBlur"),
 		shader_path("horizontalBlur"),
-		shader_path("helpScreen")};
+		shader_path("helpScreen"),
+		shader_path("drawToScreen")};
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
@@ -115,10 +116,12 @@ public:
 	mat3 createProjectionMatrix();
 
 private:
+    void findVar();
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
 	void drawToScreen();
-	void horizontalBlur();
+    void verticalBlur();
+    void horizontalBlur();
 	void drawOverlayWindow(Entity entity,
                            const mat3 &projection);
 

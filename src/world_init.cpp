@@ -45,7 +45,7 @@ Entity createHelpWindow(RenderSystem* renderer, vec2 pos)
     motion.velocity = { 0.f, 0.f };
     motion.scale = mesh.original_size;
     motion.collision_proof = 1;
-    registry.helpScreens.emplace(entity);
+//    registry.helpScreens.emplace(entity);
     registry.renderRequests.insert(
             entity,
             { TEXTURE_ASSET_ID::HELP_PRESS_A,
@@ -178,7 +178,7 @@ Entity createBattleMenuItem(RenderSystem* renderer, vec2 pos, BattleMenuItemType
           GEOMETRY_BUFFER_ID::SPRITE });
     return entity;
 }
-Entity createDoll(RenderSystem* renderer, vec2 pos)
+Entity createDoll(RenderSystem* renderer, vec2 pos, vec2 frameBufferSize)
 {
     auto entity = Entity();
 
@@ -210,8 +210,7 @@ Entity createDoll(RenderSystem* renderer, vec2 pos)
 
     Game& game = registry.game.emplace(entity);
     game.state = GameState::PLAYING;
-
-    registry.players.emplace(entity);
+    registry.players.insert(entity, {(int)frameBufferSize.x, (int)frameBufferSize.y});
     registry.renderRequests.insert(
             entity,
             { TEXTURE_ASSET_ID::DOLL_DOWN,

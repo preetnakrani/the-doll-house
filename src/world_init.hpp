@@ -20,7 +20,7 @@ Entity createBattleMenuItem(RenderSystem* renderer, vec2 pos, BattleMenuItemType
 
 Entity createEnemy(RenderSystem *renderer, vec2 pos);
 
-Entity createDoll(RenderSystem *renderer, vec2 pos);
+Entity createDoll(RenderSystem *renderer, vec2 pos, vec2 frameBufferSize);
 
 Entity createBattleDoll(RenderSystem* renderer, vec2 pos);
 

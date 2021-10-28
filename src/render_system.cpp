@@ -1,8 +1,19 @@
 // internal
 #include "render_system.hpp"
 #include <SDL.h>
+#include <iostream>
 
 #include "tiny_ecs_registry.hpp"
+
+Player p;
+int fbWidth;
+int fbHeight;
+
+void RenderSystem::findVar() {
+    p = registry.players.get(registry.players.entities[0]);
+    fbWidth = p.fBWidth;
+    fbHeight = p.fBHeight;
+}
 
 void RenderSystem::drawTexturedMesh(Entity entity,
                                     const mat3 &projection)
@@ -129,6 +140,73 @@ void RenderSystem::drawToScreen()
 {
     // Setting shaders
     // get the BLUR texture, sprite mesh, and program
+    glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::DRAW_TO_SCREEN]);
+    gl_has_errors();
+
+    // Clearing backbuffer
+    int w, h;
+    glfwGetFramebufferSize(window, &w, &h);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//    glViewport(0, 0, w, h);
+    glViewport(0, 0, fbWidth, fbHeight);
+    glDepthRange(0, 10);
+    glClearColor(1.f, 0, 0, 1.0);
+    glClearDepth(1.f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    gl_has_errors();
+
+    // Enabling alpha channel for textures
+    glDisable(GL_BLEND);
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_DEPTH_TEST);
+    // Draw the screen texture on the quad geometry
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]);
+    glBindBuffer(
+            GL_ELEMENT_ARRAY_BUFFER,
+            index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]); // Note, GL_ELEMENT_ARRAY_BUFFER associates
+    // indices to the bound GL_ARRAY_BUFFER
+    gl_has_errors();
+
+    const GLuint blur_program = effects[(GLuint)EFFECT_ASSET_ID::DRAW_TO_SCREEN];
+
+    // Set clock // For future potential implementations
+    GLuint time_uloc = glGetUniformLocation(blur_program, "time");
+
+    //Blur_check
+    GLuint blur_uloc = glGetUniformLocation(blur_program, "blur_state");
+    Background& background = registry.backgrounds.get(registry.backgrounds.entities[0]);
+    glUniform1i(blur_uloc, background.blur_state);
+    glUniform1f(time_uloc, (float)(glfwGetTime() * 10.0f));
+    gl_has_errors();
+
+    // Set the vertex position and vertex texture coordinates (both stored in the same VBO)
+    GLint in_position_loc = glGetAttribLocation(blur_program, "in_position");
+    glEnableVertexAttribArray(in_position_loc);
+    glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
+    gl_has_errors();
+
+    // Bind our texture in Texture Unit 0
+    glActiveTexture(GL_TEXTURE0);
+
+    glBindTexture(GL_TEXTURE_2D, off_screen_render_buffer_color);
+    gl_has_errors();
+
+    // Draw
+    glDrawElements(
+            GL_TRIANGLES, 3, GL_UNSIGNED_SHORT,
+            nullptr); // one triangle = 3 vertices; nullptr indicates that there is
+    // no offset from the bound index buffer
+    gl_has_errors();
+
+//    if (background.blur_state == 1) {
+//        horizontalBlur();
+//    }
+}
+
+void RenderSystem::verticalBlur()
+{
+    // Setting shaders
+    // get the BLUR texture, sprite mesh, and program
     glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::BLUR]);
     gl_has_errors();
 
@@ -136,7 +214,8 @@ void RenderSystem::drawToScreen()
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, w, h);
+//    glViewport(0, 0, w, h);
+    glViewport(0, 0, fbWidth, fbHeight);
     glDepthRange(0, 10);
     glClearColor(1.f, 0, 0, 1.0);
     glClearDepth(1.f);
@@ -170,7 +249,7 @@ void RenderSystem::drawToScreen()
     // Set the vertex position and vertex texture coordinates (both stored in the same VBO)
     GLint in_position_loc = glGetAttribLocation(blur_program, "in_position");
     glEnableVertexAttribArray(in_position_loc);
-    glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
+    glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void*)0);
     gl_has_errors();
 
     // Bind our texture in Texture Unit 0
@@ -185,10 +264,6 @@ void RenderSystem::drawToScreen()
             nullptr); // one triangle = 3 vertices; nullptr indicates that there is
     // no offset from the bound index buffer
     gl_has_errors();
-
-    if (background.blur_state == 1) {
-        horizontalBlur();
-    }
 }
 
 void RenderSystem::horizontalBlur()
@@ -202,7 +277,8 @@ void RenderSystem::horizontalBlur()
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, w, h);
+//    glViewport(0, 0, w, h);
+    glViewport(0, 0, fbWidth, fbHeight);
     glDepthRange(0, 10);
     glClearColor(1.f, 0, 0, 1.0);
     glClearDepth(1.f);
@@ -210,8 +286,8 @@ void RenderSystem::horizontalBlur()
     gl_has_errors();
 
     // Enabling alpha channel for textures
-    glDisable(GL_BLEND);
-    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_DEPTH_TEST);
     // Draw the screen texture on the quad geometry
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]);
@@ -256,6 +332,10 @@ void RenderSystem::horizontalBlur()
 void RenderSystem::drawOverlayWindow(Entity entity,
                                      const mat3 &projection)
 {
+    int w, h;
+    glfwGetFramebufferSize(window, &w, &h);
+    glViewport(0, 0, fbWidth, fbHeight);
+    glEnable(GL_BLEND);
     Motion &motion = registry.motions.get(entity);
     // Transformation code, see Rendering and Transformation in the template
     // specification for more info Incrementally updates transformation matrix,
@@ -337,6 +417,7 @@ void RenderSystem::drawOverlayWindow(Entity entity,
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
 void RenderSystem::draw()
 {
+    findVar();
     // Getting size of window
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
@@ -346,6 +427,7 @@ void RenderSystem::draw()
     gl_has_errors();
     // Clearing backbuffer
     glViewport(0, 0, w, h);
+    std::cout << w << ", " << h << std::endl;
     glDepthRange(0.00001, 10);
     glClearColor(0, 1, 1, 1.0); // background color
     glClearDepth(1.f);
@@ -368,7 +450,11 @@ void RenderSystem::draw()
     }
 
     // Truely render to the screen
-    drawToScreen();
+    Background& background = registry.backgrounds.get(registry.backgrounds.entities[0]);
+    if (background.blur_state == 1) {
+        horizontalBlur();
+    }
+//    drawToScreen();
     for (Entity entity : registry.renderRequests.entities) {
         if (registry.helpScreens.has(entity)) {
             drawOverlayWindow(entity, projection_2D);
@@ -388,7 +474,8 @@ void RenderSystem::draw()
         if (registry.battleMenuButtons.has(entity) || registry.battleMenuPlayerMoves.has(entity)) {
             drawOverlayWindow(entity, projection_2D);
         }
-	}
+        drawToScreen();
+    }
     // flicker-free display with a double buffer
     glfwSwapBuffers(window);
     gl_has_errors();

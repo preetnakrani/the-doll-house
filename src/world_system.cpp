@@ -76,10 +76,13 @@ GLFWwindow* WorldSystem::create_window(int width, int height) {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+
+
 #if __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
-	glfwWindowHint(GLFW_RESIZABLE, 0);
+//	glfwWindowHint(GLFW_RESIZABLE, 0);
 
 	// Create the main window (for rendering, keyboard, and mouse input)
 	window = glfwCreateWindow(width, height, "Salmon Game Assignment", nullptr, nullptr);
@@ -149,6 +152,7 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
+    std::cout << "framebuffer size: " << registry.players.get(player_doll).fBHeight << ", " << registry.players.get(player_doll).fBWidth << std::endl;
     if (registry.game.get(player_doll).state == GameState::TUTORIAL) {
         progressTutorial(elapsed_ms_since_last_update);
     }
@@ -159,6 +163,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 //	glfwGetFramebufferSize(window, &screen_width, &screen_height);
     SCREEN_HEIGHT = window_height_px;
     SCREEN_WIDTH = window_width_px;
+
 
 	// Updating window title with points
 	std::stringstream title_ss;
@@ -191,7 +196,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
         vec2 position =
                 vec2(50.f + uniform_dist(rng) * (screen_width - 100.f),
-					50.f + screen_height / 3 + uniform_dist(rng) * (2 * screen_height/3 - 100.f));
+					50.f + 250 + uniform_dist(rng) * (2 * 250 - 100.f));
 
         vec2 bounding = vec2(100.f, 100.f);
 		Entity new_enemy = createEnemy(renderer, position);
@@ -268,34 +273,41 @@ void WorldSystem::restart_game() {
 //	glfwGetFramebufferSize(window, &screen_width, &screen_height);
     screen_height = window_height_px;
     screen_width = window_width_px;
-	background = createBackground(renderer, { screen_width / 2.f, screen_height / 2.f });
+	background = createBackground(renderer, { 600, 400});
+
+    // create a help screen
+
+    helpScreen = createHelpWindow(renderer, { 600, 150 });
+    Motion& help_motion = registry.motions.get(helpScreen);
+    help_motion.scale = help_motion.scale * float(200);
 
 	// Create a new doll
-	player_doll = createDoll(renderer, { screen_width /5.f, screen_height/3.f });
+//	player_doll = createDoll(renderer, { screen_width /5.f, screen_height/3.f });
+    int w, h;
+    glfwGetFramebufferSize(window, &w, &h);
+    const int fBWidth = w;
+    const int fBHeight = h;
+	player_doll = createDoll(renderer, { 300, 300 }, {fBWidth, fBHeight});
 	Motion& motion = registry.motions.get(player_doll);
-	motion.scale = motion.scale * float(screen_width / 8);
+//	motion.scale = motion.scale * float(screen_width / 8);
+	motion.scale = motion.scale * float(150);
     player_speed = 200.f;
 	registry.colors.insert(player_doll, {1, 0.8f, 0.8f});
 
-	// create a help screen
-    helpScreen = createHelpWindow(renderer, { screen_width / 2.f, screen_height / 6.f });
-	Motion& help_motion = registry.motions.get(helpScreen);
-	help_motion.scale = help_motion.scale * float(screen_width / 4);
-
 	// create a clickable menu button
-	menuButton = createMenuButton(renderer, { screen_width - 50, 25 });
+	menuButton = createMenuButton(renderer, { 1150, 25 });
     Motion& menuButton_motion = registry.motions.get(menuButton);
-    menuButton_motion.scale = menuButton_motion.scale * float(screen_width / 16);
+    menuButton_motion.scale = menuButton_motion.scale * float(75);
 
     // create a menu overlay
-    menuOverlay = createMenuOverlay(renderer, {screen_width/2, screen_height/2});
+    menuOverlay = createMenuOverlay(renderer, {600, 400});
     Motion& overlayMotion = registry.motions.get(menuOverlay);
-    overlayMotion.scale = overlayMotion.scale * float(screen_width / 4);
+    overlayMotion.scale = overlayMotion.scale * float(300);
 
     // create tutorial screen
-    tutorialScreen = createTutorial(renderer, {screen_width/2, screen_height/2});
+    tutorialScreen = createTutorial(renderer, {600, 400});
     Motion& tutorialMotion = registry.motions.get(tutorialScreen);
-    tutorialMotion.scale = tutorialMotion.scale * float(screen_width / 2);
+    tutorialMotion.scale = tutorialMotion.scale * float(600);
     // set state to tutorial
     if (!registry.tutorialTimer.get(tutorialScreen).tutorialCompleted) {
         Game& game = registry.game.get(player_doll);
@@ -321,11 +333,11 @@ void WorldSystem::restart_game() {
 
 void WorldSystem::drawBattleWindow() {
 	selected_move_menu = BattleMenuItemType::NONE;
-	battle_screen = createBattleWindow(renderer, { SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f });
-    battle_doll = createBattleDoll(renderer, { SCREEN_WIDTH / 3.f, SCREEN_HEIGHT / 2.f });
-    battle_enemy = createBattleEnemy(renderer, { SCREEN_WIDTH - SCREEN_WIDTH / 3.f, SCREEN_HEIGHT / 2.f });
+	battle_screen = createBattleWindow(renderer, { 600.f, 400.f });
+    battle_doll = createBattleDoll(renderer, { 400, 400 });
+    battle_enemy = createBattleEnemy(renderer, { 800, 400 });
 
-	float SCALE = SCREEN_HEIGHT / 160; // 160 px is the height of the Aseprite drawing of the battle screen
+	float SCALE = 800 / 160; // 160 px is the height of the Aseprite drawing of the battle screen
 	
 	// The numbers that the "POSITION" quantities are being multiplied by are the positions of the assets on the Aseprite drawing
 	vec2 BUTTON_AREA_POSITION = { 32 * SCALE, 132 * SCALE };

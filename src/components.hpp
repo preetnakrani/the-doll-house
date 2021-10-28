@@ -7,7 +7,8 @@
 // Player component
 struct Player
 {
-
+    int fBWidth;
+    int fBHeight;
 };
 
 struct Enemy {
@@ -353,8 +354,8 @@ enum class EFFECT_ASSET_ID {
 	BLUR = TEXTURED + 1,
 	REBLUR = BLUR + 1,
 	HELP_SCREEN = REBLUR + 1,
-//    BATTLE_SCREEN = HELP_SCREEN + 1,
-	EFFECT_COUNT = HELP_SCREEN + 1
+    DRAW_TO_SCREEN = HELP_SCREEN + 1,
+	EFFECT_COUNT = DRAW_TO_SCREEN + 1
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
