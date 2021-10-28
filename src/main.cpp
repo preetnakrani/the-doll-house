@@ -34,6 +34,10 @@ int main()
     GLFWwindow* window = world.create_window(window_width_px, window_height_px);
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
+    glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int w, int h)
+    {
+        glViewport(0, 0, w, h);
+    });
     glfwSetWindowAspectRatio(window, w, h);
     const int fBWidth = w;
     const int fBHeight = h;
