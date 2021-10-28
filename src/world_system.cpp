@@ -152,11 +152,13 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
-    std::cout << "framebuffer size: " << registry.players.get(player_doll).fBHeight << ", " << registry.players.get(player_doll).fBWidth << std::endl;
+//    std::cout << "framebuffer size: " << registry.players.get(player_doll).fBHeight << ", " << registry.players.get(player_doll).fBWidth << std::endl;
     if (registry.game.get(player_doll).state == GameState::TUTORIAL) {
         progressTutorial(elapsed_ms_since_last_update);
     }
-	// Get the screen dimensions
+    if (registry.game.get(player_doll).state != GameState::PLAYING) {
+        debugging.in_debug_mode = false;
+    }	// Get the screen dimensions
 	int screen_width, screen_height;
     screen_height = window_height_px;
     screen_width = window_width_px;
@@ -206,7 +208,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		for (std::function<void(Entity)> fn : callbacks) {
 			fn(new_enemy);
 		}
-		
+
 		if (registry.motions.has(new_enemy)) {
 			registry.motions.get(new_enemy).scale = vec2(64.f, 64.f);
 		}
@@ -338,10 +340,10 @@ void WorldSystem::drawBattleWindow() {
     battle_enemy = createBattleEnemy(renderer, { 800, 400 });
 
 	float SCALE = 800 / 160; // 160 px is the height of the Aseprite drawing of the battle screen
-	
+
 	// The numbers that the "POSITION" quantities are being multiplied by are the positions of the assets on the Aseprite drawing
 	vec2 BUTTON_AREA_POSITION = { 32 * SCALE, 132 * SCALE };
-	battle_menu_button_area = createBattleMenuItem(renderer, BUTTON_AREA_POSITION, BattleMenuItemType::BUTTON_AREA, TEXTURE_ASSET_ID::BATTLE_MENU_BUTTON_AREA);	
+	battle_menu_button_area = createBattleMenuItem(renderer, BUTTON_AREA_POSITION, BattleMenuItemType::BUTTON_AREA, TEXTURE_ASSET_ID::BATTLE_MENU_BUTTON_AREA);
 	scaleUIAsset(battle_menu_button_area, { 60, 51 }, SCALE);
 
 	vec2 TEXT_AREA_POSITION = { 151 * SCALE, 132 * SCALE };
@@ -359,7 +361,7 @@ void WorldSystem::drawBattleWindow() {
 	vec2 ITEMS_BUTTON_POSITION = { 32 * SCALE, 132 * SCALE + 73 };
 	battle_menu_button_items = createBattleMenuItem(renderer, ITEMS_BUTTON_POSITION, BattleMenuItemType::ITEMS_BUTTON, TEXTURE_ASSET_ID::BATTLE_MENU_BUTTON_ITEMS);
 	scaleUIAsset(battle_menu_button_items, { 52, 13 }, 5);
-	
+
 	// Commented these out for now - implementation of the buttons below is a TODO
 	//vec2 LEARN_BUTTON_POSITION = { 224 * SCALE, 132 * SCALE };
 	//battle_menu_button_learn = createBattleMenuItem(renderer, LEARN_BUTTON_POSITION, BattleMenuItemType::LEARN_BUTTON, TEXTURE_ASSET_ID::BATTLE_MENU_BUTTON_LEARN);
@@ -404,6 +406,7 @@ void WorldSystem::handle_collisions() {
 
 
 			if (registry.enemies.has(entity_other)) {
+			    debugging.in_debug_mode = false;
 				// initiate death unless already dying
 				// registry.remove_all_components_of(entity_other); // Need enemy info for battle so I commented it out - Naoreen
                 Game& game = registry.game.get(player_doll);
@@ -412,7 +415,7 @@ void WorldSystem::handle_collisions() {
 					registry.currentEnemies.emplace(entity_other);
                     drawBattleWindow();
 				}
-				
+
 			}
 
 			// bounce off walls
@@ -449,6 +452,13 @@ bool WorldSystem::is_over() const {
 void WorldSystem::on_key(int key, int, int action, int mod) {
     // press spacebar to close tutorial screen
     Game& game = registry.game.get(player_doll);
+    // press slash to activate debugging mode, release to deactivate
+    if (game.state == GameState::PLAYING && key == GLFW_KEY_SLASH) {
+        if (action == GLFW_PRESS) {
+            debugging.in_debug_mode = !debugging.in_debug_mode;
+        }
+    }
+    // press spacebar to close tutorial screen
     if (game.state == GameState::TUTORIAL && key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
         TutorialTimer &tutorialTimer = registry.tutorialTimer.get(tutorialScreen);
         escapeTutorial(tutorialTimer.tutorialCompleted);
@@ -488,14 +498,6 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		glfwGetWindowSize(window, &w, &h);
 
         restart_game();
-	}
-
-	// Debugging
-	if (key == GLFW_KEY_D) {
-		if (action == GLFW_RELEASE)
-			debugging.in_debug_mode = false;
-		else
-			debugging.in_debug_mode = true;
 	}
 
     auto gamestate = registry.game.get(player_doll).state;

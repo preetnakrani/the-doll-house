@@ -318,3 +318,34 @@ Entity createWallBlock(vec2 pos)
     registry.walls.emplace(entity);
     return entity;
 }
+
+
+Entity createLine(vec2 position, vec2 scale)
+{
+    Entity entity = Entity();
+
+    // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+    registry.renderRequests.insert(
+            entity,
+            { TEXTURE_ASSET_ID::TEXTURE_COUNT,
+              EFFECT_ASSET_ID::PEBBLE,
+              GEOMETRY_BUFFER_ID::DEBUG_LINE });
+
+    // Create motion
+    Motion& motion = registry.motions.emplace(entity);
+    motion.angle = 0.f;
+    motion.velocity = { 0, 0 };
+    motion.position = position;
+    motion.scale = scale;
+
+    registry.debugComponents.emplace(entity);
+    return entity;
+}
+
+void createBox(vec2 centrePosition, vec2 verticalLineScale, vec2 horizontalLineScale) {
+    createLine({centrePosition.x - 50, centrePosition.y}, verticalLineScale);
+    createLine({centrePosition.x + 50, centrePosition.y}, verticalLineScale);
+    createLine({centrePosition.x, centrePosition.y - 50}, horizontalLineScale);
+    createLine({centrePosition.x, centrePosition.y + 50}, horizontalLineScale);
+}
+

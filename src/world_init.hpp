@@ -37,3 +37,7 @@ Entity createTutorial(RenderSystem* renderer, vec2 pos);
 Entity createHelpWindow(RenderSystem *renderer, vec2 pos);
 
 Entity createWallBlock(vec2 pos);
+
+Entity createLine(vec2 position, vec2 scale);
+
+void createBox(vec2 centrePosition, vec2 verticalLineScale, vec2 horizontalLineScale);
