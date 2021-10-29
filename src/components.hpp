@@ -99,7 +99,7 @@ enum class MoveType {
 enum class AttackName {
 	NONE = 0,
 	PUNCH = 1,
-	SNEEZE = 3, // dust bunny
+	SNEEZE = 2, // dust bunny
 };
 
 enum class AttackType {
@@ -201,24 +201,6 @@ struct Magic {
 
 };
 
-//struct MagicAttack : Magic {
-//	MagicType magic_type = MagicType::ATTACK;
-//	AttackType attack_type = AttackType::NORMAL;
-//	int damage = 0;
-//};
-//
-//struct MagicDefense : Magic {
-//	MagicType magic_type = MagicType::DEFENSE;
-//	int physical_defense_boost = 0;
-//	int magic_defense_boost = 0;
-//	int timer = 0;
-//};
-//
-//struct MagicEffect : Magic {
-//	MagicType magic_type = MagicType::STATUS_EFFECT;
-//	bool isTemporary;
-//	int timer; // set to 0 if no timer needed (permanent effect)
-//};
 
 struct MagicList {
 	std::vector<Magic> available_magic;
