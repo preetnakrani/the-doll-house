@@ -152,7 +152,7 @@ void RenderSystem::drawToScreen()
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, fbWidth, fbHeight);
+    glViewport(0, 0, w, h);
     glDepthRange(0, 10);
     glClearColor(1.f, 0, 0, 1.0);
     glClearDepth(1.f);
@@ -202,9 +202,9 @@ void RenderSystem::drawToScreen()
     // no offset from the bound index buffer
     gl_has_errors();
 
-//    if (background.blur_state == 1) {
-//        horizontalBlur();
-//    }
+    if (background.blur_state == 1) {
+        horizontalBlur();
+    }
 }
 
 void RenderSystem::horizontalBlur()
@@ -218,7 +218,7 @@ void RenderSystem::horizontalBlur()
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-//    glViewport(0, 0, 1, 1);
+    glViewport(0, 0, w, h);
     glDepthRange(0, 10);
     glClearColor(1.f, 0, 0, 1.0);
     glClearDepth(1.f);
@@ -362,7 +362,7 @@ void RenderSystem::draw()
     glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
     gl_has_errors();
     // Clearing backbuffer
-    glViewport(0, 0, w, h);
+    glViewport(0, 0, fbWidth, fbHeight);
     glDepthRange(0.00001, 10);
     glClearColor(0, 1, 1, 1.0); // background color
     glClearDepth(1.f);
@@ -409,6 +409,23 @@ void RenderSystem::draw()
     // flicker-free display with a double buffer
     glfwSwapBuffers(window);
     gl_has_errors();
+}
+
+mat3 RenderSystem::specialProjectionMatrix()
+{
+    // Fake projection matrix, scales with respect to window coordinates
+    float left = 0.f;
+    float top = 0.f;
+
+    gl_has_errors();
+    float right = (float) 1;
+    float bottom = (float) 1;
+
+    float sx = 2.f / (right - left);
+    float sy = 2.f / (top - bottom);
+    float tx = -(right + left) / (right - left);
+    float ty = -(top + bottom) / (top - bottom);
+    return {{sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f}};
 }
 
 mat3 RenderSystem::createProjectionMatrix()

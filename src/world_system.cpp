@@ -242,6 +242,16 @@ void WorldSystem::progressTutorial(float elapsed_ms_since_last_update) {
     }
 }
 
+void WorldSystem::findInitialFrameBufferSize(){
+    if (fbWidth == 0 && fbHeight == 0) {
+        printf("fBWidth needs update\n");
+        int w, h;
+        glfwGetFramebufferSize(window, &w, &h);
+        fbWidth = w;
+        fbHeight = h;
+    }
+}
+
 void WorldSystem::escapeTutorial(bool isComplete) {
     isComplete = true;
     registry.helpScreens.emplace(helpScreen);
@@ -258,6 +268,8 @@ void WorldSystem::restart_game() {
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 	printf("Restarting\n");
+
+    findInitialFrameBufferSize();
 
 	// Reset the game speed
 	current_speed = 1.f;
@@ -285,11 +297,7 @@ void WorldSystem::restart_game() {
 
 	// Create a new doll
 //	player_doll = createDoll(renderer, { screen_width /5.f, screen_height/3.f });
-    int w, h;
-    glfwGetFramebufferSize(window, &w, &h);
-    const int fBWidth = w;
-    const int fBHeight = h;
-	player_doll = createDoll(renderer, { 300, 300 }, {fBWidth, fBHeight});
+	player_doll = createDoll(renderer, { 300, 300 }, {fbWidth, fbHeight});
 	Motion& motion = registry.motions.get(player_doll);
 //	motion.scale = motion.scale * float(screen_width / 8);
 	motion.scale = motion.scale * float(150);
@@ -406,13 +414,13 @@ void WorldSystem::handle_collisions() {
 
 
 			if (registry.enemies.has(entity_other)) {
-			    debugging.in_debug_mode = false;
 				// initiate death unless already dying
 				// registry.remove_all_components_of(entity_other); // Need enemy info for battle so I commented it out - Naoreen
                 Game& game = registry.game.get(player_doll);
                 game.state = GameState::BATTLE;
 				if (!registry.currentEnemies.has(entity_other)) {
 					registry.currentEnemies.emplace(entity_other);
+                    debugging.in_debug_mode = false;
                     drawBattleWindow();
 				}
 

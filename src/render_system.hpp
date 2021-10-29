@@ -116,6 +116,8 @@ public:
 
 	mat3 createProjectionMatrix();
 
+	mat3 specialProjectionMatrix();
+
 private:
     void findVar();
 	// Internal drawing functions for each entity type
