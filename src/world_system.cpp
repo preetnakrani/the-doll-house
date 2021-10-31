@@ -1,3 +1,4 @@
+
 // Header
 #include "world_system.hpp"
 #include "world_init.hpp"
@@ -462,7 +463,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
         TutorialTimer &tutorialTimer = registry.tutorialTimer.get(tutorialScreen);
         escapeTutorial(tutorialTimer.tutorialCompleted);
         // create the dialogue window once the tutorial is completed
-        room1Dialogue = createPopUpWindow(renderer, {SCREEN_WIDTH/2,SCREEN_HEIGHT - SCREEN_HEIGHT/5});
+        room1Dialogue = createPopUpWindow(renderer, {600.f,600.f});
         game.state = GameState::POPUP;
     }
     // press return key to progress tutorial faster
@@ -474,6 +475,8 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
         bool& isComplete = tutorialTimer.tutorialCompleted;
         if (index == 4) {
             escapeTutorial(isComplete);
+            room1Dialogue = createPopUpWindow(renderer, {600.f,600.f});
+            game.state = GameState::POPUP;
         } else {
             index++;
             rr.used_texture = tutorialScreenOptions[index];
@@ -504,7 +507,6 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
             dialogue_rr.used_texture = room1Popups[dialogue.order + 1];
             dialogue.order++;
         } else if (key == GLFW_KEY_X && action == GLFW_PRESS && dialogue.order == (room1Popups.size() - 1)) {
-//            registry.renderRequests.remove(room1Dialogue);
             escapeDialogue();
         }
     }
