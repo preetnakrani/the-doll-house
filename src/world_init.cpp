@@ -229,21 +229,26 @@ Entity createDoll(RenderSystem* renderer, vec2 pos, vec2 frameBufferSize)
 Entity createBattleDoll(RenderSystem* renderer, vec2 pos)
 {
     auto entity = Entity();
-    Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+    Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE_ANIMATION);
     registry.meshPtrs.emplace(entity, &mesh);
     Motion& motion = registry.motions.emplace(entity);
     motion.dir = Direction::DOWN;
     motion.position = pos;
     motion.angle = 0.f;
     motion.velocity = { 0.f, 0.f };
-    motion.scale = { 200, 100 };
+    motion.scale = { 100, 100 };
     motion.collision_proof = 1;
     registry.battleDolls.emplace(entity);
+    AnimatedSprite& animated_sprite = registry.animatedSprites.emplace(entity);
+    animated_sprite.paused = false;
+    animated_sprite.num_frames_per_type = { { 0, 2 } };
+    animated_sprite.animation_speed_ms = 750;
+
     registry.renderRequests.insert(
             entity,
-            { TEXTURE_ASSET_ID::PLAYER_TEMP,
-              EFFECT_ASSET_ID::HELP_SCREEN,
-              GEOMETRY_BUFFER_ID::SPRITE});
+            { TEXTURE_ASSET_ID::DOLL,
+              EFFECT_ASSET_ID::TEXTURED_ANIMATION,
+              GEOMETRY_BUFFER_ID::SPRITE_ANIMATION});
     return entity;
 }
 
@@ -309,26 +314,30 @@ Entity createBattleEnemy(RenderSystem* renderer, vec2 pos)
     auto entity = Entity();
 
     // Store a reference to the potentially re-used mesh object
-    Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+    Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE_ANIMATION);
     registry.meshPtrs.emplace(entity, &mesh);
 
     // Setting initial motion values
     Motion& motion = registry.motions.emplace(entity);
     motion.dir = Direction::DOWN;
-    motion.position = pos;
+    motion.position = pos + vec2(0, 25);
     motion.angle = 0.f;
     motion.velocity = { 0.f, 0.f };
-    motion.scale = {200, 100};
+    motion.scale = {50, 50};
     motion.collision_proof = 1;
 //    motion.scale.x *= -1; // point front to the right
 
-    // Create and (empty) Salmon component to be able to refer to all turtles
+    AnimatedSprite& animated_sprite = registry.animatedSprites.emplace(entity);
+    animated_sprite.paused = false;
+    animated_sprite.num_frames_per_type = { { 0, 2 } };
+    animated_sprite.animation_speed_ms = 750;
+
     registry.battleEnemies.emplace(entity);
     registry.renderRequests.insert(
             entity,
-            { TEXTURE_ASSET_ID::ENEMY_TEMP,
-              EFFECT_ASSET_ID::HELP_SCREEN,
-              GEOMETRY_BUFFER_ID::SPRITE });
+            { TEXTURE_ASSET_ID::DUST_BUNNY,
+              EFFECT_ASSET_ID::TEXTURED_ANIMATION,
+              GEOMETRY_BUFFER_ID::SPRITE_ANIMATION});
 
     return entity;
 }

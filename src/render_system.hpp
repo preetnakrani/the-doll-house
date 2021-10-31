@@ -130,6 +130,7 @@ private:
     bool isInOverlayWindow1(Entity entity);
     bool isInOverlayWindow2(Entity entity);
     bool isInOverlayWindow3(Entity entity);
+    bool isInOverlayWindow4(Entity entity);
 
     // Window handle
 	GLFWwindow* window;
