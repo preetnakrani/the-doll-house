@@ -291,9 +291,6 @@ void RenderSystem::drawOverlayWindow(Entity entity,
                                      const mat3 &projection)
 {
     Motion &motion = registry.motions.get(entity);
-    // Transformation code, see Rendering and Transformation in the template
-    // specification for more info Incrementally updates transformation matrix,
-    // thus ORDER IS IMPORTANT
     Transform transform;
     transform.translate(motion.position);
     transform.scale(motion.scale);
@@ -405,22 +402,17 @@ void RenderSystem::draw()
     // Truely render to the screen
     drawToScreen();
     for (Entity entity : registry.renderRequests.entities) {
-        if (registry.helpScreens.has(entity)) {
+        if (isInOverlayWindow1(entity)) {
             drawOverlayWindow(entity, projection_2D);
         }
-        if (registry.battleScreens.has(entity)) {
+    }
+    for (Entity entity : registry.renderRequests.entities) {
+        if (isInOverlayWindow2(entity)) {
             drawOverlayWindow(entity, projection_2D);
         }
-        if (registry.battleDolls.has(entity)) {
-            drawOverlayWindow(entity, projection_2D);
-        }
-        if (registry.battleEnemies.has(entity)) {
-            drawOverlayWindow(entity, projection_2D);
-        }
-        if (registry.battleMenus.has(entity)) {
-            drawOverlayWindow(entity, projection_2D);
-        }
-        if (registry.battleMenuButtons.has(entity) || registry.battleMenuPlayerMoves.has(entity)) {
+    }
+    for (Entity entity : registry.renderRequests.entities) {
+        if (isInOverlayWindow3(entity)) {
             drawOverlayWindow(entity, projection_2D);
         }
     }
@@ -428,6 +420,24 @@ void RenderSystem::draw()
     glfwSwapBuffers(window);
     gl_has_errors();
 }
+
+bool RenderSystem::isInOverlayWindow1(Entity entity) {
+    return (registry.helpScreens.has(entity) || registry.battleScreens.has(entity) || registry.battleDolls.has(entity)
+    || registry.battleEnemies.has(entity));
+}
+
+bool RenderSystem::isInOverlayWindow2(Entity entity) {
+    return (registry.battleMenus.has(entity));
+}
+
+
+bool RenderSystem::isInOverlayWindow3(Entity entity) {
+    return (registry.battleMenuButtons.has(entity) ||
+            registry.battleMenuPlayerMoves.has(entity));
+}
+
+
+
 
 mat3 RenderSystem::specialProjectionMatrix()
 {

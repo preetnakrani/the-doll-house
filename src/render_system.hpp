@@ -127,8 +127,11 @@ private:
 	void drawAnimatedSprite(Entity entity);
 	void drawOverlayWindow(Entity entity,
                            const mat3 &projection);
+    bool isInOverlayWindow1(Entity entity);
+    bool isInOverlayWindow2(Entity entity);
+    bool isInOverlayWindow3(Entity entity);
 
-	// Window handle
+    // Window handle
 	GLFWwindow* window;
 	float screen_scale;  // Screen to pixel coordinates scale factor (for apple
 						 // retina display?)
