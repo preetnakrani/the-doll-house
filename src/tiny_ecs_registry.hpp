@@ -15,12 +15,12 @@ public:
 	ComponentContainer<Health> health;
 	ComponentContainer<Motion> motions;
 	ComponentContainer<Collision> collisions;
-    ComponentContainer<Enemy> enemies;
+  ComponentContainer<Enemy> enemies;
 	ComponentContainer<Player> players;
-    ComponentContainer<Momentum> momentums;
+  ComponentContainer<Momentum> momentums;
 	ComponentContainer<Mesh*> meshPtrs;
 	ComponentContainer<RenderRequest> renderRequests;
-    ComponentContainer<Attack> attacks;
+  ComponentContainer<Attack> attacks;
 	ComponentContainer<AttackList> attackLists;
 	ComponentContainer<MagicList> magicLists;
 	ComponentContainer<GameItem> gameItems;
@@ -32,22 +32,26 @@ public:
 	ComponentContainer<Background> backgrounds;
 	ComponentContainer<HelpScreen> helpScreens;
 	ComponentContainer<BattleScreen> battleScreens;
-    ComponentContainer<BattleDoll> battleDolls;
-    ComponentContainer<BattleEnemy> battleEnemies;
+  ComponentContainer<BattleDoll> battleDolls;
+  ComponentContainer<BattleEnemy> battleEnemies;
 	ComponentContainer<BattleMenu> battleMenus;
 	ComponentContainer<BattleMenuButton> battleMenuButtons;
 	ComponentContainer<BattleMenuPlayerMove> battleMenuPlayerMoves;
 	ComponentContainer<TutorialTimer> tutorialTimer;
 	ComponentContainer<Wall> walls;
-	ComponentContainer<ClickableArea> clickableArea;
+	ComponentContainer<Status> status;
+	ComponentContainer<AnimatedSprite> animatedSprites;
+    ComponentContainer<ClickableArea> clickableArea;
 
-	// constructor that adds all containers for looping over them
+
+
+    // constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()
 	{
 
 		registry_list.push_back(&health);
-        registry_list.push_back(&attacks);
+    registry_list.push_back(&attacks);
 		registry_list.push_back(&attackLists);
 		registry_list.push_back(&magicLists);
 		registry_list.push_back(&motions);
@@ -73,8 +77,10 @@ public:
 		registry_list.push_back(&battleMenuPlayerMoves);
 		registry_list.push_back(&tutorialTimer);
 		registry_list.push_back(&walls);
-		registry_list.push_back(&clickableArea);
-	}
+		registry_list.push_back(&status);
+		registry_list.push_back(&animatedSprites);
+        registry_list.push_back(&clickableArea);
+    }
 
 	void clear_all_components() {
 		for (ContainerInterface* reg : registry_list)
@@ -100,5 +106,4 @@ public:
 			reg->remove(e);
 	}
 };
-
 extern ECSRegistry registry;

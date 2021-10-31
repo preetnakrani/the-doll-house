@@ -38,7 +38,7 @@ Entity createHelpWindow(RenderSystem *renderer, vec2 pos);
 
 Entity createWallBlock(vec2 pos);
 
-Entity createClickableArea(vec2 leftTop, int width, int height);
+Entity  createClickableArea(vec2 leftTop, int width, int height);
 
 Entity createLine(vec2 position, vec2 scale);
 

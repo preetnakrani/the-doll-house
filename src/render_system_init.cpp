@@ -234,6 +234,22 @@ void RenderSystem::initializeGlGeometryBuffers()
     // Counterclockwise as it's the default opengl front winding direction.
     const std::vector<uint16_t> help_screen_indices = { 0, 3, 1, 1, 3, 2 };
     bindVBOandIBO(GEOMETRY_BUFFER_ID::HELP_SCREEN, help_screen_vertices, help_screen_indices);
+
+	std::vector<TexturedVertex> animation_vertices(4);
+	// Assumes max 4 frames per row and max 4 types per column
+	const float ANIM_FRAME_WIDTH = 0.25;
+	const float ANIM_FRAME_HEIGHT = 0.25;
+	animation_vertices[0].position = { -1.f / 2, +1.f / 2, 0.f };
+	animation_vertices[1].position = { +1.f / 2, +1.f / 2, 0.f };
+	animation_vertices[2].position = { +1.f / 2, -1.f / 2, 0.f };
+	animation_vertices[3].position = { -1.f / 2, -1.f / 2, 0.f };
+	animation_vertices[3].texcoord = { 0, 0 };
+	animation_vertices[2].texcoord = { ANIM_FRAME_WIDTH, 0 };
+	animation_vertices[1].texcoord = { ANIM_FRAME_WIDTH, ANIM_FRAME_HEIGHT };
+	animation_vertices[0].texcoord = { 0, ANIM_FRAME_HEIGHT };
+
+	const std::vector<uint16_t> animation_indices = { 0, 3, 1, 1, 3, 2 };
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::SPRITE_ANIMATION, animation_vertices, animation_indices);
 }
 
 RenderSystem::~RenderSystem()

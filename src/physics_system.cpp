@@ -104,25 +104,28 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 	// debugging of bounding boxes
 	if (debugging.in_debug_mode)
 	{
-	    vec2 verticalLineScale = {5, 100};
+        vec2 verticalLineScale = {5, 100};
         vec2 horizontalLineScale = {100, 5};
 
+        printf("in debug mode \n");
         // create a red line around the wall boxes
         for (Entity wallBox: registry.walls.entities) {
-	        Motion& wallMotion = registry.motions.get(wallBox);
+            printf("looping through wall \n");
+            Motion& wallMotion = registry.motions.get(wallBox);
 	        vec2 position = wallMotion.position;
-	        createBox(position, verticalLineScale, horizontalLineScale);
+            printf("trying to create wall box \n");
+            std::cout << position.x << ", " << position.y << std::endl;
+//            createBox(position, verticalLineScale, horizontalLineScale);
         }
         Entity playerDoll = registry.players.entities[0];
         Motion& dollMotion = registry.motions.get(playerDoll);
         vec2 dollPosition = dollMotion.position;
-        createBox(dollPosition, verticalLineScale, horizontalLineScale);
+//        createBox(dollPosition, verticalLineScale, horizontalLineScale);
 
-        for (Entity enemy: registry.enemies.entities) {
+        for (Entity enemy: registry.currentEnemies.entities) {
             Motion& enemyMotion = registry.motions.get(enemy);
             vec2 position = enemyMotion.position;
-            createBox(position, verticalLineScale, horizontalLineScale);
+//            createBox(position, verticalLineScale, horizontalLineScale);
         }
-        // create a red line around the player
 	}
 }

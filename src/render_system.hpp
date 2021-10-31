@@ -30,11 +30,8 @@ class RenderSystem {
 
 	// Make sure these paths remain in sync with the associated enumerators.
 	const std::array<std::string, texture_count> texture_paths = {
-			textures_path("dust_bunny.png"),
-			textures_path("doll_up.png"),
-			textures_path("doll_right.png"),
-			textures_path("doll_down.png"),
-			textures_path("doll_left.png"),
+			textures_path("dust_bunny_spriteSheet.png"),
+			textures_path("doll_spriteSheet.png"),
 			textures_path("turtle.png"),
 			textures_path("fish.png"),
 			textures_path("turtle.png"),
@@ -78,11 +75,13 @@ class RenderSystem {
 		shader_path("coloured"),
 		shader_path("salmon"),
 		shader_path("textured"),
+		shader_path("texturedAnimation"),
 		shader_path("verticalBlur"),
 		shader_path("horizontalBlur"),
 		shader_path("helpScreen"),
 		shader_path("drawToScreen"),
-        shader_path("pebble")};
+        shader_path("pebble")
+	};
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
@@ -125,6 +124,7 @@ private:
 	void drawToScreen();
     void verticalBlur();
     void horizontalBlur();
+	void drawAnimatedSprite(Entity entity);
 	void drawOverlayWindow(Entity entity,
                            const mat3 &projection);
 
