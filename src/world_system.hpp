@@ -57,6 +57,12 @@ private:
 	// restart level
 	void restart_game();
 
+	// Updates whether an entity's animation should be paused or not
+	void setSpriteAnimationPauseState(Entity entity);
+
+	// Updates which (time) frame should currently be shown for the sprite animation
+	void setSpriteAnimationFrame(float elapsed_time_ms, Entity entity);
+
 	// creates the battle window and all its UI elements
 	void drawBattleWindow();
 

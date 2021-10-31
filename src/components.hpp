@@ -3,6 +3,7 @@
 #include <vector>
 #include <unordered_map>
 #include "../ext/stb_image/stb_image.h"
+#include <map>
 
 // Player component
 struct Player
@@ -10,8 +11,28 @@ struct Player
 
 };
 
-struct Enemy {
+enum class EnemyName {
+	DUST_BUNNY = 0,
+};
 
+struct Enemy {
+	EnemyName name;
+};
+
+struct AnimatedSprite {
+	bool paused = true;
+	// maps how many frames are drawn for each animation type in the sprite sheet
+	// animation type is the key, and the number of frames is the value
+	std::map<int, int> num_frames_per_type = {};
+
+	float frame_height = 0.25;
+	float frame_width = 0.25;
+
+	float animation_speed_ms = 250;
+	float ms_since_last_update = 0;
+
+	int current_type = 0; // y axis of sprite sheet
+	int current_frame = 0; // x axis of sprite sheet
 };
 
 struct Wall {
@@ -20,8 +41,8 @@ struct Wall {
 
 struct Health {
     int health = 0;
-    int healthDecrement  = 0;
-	int maxHP = 0;
+    int healthDecrement = 0;
+	  int maxHP = 0;
 };
 
 enum class Direction {
@@ -424,26 +445,23 @@ struct Mesh
  */
 
 enum class TEXTURE_ASSET_ID {
-	DUST_BUNNY = 0,
-	DOLL_UP = DUST_BUNNY + 1,
-	DOLL_RIGHT = DOLL_UP + 1,
-	DOLL_DOWN = DOLL_RIGHT + 1,
-	DOLL_LEFT = DOLL_DOWN + 1,
-	ENEMY_ONE = DOLL_LEFT + 1,
+	DUST_BUNNY = 0, 
+	DOLL = DUST_BUNNY + 1,
+	ENEMY_ONE = DOLL + 1,
 	ENEMY_TWO = ENEMY_ONE + 1,
 	ENEMY_THREE = ENEMY_TWO + 1,
 	BOSS = ENEMY_THREE + 1,
 	TABLE = BOSS + 1,
-    CHAIR = TABLE + 1,
-    BED = CHAIR + 1,
-    HEALTH_ITEM = BED + 1,
-    SPEED_ITEM  = HEALTH_ITEM + 1,
-    ENEMY_REPEL = SPEED_ITEM + 1,
-    BACKGROUND = ENEMY_REPEL + 1,
-    HELP_PRESS_A = BACKGROUND + 1,
-    HELP_PRESS_D = HELP_PRESS_A + 1,
-    HELP_PRESS_S = HELP_PRESS_D + 1,
-    HELP_PRESS_W = HELP_PRESS_S + 1,
+  CHAIR = TABLE + 1,
+  BED = CHAIR + 1,
+  HEALTH_ITEM = BED + 1,
+  SPEED_ITEM  = HEALTH_ITEM + 1,
+  ENEMY_REPEL = SPEED_ITEM + 1,
+  BACKGROUND = ENEMY_REPEL + 1,
+  HELP_PRESS_A = BACKGROUND + 1,
+  HELP_PRESS_D = HELP_PRESS_A + 1,
+  HELP_PRESS_S = HELP_PRESS_D + 1,
+  HELP_PRESS_W = HELP_PRESS_S + 1,
 	STAY_AWAY = HELP_PRESS_W + 1,
 	MENU_BUTTON = STAY_AWAY + 1,
 	MENU_OVERLAY = MENU_BUTTON + 1,
@@ -472,7 +490,8 @@ enum class EFFECT_ASSET_ID {
 	COLOURED = 0,
 	SALMON = COLOURED + 1,
 	TEXTURED = SALMON + 1,
-	BLUR = TEXTURED + 1,
+	TEXTURED_ANIMATION = TEXTURED + 1,
+	BLUR = TEXTURED_ANIMATION + 1,
 	REBLUR = BLUR + 1,
 	HELP_SCREEN = REBLUR + 1,
 //    BATTLE_SCREEN = HELP_SCREEN + 1,
@@ -483,7 +502,8 @@ const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 enum class GEOMETRY_BUFFER_ID {
 	SALMON = 0,
 	SPRITE = SALMON + 1,
-	DEBUG_LINE = SPRITE + 1,
+	SPRITE_ANIMATION = SPRITE + 1,
+	DEBUG_LINE = SPRITE_ANIMATION + 1,
 	SCREEN_TRIANGLE = DEBUG_LINE + 1,
 	HELP_SCREEN = SCREEN_TRIANGLE + 1,
 	GEOMETRY_COUNT = HELP_SCREEN + 1
