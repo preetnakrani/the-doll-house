@@ -5,6 +5,7 @@
 #include "world_system.hpp"
 #include "tiny_ecs_registry.hpp"
 #include "common.hpp"
+#include "ai_system.hpp"
 
 class BattleSystem
 {
@@ -13,8 +14,12 @@ public:
 
     // run the battle 
     void handle_battle();
-
 private:
-    //void end_battle(Game& game, vector<Entity> current_enemies); // causes an error right now - commenting temporarily - Naoreen
+    void process_player_turn(Turn& turn);
+
+    void process_enemy_turn(Turn& turn, Entity& enemy);
+
+    void end_battle(Game& game, std::vector<Entity> current_enemies);
+
     WorldSystem* world_system;
 };

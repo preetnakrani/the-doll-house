@@ -34,14 +34,7 @@ int main()
     GLFWwindow* window = world.create_window(window_width_px, window_height_px);
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
-    glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int w, int h)
-    {
-        glViewport(0, 0, w, h);
-    });
     glfwSetWindowAspectRatio(window, w, h);
-    const int fBWidth = w;
-    const int fBHeight = h;
-//    glfwSetWindowAspectRatio(window, window_width_px, window_height_px);
     glfwSetWindowSizeLimits(window, window_width_px/2, window_height_px/2, window_width_px, window_height_px);
     if (!window) {
 		// Time to read the error message
@@ -49,7 +42,6 @@ int main()
 		getchar();
 		return EXIT_FAILURE;
 	}
-
 	renderer.init(window_width_px, window_height_px, window);
 	world.init(&renderer);
     battle.init(&world);

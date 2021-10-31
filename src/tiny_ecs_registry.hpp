@@ -20,7 +20,7 @@ public:
     ComponentContainer<Momentum> momentums;
 	ComponentContainer<Mesh*> meshPtrs;
 	ComponentContainer<RenderRequest> renderRequests;
-    ComponentContainer<Attack> attacks;
+	ComponentContainer<Attack> attacks;
 	ComponentContainer<AttackList> attackLists;
 	ComponentContainer<MagicList> magicLists;
 	ComponentContainer<GameItem> gameItems;
@@ -39,16 +39,20 @@ public:
 	ComponentContainer<BattleMenuPlayerMove> battleMenuPlayerMoves;
 	ComponentContainer<TutorialTimer> tutorialTimer;
 	ComponentContainer<Wall> walls;
-    ComponentContainer<PopUp> popups;
-//    ComponentContainer<PopUpTimer> popUpTimers;
+	ComponentContainer<Status> status;
+	ComponentContainer<AnimatedSprite> animatedSprites;
+    ComponentContainer<ClickableArea> clickableArea;
+  ComponentContainer<PopUp> popups;
 
-	// constructor that adds all containers for looping over them
+
+
+    // constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()
 	{
 
 		registry_list.push_back(&health);
-        registry_list.push_back(&attacks);
+    registry_list.push_back(&attacks);
 		registry_list.push_back(&attackLists);
 		registry_list.push_back(&magicLists);
 		registry_list.push_back(&motions);
@@ -74,9 +78,11 @@ public:
 		registry_list.push_back(&battleMenuPlayerMoves);
 		registry_list.push_back(&tutorialTimer);
 		registry_list.push_back(&walls);
-        registry_list.push_back(&popups);
-//        registry_list.push_back(&popUpTimers);
-	}
+		registry_list.push_back(&status);
+		registry_list.push_back(&animatedSprites);
+        registry_list.push_back(&clickableArea);
+    registry_list.push_back(&popups);
+    }
 
 	void clear_all_components() {
 		for (ContainerInterface* reg : registry_list)
@@ -102,5 +108,4 @@ public:
 			reg->remove(e);
 	}
 };
-
 extern ECSRegistry registry;

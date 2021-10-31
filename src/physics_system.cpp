@@ -1,4 +1,5 @@
 // internal
+#include <iostream>
 #include "physics_system.hpp"
 #include "world_init.hpp"
 
@@ -103,21 +104,24 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 	// debugging of bounding boxes
 	if (debugging.in_debug_mode)
 	{
-		uint size_before_adding_new = (uint)motion_container.components.size();
-		for (uint i = 0; i < size_before_adding_new; i++)
-		{
-			Motion& motion_i = motion_container.components[i];
-			Entity entity_i = motion_container.entities[i];
+        vec2 verticalLineScale = {5, 100};
+        vec2 horizontalLineScale = {100, 5};
 
-			// visualize the radius with two axis-aligned lines
-			const vec2 bonding_box = get_bounding_box(motion_i);
-			float radius = sqrt(dot(bonding_box/2.f, bonding_box/2.f));
-			//vec2 line_scale1 = { motion_i.scale.x / 10, 2*radius };
-			//Entity line1 = createLine(motion_i.position, line_scale1);
-			//vec2 line_scale2 = { 2*radius, motion_i.scale.x / 10};
-			//Entity line2 = createLine(motion_i.position, line_scale2);
+        // create a red line around the wall boxes
+        for (Entity wallBox: registry.walls.entities) {
+            Motion& wallMotion = registry.motions.get(wallBox);
+	        vec2 position = wallMotion.position;
+            createBox(position, verticalLineScale, horizontalLineScale, 100, 100);
+        }
+        Entity playerDoll = registry.players.entities[0];
+        Motion& dollMotion = registry.motions.get(playerDoll);
+        vec2 dollPosition = dollMotion.position;
+        createBox(dollPosition, verticalLineScale, horizontalLineScale, 100, 100);
 
-			// !!! TODO A2: implement debugging of bounding boxes and mesh
-		}
+        for (Entity enemy: registry.enemies.entities) {
+            Motion& enemyMotion = registry.motions.get(enemy);
+            vec2 position = enemyMotion.position;
+            createBox(position, verticalLineScale, horizontalLineScale, 100, 100);
+        }
 	}
 }
