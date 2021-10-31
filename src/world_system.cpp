@@ -353,7 +353,7 @@ void WorldSystem::drawBattleWindow() {
     battle_doll = createBattleDoll(renderer, { 400, 400 });
     battle_enemy = createBattleEnemy(renderer, { 800, 400 });
 
-    float SCALE = 800 / 160; // 160 px is the height of the Aseprite drawing of the battle screen
+    const float SCALE = 800 / 160; // 160 px is the height of the Aseprite drawing of the battle screen
 
     // The numbers that the "POSITION" quantities are being multiplied by are the positions of the assets on the Aseprite drawing
     vec2 BUTTON_AREA_POSITION = { 32 * SCALE, 132 * SCALE };
@@ -407,6 +407,7 @@ void WorldSystem::destroyBattleWindow() {
 
 // Compute collisions between entities
 void WorldSystem::handle_collisions() {
+
     // Loop over all collisions detected by the physics system
     auto& collisionsRegistry = registry.collisions;
     for (uint i = 0; i < collisionsRegistry.components.size(); i++) {
@@ -420,12 +421,12 @@ void WorldSystem::handle_collisions() {
 
 
             if (registry.enemies.has(entity_other)) {
+                debugging.in_debug_mode = false;
                 // initiate death unless already dying
                 Game& game = registry.game.get(player_doll);
                 game.state = GameState::BATTLE;
                 if (!registry.currentEnemies.has(entity_other)) {
                     registry.currentEnemies.emplace(entity_other);
-                    debugging.in_debug_mode = false;
                     drawBattleWindow();
                 }
 

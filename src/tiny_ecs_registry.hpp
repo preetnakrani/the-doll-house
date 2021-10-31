@@ -15,12 +15,12 @@ public:
 	ComponentContainer<Health> health;
 	ComponentContainer<Motion> motions;
 	ComponentContainer<Collision> collisions;
-  ComponentContainer<Enemy> enemies;
+    ComponentContainer<Enemy> enemies;
 	ComponentContainer<Player> players;
-  ComponentContainer<Momentum> momentums;
+    ComponentContainer<Momentum> momentums;
 	ComponentContainer<Mesh*> meshPtrs;
 	ComponentContainer<RenderRequest> renderRequests;
-  ComponentContainer<Attack> attacks;
+	ComponentContainer<Attack> attacks;
 	ComponentContainer<AttackList> attackLists;
 	ComponentContainer<MagicList> magicLists;
 	ComponentContainer<GameItem> gameItems;
@@ -32,8 +32,8 @@ public:
 	ComponentContainer<Background> backgrounds;
 	ComponentContainer<HelpScreen> helpScreens;
 	ComponentContainer<BattleScreen> battleScreens;
-  ComponentContainer<BattleDoll> battleDolls;
-  ComponentContainer<BattleEnemy> battleEnemies;
+    ComponentContainer<BattleDoll> battleDolls;
+    ComponentContainer<BattleEnemy> battleEnemies;
 	ComponentContainer<BattleMenu> battleMenus;
 	ComponentContainer<BattleMenuButton> battleMenuButtons;
 	ComponentContainer<BattleMenuPlayerMove> battleMenuPlayerMoves;
