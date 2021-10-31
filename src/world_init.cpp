@@ -349,14 +349,14 @@ Entity createWallBlock(vec2 pos)
     return entity;
 }
 
-Entity createClickableArea(vec2 topLeft, int width, int height) {
-    auto entity = Entity();
-    ClickableArea& ca = registry.clickableArea.emplace(entity);
-    ca.topLeft = topLeft;
-    ca.width = width;
-    ca.height = height;
-    return entity;
-}
+//Entity createClickableArea(vec2 topLeft, int width, int height) {
+//    auto entity = Entity();
+//    ClickableArea& ca = registry.clickableArea.emplace(entity);
+//    ca.topLeft = topLeft;
+//    ca.width = width;
+//    ca.height = height;
+//    return entity;
+//}
 
 
 Entity createLine(vec2 position, vec2 scale)
@@ -369,22 +369,28 @@ Entity createLine(vec2 position, vec2 scale)
             { TEXTURE_ASSET_ID::TEXTURE_COUNT,
               EFFECT_ASSET_ID::PEBBLE,
               GEOMETRY_BUFFER_ID::DEBUG_LINE });
-
     // Create motion
     Motion& motion = registry.motions.emplace(entity);
     motion.angle = 0.f;
     motion.velocity = { 0, 0 };
     motion.position = position;
     motion.scale = scale;
-
     registry.debugComponents.emplace(entity);
     return entity;
 }
 
-void createBox(vec2 centrePosition, vec2 verticalLineScale, vec2 horizontalLineScale) {
-    createLine({centrePosition.x - 50, centrePosition.y}, verticalLineScale);
-    createLine({centrePosition.x + 50, centrePosition.y}, verticalLineScale);
-    createLine({centrePosition.x, centrePosition.y - 50}, horizontalLineScale);
-    createLine({centrePosition.x, centrePosition.y + 50}, horizontalLineScale);
+void createBox(vec2 centrePosition, vec2 verticalLineScale, vec2 horizontalLineScale, int boxWidth, int boxHeight) {
+    int w = boxWidth / 2;
+    int h = boxHeight / 2;
+    createLine({centrePosition.x - w, centrePosition.y}, verticalLineScale);
+    createLine({centrePosition.x + w, centrePosition.y}, verticalLineScale);
+    createLine({centrePosition.x, centrePosition.y - h}, horizontalLineScale);
+    createLine({centrePosition.x, centrePosition.y + h}, horizontalLineScale);
 }
 
+void createBoxWithTopLeft (vec2 topLeftCoord, vec2 verticalLineScale, vec2 horizontalLineScale, int boxWidth, int boxHeight) {
+    createLine({topLeftCoord.x, topLeftCoord.y}, verticalLineScale);
+    createLine({topLeftCoord.x + boxWidth, topLeftCoord.y}, verticalLineScale);
+    createLine({topLeftCoord.x, topLeftCoord.y}, horizontalLineScale);
+    createLine({topLeftCoord.x, topLeftCoord.y + boxHeight}, horizontalLineScale);
+}

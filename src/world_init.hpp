@@ -42,4 +42,4 @@ Entity  createClickableArea(vec2 leftTop, int width, int height);
 
 Entity createLine(vec2 position, vec2 scale);
 
-void createBox(vec2 centrePosition, vec2 verticalLineScale, vec2 horizontalLineScale);
+void createBox(vec2 centrePosition, vec2 verticalLineScale, vec2 horizontalLineScale, int boxWidth, int boxHeight);

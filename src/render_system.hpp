@@ -78,9 +78,9 @@ class RenderSystem {
 		shader_path("texturedAnimation"),
 		shader_path("verticalBlur"),
 		shader_path("horizontalBlur"),
-		shader_path("helpScreen"),
-		shader_path("drawToScreen"),
-        shader_path("pebble")
+        shader_path("helpScreen"),
+        shader_path("pebble"),
+        shader_path("drawToScreen"),
 	};
 
 	std::array<GLuint, geometry_count> vertex_buffers;

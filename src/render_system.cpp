@@ -99,11 +99,6 @@ void RenderSystem::drawTexturedMesh(Entity entity,
                               sizeof(ColoredVertex), (void *)0);
         gl_has_errors();
 
-        glEnableVertexAttribArray(in_color_loc);
-        glVertexAttribPointer(in_color_loc, 3, GL_FLOAT, GL_FALSE,
-                              sizeof(ColoredVertex), (void *)sizeof(vec3));
-        gl_has_errors();
-
         if (render_request.used_effect == EFFECT_ASSET_ID::SALMON)
         {
             // Light up?

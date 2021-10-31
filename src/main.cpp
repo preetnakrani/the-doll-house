@@ -35,7 +35,6 @@ int main()
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
     glfwSetWindowAspectRatio(window, w, h);
-//    glfwSetWindowAspectRatio(window, window_width_px, window_height_px);
     glfwSetWindowSizeLimits(window, window_width_px/2, window_height_px/2, window_width_px, window_height_px);
     if (!window) {
 		// Time to read the error message
