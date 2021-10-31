@@ -42,9 +42,13 @@ public:
 	void progressTutorial(float elapsed_ms_since_last_update);
 	void escapeTutorial(bool isComplete);
 
-	void swap_help_screen();
+	int fbWidth = 0;
+	int fbHeight = 0;
 
-	// Handles removing components of battle window, should only be called by BattleSystem
+	void swap_help_screen();
+    void findInitialFrameBufferSize();
+
+        // Handles removing components of battle window, should only be called by BattleSystem
 	void destroyBattleWindow();
 	void attach(std::function<void(Entity)> fn);
 private:

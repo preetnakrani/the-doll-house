@@ -45,7 +45,7 @@ Entity createHelpWindow(RenderSystem* renderer, vec2 pos)
     motion.velocity = { 0.f, 0.f };
     motion.scale = mesh.original_size;
     motion.collision_proof = 1;
-    registry.helpScreens.emplace(entity);
+//    registry.helpScreens.emplace(entity);
     registry.renderRequests.insert(
             entity,
             { TEXTURE_ASSET_ID::HELP_PRESS_A,
@@ -178,7 +178,7 @@ Entity createBattleMenuItem(RenderSystem* renderer, vec2 pos, BattleMenuItemType
           GEOMETRY_BUFFER_ID::SPRITE });
     return entity;
 }
-Entity createDoll(RenderSystem* renderer, vec2 pos)
+Entity createDoll(RenderSystem* renderer, vec2 pos, vec2 frameBufferSize)
 {
     auto entity = Entity();
 
@@ -211,12 +211,11 @@ Entity createDoll(RenderSystem* renderer, vec2 pos)
 
     Game& game = registry.game.emplace(entity);
     game.state = GameState::PLAYING;
-
+    registry.players.insert(entity, {(int)frameBufferSize.x, (int)frameBufferSize.y});
     AnimatedSprite& animated_sprite = registry.animatedSprites.emplace(entity);
     animated_sprite.paused = true;
     animated_sprite.num_frames_per_type = { { 0, 4 }, { 1, 4 }, { 2, 4 }, { 3, 4 } };
 
-    registry.players.emplace(entity);
     registry.status.emplace(entity);
     registry.renderRequests.insert(
             entity,
@@ -348,4 +347,50 @@ Entity createWallBlock(vec2 pos)
 
     registry.walls.emplace(entity);
     return entity;
+}
+
+//Entity createClickableArea(vec2 topLeft, int width, int height) {
+//    auto entity = Entity();
+//    ClickableArea& ca = registry.clickableArea.emplace(entity);
+//    ca.topLeft = topLeft;
+//    ca.width = width;
+//    ca.height = height;
+//    return entity;
+//}
+
+
+Entity createLine(vec2 position, vec2 scale)
+{
+    Entity entity = Entity();
+
+    // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+    registry.renderRequests.insert(
+            entity,
+            { TEXTURE_ASSET_ID::TEXTURE_COUNT,
+              EFFECT_ASSET_ID::PEBBLE,
+              GEOMETRY_BUFFER_ID::DEBUG_LINE });
+    // Create motion
+    Motion& motion = registry.motions.emplace(entity);
+    motion.angle = 0.f;
+    motion.velocity = { 0, 0 };
+    motion.position = position;
+    motion.scale = scale;
+    registry.debugComponents.emplace(entity);
+    return entity;
+}
+
+void createBox(vec2 centrePosition, vec2 verticalLineScale, vec2 horizontalLineScale, int boxWidth, int boxHeight) {
+    int w = boxWidth / 2;
+    int h = boxHeight / 2;
+    createLine({centrePosition.x - w, centrePosition.y}, verticalLineScale);
+    createLine({centrePosition.x + w, centrePosition.y}, verticalLineScale);
+    createLine({centrePosition.x, centrePosition.y - h}, horizontalLineScale);
+    createLine({centrePosition.x, centrePosition.y + h}, horizontalLineScale);
+}
+
+void createBoxWithTopLeft (vec2 topLeftCoord, vec2 verticalLineScale, vec2 horizontalLineScale, int boxWidth, int boxHeight) {
+    createLine({topLeftCoord.x, topLeftCoord.y}, verticalLineScale);
+    createLine({topLeftCoord.x + boxWidth, topLeftCoord.y}, verticalLineScale);
+    createLine({topLeftCoord.x, topLeftCoord.y}, horizontalLineScale);
+    createLine({topLeftCoord.x, topLeftCoord.y + boxHeight}, horizontalLineScale);
 }

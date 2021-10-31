@@ -78,7 +78,10 @@ class RenderSystem {
 		shader_path("texturedAnimation"),
 		shader_path("verticalBlur"),
 		shader_path("horizontalBlur"),
-		shader_path("helpScreen")};
+        shader_path("helpScreen"),
+        shader_path("pebble"),
+        shader_path("drawToScreen"),
+	};
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
@@ -112,16 +115,23 @@ public:
 
 	mat3 createProjectionMatrix();
 
+	mat3 specialProjectionMatrix();
+
 private:
+    void findVar();
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
 	void drawToScreen();
+    void verticalBlur();
+    void horizontalBlur();
 	void drawAnimatedSprite(Entity entity);
-	void horizontalBlur();
 	void drawOverlayWindow(Entity entity,
                            const mat3 &projection);
+    bool isInOverlayWindow1(Entity entity);
+    bool isInOverlayWindow2(Entity entity);
+    bool isInOverlayWindow3(Entity entity);
 
-	// Window handle
+    // Window handle
 	GLFWwindow* window;
 	float screen_scale;  // Screen to pixel coordinates scale factor (for apple
 						 // retina display?)

@@ -8,7 +8,8 @@
 // Player component
 struct Player
 {
-
+    int fBWidth;
+    int fBHeight;
 };
 
 enum class EnemyName {
@@ -370,6 +371,12 @@ struct Background
 
 };
 
+struct ClickableArea{
+    vec2 topLeft;
+    int width;
+    int height;
+};
+
 // Help screen
 struct HelpScreen {
     int order = 0;
@@ -494,8 +501,10 @@ enum class EFFECT_ASSET_ID {
 	BLUR = TEXTURED_ANIMATION + 1,
 	REBLUR = BLUR + 1,
 	HELP_SCREEN = REBLUR + 1,
+	PEBBLE = HELP_SCREEN + 1,
+	DRAW_TO_SCREEN = PEBBLE + 1,
 //    BATTLE_SCREEN = HELP_SCREEN + 1,
-	EFFECT_COUNT = HELP_SCREEN + 1
+	EFFECT_COUNT = DRAW_TO_SCREEN + 1
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
