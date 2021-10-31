@@ -42,9 +42,13 @@ public:
 	void progressTutorial(float elapsed_ms_since_last_update);
 	void escapeTutorial(bool isComplete);
 
-	void swap_help_screen();
+	int fbWidth = 0;
+	int fbHeight = 0;
 
-	// Handles removing components of battle window, should only be called by BattleSystem
+	void swap_help_screen();
+    void findInitialFrameBufferSize();
+
+        // Handles removing components of battle window, should only be called by BattleSystem
 	void destroyBattleWindow();
 	void attach(std::function<void(Entity)> fn);
 private:
@@ -56,6 +60,12 @@ private:
 	void closeMenuOverlayScreen();
 	// restart level
 	void restart_game();
+
+	// Updates whether an entity's animation should be paused or not
+	void setSpriteAnimationPauseState(Entity entity);
+
+	// Updates which (time) frame should currently be shown for the sprite animation
+	void setSpriteAnimationFrame(float elapsed_time_ms, Entity entity);
 
 	// creates the battle window and all its UI elements
 	void drawBattleWindow();
