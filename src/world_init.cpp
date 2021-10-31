@@ -319,6 +319,15 @@ Entity createWallBlock(vec2 pos)
     return entity;
 }
 
+Entity createClickableArea(vec2 topLeft, int width, int height) {
+    auto entity = Entity();
+    ClickableArea& ca = registry.clickableArea.emplace(entity);
+    ca.topLeft = topLeft;
+    ca.width = width;
+    ca.height = height;
+    return entity;
+}
+
 
 Entity createLine(vec2 position, vec2 scale)
 {

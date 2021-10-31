@@ -244,7 +244,7 @@ void WorldSystem::progressTutorial(float elapsed_ms_since_last_update) {
 
 void WorldSystem::findInitialFrameBufferSize(){
     if (fbWidth == 0 && fbHeight == 0) {
-        printf("fBWidth needs update\n");
+//        printf("fBWidth needs update\n");
         int w, h;
         glfwGetFramebufferSize(window, &w, &h);
         fbWidth = w;
@@ -338,6 +338,8 @@ void WorldSystem::restart_game() {
 	createWallBlock({ 1050.f, 150.f });
 	createWallBlock({ 1150.f, 150.f });
 	createWallBlock({ 1250.f, 150.f });
+
+	// create clickable area
 }
 
 
@@ -580,10 +582,9 @@ void WorldSystem::on_mouse_click(int button, int action, int mods)
         double xPos, yPos;
         glfwGetCursorPos(window, &xPos, &yPos);
 
-
         Game& game = registry.game.get(player_doll);
         // clickevent happening on menu box
-        if (1115 < xPos && xPos< 1187 && 13 < yPos && yPos < 49) {
+        if (isClickInRegion(xPos, yPos, {1115, 10}, 40, 75)) {
             if (game.state == GameState::MENUOVERLAY) {
                 closeMenuOverlayScreen();
             } else if (game.state == GameState::PLAYING) {
@@ -591,19 +592,11 @@ void WorldSystem::on_mouse_click(int button, int action, int mods)
             }
         }
         if (game.state == GameState::MENUOVERLAY) {
-            // do actions associated with the overlay
-            // std::cout << xPos << std::endl;
-            // std::cout << yPos << std::endl;
-            // clicked Restart Game
-            if (460 < xPos && xPos< 730 && 320 < yPos && yPos < 360) {
+            if (isClickInRegion(xPos, yPos, {460, 320}, 40, 300)) {
                 closeMenuOverlayScreen();
                 restart_game();
             }
-            // clicked Exit Game
-            if (460 < xPos && xPos< 730 && 430 < yPos && yPos < 470) {
-                // close menu overlay
-                // change index to 0
-                // change gamestate to tutorial
+            if (isClickInRegion(xPos, yPos, {460, 430}, 40, 300)) {
                 closeMenuOverlayScreen();
                 registry.renderRequests.insert(
                         tutorialScreen,
@@ -750,9 +743,15 @@ BattleMenuItemType WorldSystem::getBattleScreenButtonClicked(double x, double y)
 }
 
 bool WorldSystem::isClickInRegion(double x, double y, vec2 top_left_coords, double height, double width) {
-	return
-		x >= top_left_coords[0] &&
-		x <= top_left_coords[0] + width &&
-		y >= top_left_coords[1] &&
-		y <= top_left_coords[1] + height;
+	int w, h;
+	int originalHeight = registry.players.get(player_doll).fBHeight;
+    int originalWidth = registry.players.get(player_doll).fBWidth;
+    glfwGetFramebufferSize(window, &w, &h);
+    int scaledX = x * originalWidth / w;
+    int scaledY = y * originalHeight / h;
+    return
+		scaledX >= top_left_coords[0] &&
+		scaledX <= top_left_coords[0] + width &&
+		scaledY >= top_left_coords[1] &&
+		scaledY <= top_left_coords[1] + height;
 }

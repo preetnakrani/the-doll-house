@@ -71,6 +71,12 @@ struct Attack {
     int damage = 0;
 };
 
+struct ClickableArea{
+    vec2 topLeft;
+    int width;
+    int height;
+};
+
 struct AttackList {
 	std::vector<Attack> available_attacks;
 
