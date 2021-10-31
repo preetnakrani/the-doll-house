@@ -260,6 +260,7 @@ void WorldSystem::restart_game() {
 
     // Debugging for memory/component leaks
     registry.list_all_components();
+    debugging.in_debug_mode = false;
 
     // create a background
     background = createBackground(renderer, { 600, 400});
