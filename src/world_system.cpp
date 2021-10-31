@@ -405,15 +405,7 @@ void WorldSystem::restart_game(GameStateChange gc) {
         }
     }
 
-    if (level.contains("tables")) {
-        TableFactory tableFactory;
-        json tables = level["tables"];
-        for(auto& table: tables) {
-            tableFactory.create(renderer, table);
-        }
-    }
-
-    if (level.contains("tables")) {
+    if (level.contains("enemies")) {
         EnemyFactory enemyFactory;
         json enemyData = level["enemies"];
         enemyFactory.create(renderer, this, enemyData);
