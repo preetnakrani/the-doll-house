@@ -211,12 +211,16 @@ Entity createDoll(RenderSystem* renderer, vec2 pos)
     Game& game = registry.game.emplace(entity);
     game.state = GameState::PLAYING;
 
+    AnimatedSprite& animated_sprite = registry.animatedSprites.emplace(entity);
+    animated_sprite.paused = true;
+    animated_sprite.num_frames_per_type = { { 0, 4 }, { 1, 4 }, { 2, 4 }, { 3, 4 } };
+
     registry.players.emplace(entity);
     registry.renderRequests.insert(
             entity,
-            { TEXTURE_ASSET_ID::DOLL_DOWN,
-              EFFECT_ASSET_ID::TEXTURED,
-              GEOMETRY_BUFFER_ID::SPRITE });
+            { TEXTURE_ASSET_ID::DOLL,
+              EFFECT_ASSET_ID::TEXTURED_ANIMATION,
+              GEOMETRY_BUFFER_ID::SPRITE_ANIMATION });
 
     return entity;
 }
@@ -237,7 +241,6 @@ Entity createBattleDoll(RenderSystem* renderer, vec2 pos)
     registry.renderRequests.insert(
             entity,
             { TEXTURE_ASSET_ID::PLAYER_TEMP,
-                    // help screen effect just renders it like the help screen
               EFFECT_ASSET_ID::HELP_SCREEN,
               GEOMETRY_BUFFER_ID::SPRITE});
     return entity;
@@ -268,13 +271,20 @@ Entity createEnemy(RenderSystem* renderer, vec2 pos)
     AttackList& enemy_attacks = registry.attackLists.emplace(entity);
     enemy_attacks.addAttack(AttackName::SNEEZE, AttackType::NORMAL, 5);
 
+    AnimatedSprite& animated_sprite = registry.animatedSprites.emplace(entity);
+    animated_sprite.paused = false;
+    animated_sprite.num_frames_per_type = { { 0, 2 } };
+    animated_sprite.animation_speed_ms = 750;
+
     // Create an enemy
-    registry.enemies.emplace(entity);
+    Enemy& enemy = registry.enemies.emplace(entity);
+    enemy.name = EnemyName::DUST_BUNNY;
+
     registry.renderRequests.insert(
             entity,
             { TEXTURE_ASSET_ID::DUST_BUNNY,
-              EFFECT_ASSET_ID::TEXTURED,
-              GEOMETRY_BUFFER_ID::SPRITE });
+              EFFECT_ASSET_ID::TEXTURED_ANIMATION,
+              GEOMETRY_BUFFER_ID::SPRITE_ANIMATION});
 
     return entity;
 }

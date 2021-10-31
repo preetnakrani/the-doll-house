@@ -210,6 +210,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 //    Game& game = registry.game.get(player_doll);
 //    std::cout << static_cast<int>(game.state) << std::endl;
 
+	for (int i = 0; i < registry.animatedSprites.entities.size(); i++) {
+		setSpriteAnimationPauseState(registry.animatedSprites.entities[i]);
+		setSpriteAnimationFrame(elapsed_ms_since_last_update, registry.animatedSprites.entities[i]);
+	}
+
     return true;
 }
 
@@ -258,24 +263,24 @@ void WorldSystem::restart_game() {
 	// Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
 	while (registry.motions.entities.size() > 0)
-	    registry.remove_all_components_of(registry.motions.entities.back());
+		registry.remove_all_components_of(registry.motions.entities.back());
 
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 
 	// create a background
 	int screen_width, screen_height;
-//	glfwGetFramebufferSize(window, &screen_width, &screen_height);
-    screen_height = window_height_px;
-    screen_width = window_width_px;
+	//	glfwGetFramebufferSize(window, &screen_width, &screen_height);
+	screen_height = window_height_px;
+	screen_width = window_width_px;
 	background = createBackground(renderer, { screen_width / 2.f, screen_height / 2.f });
 
 	// Create a new doll
-	player_doll = createDoll(renderer, { screen_width /5.f, screen_height/3.f });
+	player_doll = createDoll(renderer, { screen_width / 5.f, screen_height / 3.f });
 	Motion& motion = registry.motions.get(player_doll);
 	motion.scale = motion.scale * float(screen_width / 8);
-    player_speed = 200.f;
-	registry.colors.insert(player_doll, {1, 0.8f, 0.8f});
+	player_speed = 200.f;
+	registry.colors.insert(player_doll, { 1, 0.8f, 0.8f });
 
 	// create a help screen
     helpScreen = createHelpWindow(renderer, { screen_width / 2.f, screen_height / 6.f });
@@ -393,7 +398,6 @@ void WorldSystem::handle_collisions() {
 
 			if (registry.enemies.has(entity_other)) {
 				// initiate death unless already dying
-				// registry.remove_all_components_of(entity_other); // Need enemy info for battle so I commented it out - Naoreen
                 Game& game = registry.game.get(player_doll);
                 game.state = GameState::BATTLE;
 				if (!registry.currentEnemies.has(entity_other)) {
@@ -635,18 +639,44 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	(vec2)mouse_position; // dummy to avoid compiler warning
 }
 
+void WorldSystem::setSpriteAnimationFrame(float elapsed_time_ms, Entity entity) {
+	assert(registry.animatedSprites.has(entity));
+	AnimatedSprite& animated_sprite = registry.animatedSprites.get(entity);
+	animated_sprite.ms_since_last_update += elapsed_time_ms;
+	if (animated_sprite.paused == true) {
+		animated_sprite.current_frame = 0;
+	}
+	else if (animated_sprite.ms_since_last_update > animated_sprite.animation_speed_ms) {
+		int num_frames = animated_sprite.num_frames_per_type[animated_sprite.current_type];
+		animated_sprite.current_frame = (animated_sprite.current_frame + 1) % num_frames;
+		animated_sprite.ms_since_last_update = 0;
+	}
+}
+
+void WorldSystem::setSpriteAnimationPauseState(Entity entity) {
+	assert(registry.animatedSprites.has(entity));
+	AnimatedSprite& animated_sprite = registry.animatedSprites.get(entity);
+
+	// pause/go logic for player
+	if (registry.players.has(entity)) {
+		Motion& player_motion = registry.motions.get(entity);
+		animated_sprite.paused = player_motion.velocity == vec2{ 0, 0 };
+	}
+}
+
 void WorldSystem::setRenderRequests() {
+	// TODO: This function name isn't really relevant anymore, maybe we can change it -Naoreen
     if (registry.game.get(player_doll).state == GameState::PLAYING) {
-        RenderRequest& rr = registry.renderRequests.get(player_doll);
         Direction dir = registry.motions.get(player_doll).dir;
+		AnimatedSprite& animated_sprite = registry.animatedSprites.get(player_doll);
         if (dir == Direction::UP) {
-            rr.used_texture = TEXTURE_ASSET_ID::DOLL_UP;
+			animated_sprite.current_type = 2;
         } else if (dir == Direction::RIGHT) {
-            rr.used_texture = TEXTURE_ASSET_ID::DOLL_RIGHT;
+			animated_sprite.current_type = 1;
         } else if (dir == Direction::DOWN) {
-            rr.used_texture = TEXTURE_ASSET_ID::DOLL_DOWN;
+			animated_sprite.current_type = 0;
         } else if (dir == Direction::LEFT) {
-            rr.used_texture = TEXTURE_ASSET_ID::DOLL_LEFT;
+			animated_sprite.current_type = 3;
         }
     }
 }
