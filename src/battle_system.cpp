@@ -12,7 +12,7 @@ void BattleSystem::init(WorldSystem* world_system_arg) {
 void BattleSystem::handle_battle() {
     Entity& player_doll = registry.players.entities[0];
     Game& game = registry.game.get(player_doll);
-    if (!(game.state == GameState::BATTLE) || registry.currentEnemies.entities.empty()) {
+    if (game.state != GameState::BATTLE || registry.currentEnemies.entities.empty()) {
         return;
     }
 

@@ -42,6 +42,7 @@ public:
 	ComponentContainer<Status> status;
 	ComponentContainer<AnimatedSprite> animatedSprites;
     ComponentContainer<ClickableArea> clickableArea;
+  ComponentContainer<PopUp> popups;
 
 
 
@@ -80,6 +81,7 @@ public:
 		registry_list.push_back(&status);
 		registry_list.push_back(&animatedSprites);
         registry_list.push_back(&clickableArea);
+    registry_list.push_back(&popups);
     }
 
 	void clear_all_components() {

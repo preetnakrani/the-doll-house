@@ -415,6 +415,9 @@ void RenderSystem::draw()
         if (isInOverlayWindow4(entity)) {
             drawOverlayWindow(entity, projection_2D);
         }
+        if (registry.popups.has(entity)) {
+            drawOverlayWindow(entity, projection_2D);
+        }
     }
     // flicker-free display with a double buffer
     glfwSwapBuffers(window);

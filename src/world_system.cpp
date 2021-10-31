@@ -19,10 +19,18 @@ std::array<TEXTURE_ASSET_ID, 5> helpScreenOptions = { TEXTURE_ASSET_ID::HELP_PRE
                                                       TEXTURE_ASSET_ID::HELP_PRESS_S,
                                                       TEXTURE_ASSET_ID::STAY_AWAY };
 std::array<TEXTURE_ASSET_ID, 5> tutorialScreenOptions = { TEXTURE_ASSET_ID::TUTORIAL_ONE,
-                                                          TEXTURE_ASSET_ID::TUTORIAL_TWO,
-                                                          TEXTURE_ASSET_ID::TUTORIAL_THREE,
-                                                          TEXTURE_ASSET_ID::TUTORIAL_FOUR,
-                                                          TEXTURE_ASSET_ID::TUTORIAL_FIVE };
+													 TEXTURE_ASSET_ID::TUTORIAL_TWO,
+													 TEXTURE_ASSET_ID::TUTORIAL_THREE,
+													 TEXTURE_ASSET_ID::TUTORIAL_FOUR,
+													 TEXTURE_ASSET_ID::TUTORIAL_FIVE };
+std::array<TEXTURE_ASSET_ID, 6> room1Popups = {TEXTURE_ASSET_ID::ROOM1_EXPLORE,
+                                               TEXTURE_ASSET_ID::ROOM1_SPEECH1,
+                                               TEXTURE_ASSET_ID::ROOM1_SPEECH2,
+                                               TEXTURE_ASSET_ID::ROOM1_SPEECH3,
+                                               TEXTURE_ASSET_ID::ROOM1_DIARY1,
+                                               TEXTURE_ASSET_ID::ROOM1_DIARY2};
+int SCREEN_WIDTH;
+int SCREEN_HEIGHT;
 // Create the fish world
 WorldSystem::WorldSystem()
         : points(0)
@@ -242,6 +250,12 @@ void WorldSystem::escapeTutorial(bool isComplete) {
     bg_motion.blur_state = 0;
 }
 
+void WorldSystem::escapeDialogue() {
+    registry.remove_all_components_of(room1Dialogue);
+    Game& game = registry.game.get(player_doll);
+    game.state = GameState::PLAYING;
+}
+
 // Reset the world state to its initial state
 void WorldSystem::restart_game() {
     // Debugging for memory/component leaks
@@ -298,6 +312,7 @@ void WorldSystem::restart_game() {
         game.state = GameState::TUTORIAL;
     }
 
+
     //hardcoded for now while we figure out save/load
     createWallBlock({ 50.f, 150.f });
     createWallBlock({ 150.f, 150.f });
@@ -314,6 +329,7 @@ void WorldSystem::restart_game() {
     createWallBlock({ 1250.f, 150.f });
 
     // create clickable area
+
 }
 
 
@@ -445,6 +461,9 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
     if (game.state == GameState::TUTORIAL && key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
         TutorialTimer &tutorialTimer = registry.tutorialTimer.get(tutorialScreen);
         escapeTutorial(tutorialTimer.tutorialCompleted);
+        // create the dialogue window once the tutorial is completed
+        room1Dialogue = createPopUpWindow(renderer, {SCREEN_WIDTH/2,SCREEN_HEIGHT - SCREEN_HEIGHT/5});
+        game.state = GameState::POPUP;
     }
     // press return key to progress tutorial faster
     if (game.state == GameState::TUTORIAL && key == GLFW_KEY_ENTER && action == GLFW_PRESS) {
@@ -472,6 +491,21 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
         } else if (key == GLFW_KEY_M && action == GLFW_PRESS && hs.order !=4) {
             hs_rr.used_texture = helpScreenOptions[hs.order + 1];
             hs.order++;
+        }
+    }
+
+    if (game.state != GameState::TUTORIAL && registry.popups.has(room1Dialogue)) {
+        PopUp& dialogue = registry.popups.get(room1Dialogue);
+        RenderRequest& dialogue_rr = registry.renderRequests.get(room1Dialogue);
+        if (key == GLFW_KEY_Z && action == GLFW_PRESS && dialogue.order != 0) {
+            dialogue_rr.used_texture = room1Popups[dialogue.order - 1];
+            dialogue.order--;
+        } else if (key == GLFW_KEY_X && action == GLFW_PRESS && dialogue.order < room1Popups.size() - 1) {
+            dialogue_rr.used_texture = room1Popups[dialogue.order + 1];
+            dialogue.order++;
+        } else if (key == GLFW_KEY_X && action == GLFW_PRESS && dialogue.order == (room1Popups.size() - 1)) {
+//            registry.renderRequests.remove(room1Dialogue);
+            escapeDialogue();
         }
     }
 
