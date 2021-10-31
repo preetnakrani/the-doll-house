@@ -8,7 +8,7 @@
 
 #include "physics_system.hpp"
 #include "battle_system.hpp"
-#include <iostream>
+
 
 // Game configuration
 const size_t MAX_ENEMY = 5;

@@ -196,17 +196,18 @@ Entity createDoll(RenderSystem* renderer, vec2 pos)
 
     Health& health = registry.health.emplace(entity);
     health.health = 100;
+    health.maxHP = 100;
     health.healthDecrement = 0;
 
     // Give the player an attack list, magic list, and add some default moves
     AttackList& player_attacks = registry.attackLists.emplace(entity);
     player_attacks.addAttack(AttackName::PUNCH, AttackType::NORMAL, 10);
-    player_attacks.addAttack(AttackName::TAUNT, AttackType::NORMAL, 20);
 
     MagicList& player_magic = registry.magicLists.emplace(entity);
     player_magic.addMagicAttack(MagicName::LIGHTNING, AttackType::NORMAL, 30);
-    player_magic.addMagicDefense(MagicName::SHIELD, 30, 0);
-    player_magic.addMagicEffect(MagicName::POISON, false, 0);
+    player_magic.addMagicDefense(MagicName::SHIELD, 30, 0, 2);
+    player_magic.addMagicEffect(MagicName::POISON, false, 3);
+    player_magic.addMagicEffect(MagicName::TAUNT, false, 2);
 
     Game& game = registry.game.emplace(entity);
     game.state = GameState::PLAYING;
@@ -216,6 +217,7 @@ Entity createDoll(RenderSystem* renderer, vec2 pos)
     animated_sprite.num_frames_per_type = { { 0, 4 }, { 1, 4 }, { 2, 4 }, { 3, 4 } };
 
     registry.players.emplace(entity);
+    registry.status.emplace(entity);
     registry.renderRequests.insert(
             entity,
             { TEXTURE_ASSET_ID::DOLL,
@@ -265,11 +267,25 @@ Entity createEnemy(RenderSystem* renderer, vec2 pos)
 
     Health& health = registry.health.emplace(entity);
     health.health = 100;
+    health.maxHP = 100;
     health.healthDecrement = 0;
 
+    // Give it a status
+    registry.status.emplace(entity);
     // TEMPORARY - We will want to give different enemies different attacks/moves, but for now I'm just assuming dust bunny here - Naoreen
     AttackList& enemy_attacks = registry.attackLists.emplace(entity);
+    // One attack move: Sneeze
     enemy_attacks.addAttack(AttackName::SNEEZE, AttackType::NORMAL, 5);
+    // One Healing Potion
+    GameItem& item = registry.gameItems.emplace(entity);
+    item.item_name = GameItemName::HEALING_POTION;
+    item.health = 0.3 * health.health;
+    // One status effect debuff
+    MagicList& magic = registry.magicLists.emplace(entity);
+    magic.addMagicEffect(MagicName::TAUNT, true, 2);
+    // One defense effect buff 
+    magic.addMagicDefense(MagicName::SHIELD, 5, 0, 2);
+
 
     AnimatedSprite& animated_sprite = registry.animatedSprites.emplace(entity);
     animated_sprite.paused = false;
