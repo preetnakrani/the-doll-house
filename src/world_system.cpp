@@ -23,8 +23,6 @@ std::array<TEXTURE_ASSET_ID, 5> tutorialScreenOptions = { TEXTURE_ASSET_ID::TUTO
                                                           TEXTURE_ASSET_ID::TUTORIAL_THREE,
                                                           TEXTURE_ASSET_ID::TUTORIAL_FOUR,
                                                           TEXTURE_ASSET_ID::TUTORIAL_FIVE };
-int SCREEN_WIDTH;
-int SCREEN_HEIGHT;
 // Create the fish world
 WorldSystem::WorldSystem()
         : points(0)
@@ -134,38 +132,15 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
     Mix_PlayMusic(background_music, -1);
     fprintf(stderr, "Loaded music\n");
 
-    int screen_width, screen_height;
-//    glfwGetFramebufferSize(window, &screen_width, &screen_height);
-    SCREEN_HEIGHT = window_height_px;
-    SCREEN_WIDTH = window_width_px;
-
     // Set all states to default
     restart_game();
 }
 
-//void WorldSystem::getScreenSize() {
-//    int screen_width, screen_height;
-//    glfwGetFramebufferSize(window, &screen_width, &screen_height);
-//    SCREEN_HEIGHT = screen_height;
-//    SCREEN_WIDTH = screen_width;
-//}
-
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
-//    std::cout << "framebuffer size: " << registry.players.get(player_doll).fBHeight << ", " << registry.players.get(player_doll).fBWidth << std::endl;
     if (registry.game.get(player_doll).state == GameState::TUTORIAL) {
         progressTutorial(elapsed_ms_since_last_update);
     }
-    if (registry.game.get(player_doll).state != GameState::PLAYING) {
-        debugging.in_debug_mode = false;
-    }	// Get the screen dimensions
-    int screen_width, screen_height;
-    screen_height = window_height_px;
-    screen_width = window_width_px;
-//	glfwGetFramebufferSize(window, &screen_width, &screen_height);
-    SCREEN_HEIGHT = window_height_px;
-    SCREEN_WIDTH = window_width_px;
-
 
     // Updating window title with points
     std::stringstream title_ss;
@@ -197,7 +172,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
         next_enemy_spawn = (ENEMY_DELAY_MS / 2) + uniform_dist(rng) * (ENEMY_DELAY_MS / 2);
 
         vec2 position =
-                vec2(50.f + uniform_dist(rng) * (screen_width - 100.f),
+                vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f),
                      50.f + 250 + uniform_dist(rng) * (2 * 250 - 100.f));
 
         vec2 bounding = vec2(100.f, 100.f);
@@ -249,7 +224,6 @@ void WorldSystem::progressTutorial(float elapsed_ms_since_last_update) {
 
 void WorldSystem::findInitialFrameBufferSize(){
     if (fbWidth == 0 && fbHeight == 0) {
-//        printf("fBWidth needs update\n");
         int w, h;
         glfwGetFramebufferSize(window, &w, &h);
         fbWidth = w;
@@ -288,22 +262,17 @@ void WorldSystem::restart_game() {
     registry.list_all_components();
 
     // create a background
-    int screen_width, screen_height;
-//	glfwGetFramebufferSize(window, &screen_width, &screen_height);
-    screen_height = window_height_px;
-    screen_width = window_width_px;
     background = createBackground(renderer, { 600, 400});
 
     // create a help screen
 
-    helpScreen = createHelpWindow(renderer, { 600, 150 });
+    helpScreen = createHelpWindow(renderer, { 600, 130 });
     Motion& help_motion = registry.motions.get(helpScreen);
-    help_motion.scale = help_motion.scale * float(200);
+    help_motion.scale = help_motion.scale * float(220);
 
     // Create a new doll
     player_doll = createDoll(renderer, { 300, 300 }, {fbWidth, fbHeight});
     Motion& motion = registry.motions.get(player_doll);
-//	motion.scale = motion.scale * float(screen_width / 8);
     motion.scale = motion.scale * float(150);
     player_speed = 200.f;
     registry.colors.insert(player_doll, {1, 0.8f, 0.8f});
@@ -421,7 +390,6 @@ void WorldSystem::handle_collisions() {
 
 
             if (registry.enemies.has(entity_other)) {
-                debugging.in_debug_mode = false;
                 // initiate death unless already dying
                 Game& game = registry.game.get(player_doll);
                 game.state = GameState::BATTLE;
@@ -701,7 +669,7 @@ void WorldSystem::handleBattleScreenButtonClick(BattleMenuItemType button_clicke
 
     if (button_clicked == BattleMenuItemType::ATTACK_BUTTON) {
         selected_move_menu = button_clicked;
-        float SCALE = SCREEN_HEIGHT / 160;
+        float SCALE = window_height_px / 160;
 
         AttackList& player_attacks = registry.attackLists.get(player_doll);
         if (player_attacks.hasAttack(AttackName::PUNCH) && !registry.battleMenuPlayerMoves.has(punch_button)) {
