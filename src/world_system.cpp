@@ -357,7 +357,7 @@ void WorldSystem::restart_game(GameStateChange gc) {
     } else {
         printf("Reloading from level: %i\n", gameProgress.level);
         GameProgressFactory gpf;
-        json gp = jr.readFile("/gameData/gameProgress.json");
+        json gp = jr.readGameProgress();
         gameProgress = gpf.create(renderer, gp);
     }
 
@@ -379,7 +379,9 @@ void WorldSystem::restart_game(GameStateChange gc) {
 //	glfwGetFramebufferSize(window, &screen_width, &screen_height);
     screen_height = window_height_px;
     screen_width = window_width_px;
-	background = createBackground(renderer, { screen_width / 2.f, screen_height / 2.f }, TEXTURE_ASSET_ID::BACKGROUND);
+
+    int bg = (level.contains("background")) ? level["background"].get<int>() : 15;
+	background = createBackground(renderer, { screen_width / 2.f, screen_height / 2.f }, (TEXTURE_ASSET_ID)bg);
 
     if (level.contains("beds")) {
         BedFactory bedFactory;
@@ -418,7 +420,6 @@ void WorldSystem::restart_game(GameStateChange gc) {
             wallFactory.create(renderer, wall);
         }
     }
-
 
     // doll creation
     if (level.contains("player_doll")) {
@@ -471,8 +472,6 @@ void WorldSystem::restart_game(GameStateChange gc) {
         game.state = GameState::TUTORIAL;
     }
 
-	//hardcoded for now while we figure out save/load
-	Entity block = createWallBlock({ screen_width / 2.f, 250 }, { screen_width, 100.f });
     save();
 }
 

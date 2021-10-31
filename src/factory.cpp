@@ -31,15 +31,6 @@ public:
 class Factory {
     public:
          virtual void create(RenderSystem* renderer, json components) = 0;
-         static void test() {
-             json m;
-             string b = "{\"hello\": 5.6555}";
-             json test = json::parse(b);
-             std::cout << test << std::endl;
-             JsonReader j;
-             json obj = j.readLevel(1);
-             std::cout << obj << endl;
-         }
 };
 
 class BedFactory : public Factory {

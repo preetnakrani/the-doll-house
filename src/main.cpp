@@ -11,7 +11,6 @@
 #include "render_system.hpp"
 #include "world_system.hpp"
 #include "battle_system.hpp"
-#include "factory.cpp"
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -21,8 +20,6 @@ using Clock = std::chrono::high_resolution_clock;
 // Entry point
 int main()
 {
-
-    Factory::test();
 	// Global systems
 	WorldSystem world;
 	RenderSystem renderer;
