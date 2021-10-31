@@ -500,13 +500,19 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
     if (game.state != GameState::TUTORIAL && registry.popups.has(room1Dialogue)) {
         PopUp& dialogue = registry.popups.get(room1Dialogue);
         RenderRequest& dialogue_rr = registry.renderRequests.get(room1Dialogue);
-        if (key == GLFW_KEY_Z && action == GLFW_PRESS && dialogue.order != 0) {
-            dialogue_rr.used_texture = room1Popups[dialogue.order - 1];
-            dialogue.order--;
-        } else if (key == GLFW_KEY_X && action == GLFW_PRESS && dialogue.order < room1Popups.size() - 1) {
-            dialogue_rr.used_texture = room1Popups[dialogue.order + 1];
+//        if (key == GLFW_KEY_Z && action == GLFW_PRESS && dialogue.order != 0) {
+//            dialogue_rr.used_texture = room1Popups[dialogue.order - 1];
+//            dialogue.order--;
+//        } else if (key == GLFW_KEY_X && action == GLFW_PRESS && dialogue.order < room1Popups.size() - 1) {
+//            dialogue_rr.used_texture = room1Popups[dialogue.order + 1];
+//            dialogue.order++;
+//        } else if (key == GLFW_KEY_X && action == GLFW_PRESS && dialogue.order == (room1Popups.size() - 1)) {
+//            escapeDialogue();
+//        }
+        if (key == GLFW_KEY_SPACE && action == GLFW_PRESS && dialogue.order < room1Popups.size()) {
+            dialogue_rr.used_texture = room1Popups[dialogue.order];
             dialogue.order++;
-        } else if (key == GLFW_KEY_X && action == GLFW_PRESS && dialogue.order == (room1Popups.size() - 1)) {
+        } else if (key == GLFW_KEY_SPACE && action == GLFW_PRESS && dialogue.order == (room1Popups.size())) {
             escapeDialogue();
         }
     }
