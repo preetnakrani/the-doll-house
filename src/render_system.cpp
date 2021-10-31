@@ -24,14 +24,9 @@ void RenderSystem::drawTexturedMesh(Entity entity,
                                     const mat3 &projection)
 {
     Motion &motion = registry.motions.get(entity);
-    // Transformation code, see Rendering and Transformation in the template
-    // specification for more info Incrementally updates transformation matrix,
-    // thus ORDER IS IMPORTANT
     Transform transform;
     transform.translate(motion.position);
     transform.scale(motion.scale);
-    // !!! TODO A1: add rotation to the chain of transformations, mind the order
-    // of transformations
 
     assert(registry.renderRequests.has(entity));
     const RenderRequest &render_request = registry.renderRequests.get(entity);
@@ -161,7 +156,7 @@ void RenderSystem::drawToScreen()
     gl_has_errors();
 
     // Enabling alpha channel for textures
-    glDisable(GL_BLEND);
+    glEnable(GL_BLEND);
     // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_DEPTH_TEST);
     // Draw the screen texture on the quad geometry
@@ -244,7 +239,7 @@ void RenderSystem::horizontalBlur()
     gl_has_errors();
 
     // Enabling alpha channel for textures
-    glDisable(GL_BLEND);
+    glEnable(GL_BLEND);
     // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_DEPTH_TEST);
     // Draw the screen texture on the quad geometry
@@ -315,7 +310,8 @@ void RenderSystem::drawOverlayWindow(Entity entity,
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
     gl_has_errors();
 
-    if (render_request.used_effect == EFFECT_ASSET_ID::HELP_SCREEN) {
+    if (render_request.used_effect == EFFECT_ASSET_ID::HELP_SCREEN
+    || render_request.used_effect == EFFECT_ASSET_ID::TEXTURED_ANIMATION) {
         GLint in_position_loc = glGetAttribLocation(program, "in_position");
         GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
         gl_has_errors();
@@ -394,8 +390,7 @@ void RenderSystem::draw()
     {
         if (!registry.motions.has(entity))
             continue;
-        // Note, its not very efficient to access elements indirectly via the entity
-        // albeit iterating through all Sprites in sequence. A good point to optimize
+
         drawTexturedMesh(entity, projection_2D);
     }
 
@@ -416,26 +411,34 @@ void RenderSystem::draw()
             drawOverlayWindow(entity, projection_2D);
         }
     }
+    for (Entity entity : registry.renderRequests.entities) {
+        if (isInOverlayWindow4(entity)) {
+            drawOverlayWindow(entity, projection_2D);
+        }
+    }
     // flicker-free display with a double buffer
     glfwSwapBuffers(window);
     gl_has_errors();
 }
 
 bool RenderSystem::isInOverlayWindow1(Entity entity) {
-    return (registry.helpScreens.has(entity) || registry.battleScreens.has(entity) || registry.battleDolls.has(entity)
-    || registry.battleEnemies.has(entity));
+    return (registry.helpScreens.has(entity));
 }
 
 bool RenderSystem::isInOverlayWindow2(Entity entity) {
-    return (registry.battleMenus.has(entity));
+    return (registry.battleScreens.has(entity));
 }
 
 
 bool RenderSystem::isInOverlayWindow3(Entity entity) {
+    return (registry.battleDolls.has(entity)
+                || registry.battleEnemies.has(entity) || registry.battleMenus.has(entity));
+}
+
+bool RenderSystem::isInOverlayWindow4(Entity entity) {
     return (registry.battleMenuButtons.has(entity) ||
             registry.battleMenuPlayerMoves.has(entity));
 }
-
 
 
 
