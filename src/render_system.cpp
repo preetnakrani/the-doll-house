@@ -405,6 +405,9 @@ void RenderSystem::draw()
         if (registry.battleMenuButtons.has(entity) || registry.battleMenuPlayerMoves.has(entity)) {
             drawOverlayWindow(entity, projection_2D);
         }
+        if (registry.popups.has(entity)) {
+            drawOverlayWindow(entity, projection_2D);
+        }
     }
     // flicker-free display with a double buffer
     glfwSwapBuffers(window);

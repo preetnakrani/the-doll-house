@@ -76,6 +76,8 @@ private:
 	// where top_left_coords is the coordinate of the region's top left corner
 	bool isClickInRegion(double x, double y, vec2 top_left_coords, double height, double width);
 
+    void escapeDialogue();
+
 	void getScreenSize();
 
 	// OpenGL window handle
@@ -96,6 +98,7 @@ private:
 	Entity menuButton;
 	Entity menuOverlay;
 	Entity tutorialScreen;
+    Entity room1Dialogue;
 
 	// Entities related to rendering battle screen
     Entity battle_screen;

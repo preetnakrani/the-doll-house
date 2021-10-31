@@ -192,7 +192,8 @@ enum class GameState {
     BOSS = 3,
     BATTLE = 4,
     MENUOVERLAY = 5,
-    TUTORIAL = 6
+    TUTORIAL = 6,
+    POPUP = 7 // for dialogue and diary
 };
 
 // Sets the brightness of the screen
@@ -232,6 +233,17 @@ struct Background
 struct HelpScreen {
     int order = 0;
 };
+
+// for dialogue and diary entries
+struct PopUp {
+    int order = 0;
+};
+
+//struct PopUpTimer {
+//    float timePerSprite = 7000.f;
+//    bool popUpCompleted = false;
+//    int popUpIndex = 0;
+//};
 
 struct BattleScreen {
 
@@ -343,7 +355,14 @@ enum class TEXTURE_ASSET_ID {
 	ATTACK_OPTIONS_PUNCH_SELECTED = ATTACK_OPTIONS_PUNCH + 1,
 	PLAYER_TEMP = ATTACK_OPTIONS_PUNCH_SELECTED + 1,
 	ENEMY_TEMP = PLAYER_TEMP + 1,
-	TEXTURE_COUNT = ENEMY_TEMP + 1,
+    ROOM1_DIARY = ENEMY_TEMP + 1,
+    ROOM1_SPEECH1 = ROOM1_DIARY + 1,
+    ROOM1_SPEECH2 = ROOM1_SPEECH1 + 1,
+    ROOM1_SPEECH3 = ROOM1_SPEECH2 + 1,
+    ROOM1_DIARY1 = ROOM1_SPEECH3 + 1,
+    ROOM1_DIARY2 = ROOM1_DIARY1 + 1,
+    ROOM1_EXPLORE = ROOM1_DIARY2 + 1,
+    TEXTURE_COUNT = ROOM1_EXPLORE + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

@@ -116,6 +116,29 @@ Entity createTutorial(RenderSystem* renderer, vec2 pos) {
     return entity;
 }
 
+Entity createPopUpWindow(RenderSystem* renderer, vec2 pos)
+{
+    auto entity = Entity();
+    Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+    registry.meshPtrs.emplace(entity, &mesh);
+    Motion& motion = registry.motions.emplace(entity);
+    motion.dir = Direction::DOWN;
+    motion.position = pos;
+    motion.angle = 0.f;
+    motion.velocity = { 0.f, 0.f };
+//    motion.scale = mesh.original_size;
+    motion.scale = {1000.f, 175.f};
+    motion.collision_proof = 1;
+//    registry.popUpTimers.emplace(entity);
+    registry.popups.emplace(entity);
+    registry.renderRequests.insert(
+            entity,
+            { TEXTURE_ASSET_ID::ROOM1_EXPLORE,
+              EFFECT_ASSET_ID::HELP_SCREEN,
+              GEOMETRY_BUFFER_ID::SPRITE});
+    return entity;
+}
+
 Entity createBattleWindow(RenderSystem* renderer, vec2 pos)
 {
     auto entity = Entity();
