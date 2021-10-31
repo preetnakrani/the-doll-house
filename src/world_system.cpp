@@ -677,6 +677,12 @@ void WorldSystem::setSpriteAnimationPauseState(Entity entity) {
     assert(registry.animatedSprites.has(entity));
     AnimatedSprite& animated_sprite = registry.animatedSprites.get(entity);
 
+    if (registry.game.get(player_doll).state == GameState::POPUP ||
+        registry.game.get(player_doll).state == GameState::TUTORIAL) {
+        animated_sprite.paused = true;
+        return;
+    }
+
     // pause/go logic for player
     if (registry.players.has(entity)) {
         Motion& player_motion = registry.motions.get(entity);
