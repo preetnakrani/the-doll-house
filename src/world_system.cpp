@@ -18,7 +18,7 @@ using json = nlohmann::json;
 const size_t MAX_ENEMY = 5;
 const size_t ENEMY_DELAY_MS = 2000 * 3;
 const int MAX_LEVEL_COUNT = 2;
-const int MAX_ENEMY_COUNT = 1;
+const int MAX_ENEMY_COUNT = 5;
 std::array<TEXTURE_ASSET_ID, 5> helpScreenOptions = {TEXTURE_ASSET_ID::HELP_PRESS_A,
                                                      TEXTURE_ASSET_ID::HELP_PRESS_D,
                                                      TEXTURE_ASSET_ID::HELP_PRESS_W,
@@ -533,11 +533,11 @@ void WorldSystem::restart_game(GameStateChange gc)
     registry.colors.insert(player_doll, {1, 0.8f, 0.8f});
 
     // create a help screen
-
-    helpScreen = createHelpWindow(renderer, {600, 130});
-    Motion &help_motion = registry.motions.get(helpScreen);
-    help_motion.scale = help_motion.scale * float(220);
-
+    if (gameProgress.level == 1) {
+        helpScreen = createHelpWindow(renderer, {600, 130});
+        Motion &help_motion = registry.motions.get(helpScreen);
+        help_motion.scale = help_motion.scale * float(220);
+    }
     // create a clickable menu button
     menuButton = createMenuButton(renderer, {1150, 25});
     Motion &menuButton_motion = registry.motions.get(menuButton);
