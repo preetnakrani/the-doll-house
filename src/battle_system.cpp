@@ -179,9 +179,9 @@ void BattleSystem::process_enemy_turn(Turn& enemy_turn, Entity& enemy) {
             player_status.timer = chosen_attack.timer;
             // chosen_attack.countdown = chosen_attack.timer;
         }
-        else if (chosen_attack.magicType == MagicType::ATTACK) {
-            void; // no magic attacks at the moment
-        }
+        //else if (chosen_attack.magicType == MagicType::ATTACK) {
+            //void; // no magic attacks at the moment
+        //}
         printf("The enemy used the move: %s", chosen_attack.nameAsString().c_str());
         printf("!, Your health : %d\n\n", player_health.health);
     }
