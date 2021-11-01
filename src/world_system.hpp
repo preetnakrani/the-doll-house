@@ -54,6 +54,7 @@ public:
 	void destroyBattleWindow();
 	void attach(std::function<void(Entity)> fn);
 	void save();
+    void incrementEnemiesKilled();
 
 private:
 	// Input callback functions
@@ -105,6 +106,7 @@ private:
 	std::vector<std::function<void(Entity)> > callbacks;
 	// Game state
 	RenderSystem *renderer;
+    int enemiesKilled = 0;
 	float current_speed;
 	float player_speed = 100.f;
 	float next_enemy_spawn;

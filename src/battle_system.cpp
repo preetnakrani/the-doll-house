@@ -212,5 +212,9 @@ void BattleSystem::end_battle(Game& game, std::vector<Entity> current_enemies) {
     }
     game.battle_state = BattleState::NONE;
     game.state = GameState::PLAYING;
+
     printf("=====Battle ended=====\n");
+
+    world_system->incrementEnemiesKilled();
+
 }
