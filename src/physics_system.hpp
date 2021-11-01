@@ -9,13 +9,11 @@
 class PhysicsSystem
 {
 public:
-    void step(float elapsed_ms, float window_width_px, float window_height_px);
+	void step(float elapsed_ms, float window_width_px, float window_height_px);
 
-    PhysicsSystem()
-    {
-    }
+	PhysicsSystem()
+	{
+	}
 
-    std::function<void(Entity, bool)> getCollisionFunction();
-
-    void handleWallCollision(Entity player, Entity wall);
+	std::function<void(Entity)> getCollisionFunction();
 };

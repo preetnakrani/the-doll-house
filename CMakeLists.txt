@@ -58,7 +58,7 @@ if (IS_OS_MAC)
   link_directories(/usr/local/lib)
 endif()
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES} "src/battle_system.cpp" "src/battle_system.hpp" "src/factory.cpp")
+add_executable(${PROJECT_NAME} ${SOURCE_FILES} "src/battle_system.cpp" "src/battle_system.hpp")
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
 
 # Added this so policy CMP0065 doesn't scream
@@ -67,7 +67,6 @@ set_target_properties(${PROJECT_NAME} PROPERTIES ENABLE_EXPORTS 0)
 # External header-only libraries in the ext/
 target_include_directories(${PROJECT_NAME} PUBLIC ext/stb_image/)
 target_include_directories(${PROJECT_NAME} PUBLIC ext/gl3w)
-target_include_directories(${PROJECT_NAME} PUBLIC ext/json)
 
 # Find OpenGL
 find_package(OpenGL REQUIRED)
