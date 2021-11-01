@@ -3,10 +3,10 @@
 # Milestone 2
 Here is a summary of what to expect with our Milestone 2 implementation:
 
-**State machine**: The enemy AI determines what action to do depending on its state. 
+**State machine**: The enemy AI determines what action to do depending on the statuses, health, and health difference of both the enemy and the player, as well as whether it has an item to use during battle.
 
 **Simple path finding**:
-The enemy finds the fastest route to get to the player. 
+The enemy finds the fastest route to get to the player based on BFS in a projected grid of available area to move in. 
 
 **Sprite animation**:
 When the player is moving with the WASD keys, a walking motion is displayed. The enemies (bunnies) have the animation where their ears constantly move up and down. 
