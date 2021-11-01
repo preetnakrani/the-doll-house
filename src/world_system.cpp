@@ -29,9 +29,10 @@ std::array<TEXTURE_ASSET_ID, 5> tutorialScreenOptions = {TEXTURE_ASSET_ID::TUTOR
                                                          TEXTURE_ASSET_ID::TUTORIAL_THREE,
                                                          TEXTURE_ASSET_ID::TUTORIAL_FOUR,
                                                          TEXTURE_ASSET_ID::TUTORIAL_FIVE};
-std::array<TEXTURE_ASSET_ID, 6> room1Popups = {TEXTURE_ASSET_ID::ROOM1_EXPLORE,
-                                               TEXTURE_ASSET_ID::ROOM1_SPEECH1,
-                                               TEXTURE_ASSET_ID::ROOM1_SPEECH2,
+std::array<TEXTURE_ASSET_ID, 2> room1Popups = {TEXTURE_ASSET_ID::ROOM1_SPEECH1,
+                                               TEXTURE_ASSET_ID::ROOM1_EXPLORE};
+
+std::array<TEXTURE_ASSET_ID, 4> room2Popups = {TEXTURE_ASSET_ID::ROOM1_SPEECH2,
                                                TEXTURE_ASSET_ID::ROOM1_SPEECH3,
                                                TEXTURE_ASSET_ID::ROOM1_DIARY1,
                                                TEXTURE_ASSET_ID::ROOM1_DIARY2};
@@ -386,9 +387,9 @@ void WorldSystem::escapeTutorial(bool isComplete)
     bg_motion.blur_state = 0;
 }
 
-void WorldSystem::escapeDialogue()
+void WorldSystem::escapeDialogue(Entity e)
 {
-    registry.remove_all_components_of(room1Dialogue);
+    registry.remove_all_components_of(e);
     Game &game = registry.game.get(player_doll);
     game.state = GameState::PLAYING;
 }
@@ -559,7 +560,11 @@ void WorldSystem::restart_game(GameStateChange gc)
             game.state = GameState::TUTORIAL;
         }
     }
-
+    if (gameProgress.level == 2) {
+        room2Dialogue = createPopUpWindow(renderer, {600.f,600.f});
+        Game &game = registry.game.get(player_doll);
+        game.state = GameState::POPUP;
+    }
     save();
 }
 
@@ -754,19 +759,10 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         }
     }
 
-    if (game.state != GameState::TUTORIAL && registry.popups.has(room1Dialogue))
+    if (game.state != GameState::TUTORIAL && registry.popups.has(room1Dialogue) && gameProgress.level == 1)
     {
         PopUp &dialogue = registry.popups.get(room1Dialogue);
         RenderRequest &dialogue_rr = registry.renderRequests.get(room1Dialogue);
-        //        if (key == GLFW_KEY_Z && action == GLFW_PRESS && dialogue.order != 0) {
-        //            dialogue_rr.used_texture = room1Popups[dialogue.order - 1];
-        //            dialogue.order--;
-        //        } else if (key == GLFW_KEY_X && action == GLFW_PRESS && dialogue.order < room1Popups.size() - 1) {
-        //            dialogue_rr.used_texture = room1Popups[dialogue.order + 1];
-        //            dialogue.order++;
-        //        } else if (key == GLFW_KEY_X && action == GLFW_PRESS && dialogue.order == (room1Popups.size() - 1)) {
-        //            escapeDialogue();
-        //        }
         if (key == GLFW_KEY_SPACE && action == GLFW_PRESS && dialogue.order < room1Popups.size())
         {
             dialogue_rr.used_texture = room1Popups[dialogue.order];
@@ -774,7 +770,22 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         }
         else if (key == GLFW_KEY_SPACE && action == GLFW_PRESS && dialogue.order == (room1Popups.size()))
         {
-            escapeDialogue();
+            escapeDialogue(room1Dialogue);
+        }
+    }
+
+    if (game.state != GameState::TUTORIAL && registry.popups.has(room2Dialogue) && gameProgress.level == 2)
+    {
+        PopUp &dialogue = registry.popups.get(room2Dialogue);
+        RenderRequest &dialogue_rr = registry.renderRequests.get(room2Dialogue);
+        if (key == GLFW_KEY_SPACE && action == GLFW_PRESS && dialogue.order < room2Popups.size())
+        {
+            dialogue_rr.used_texture = room2Popups[dialogue.order];
+            dialogue.order++;
+        }
+        else if (key == GLFW_KEY_SPACE && action == GLFW_PRESS && dialogue.order == (room2Popups.size()))
+        {
+            escapeDialogue(room2Dialogue);
         }
     }
 
