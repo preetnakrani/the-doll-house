@@ -22,6 +22,10 @@ struct Enemy
 	EnemyName name;
 };
 
+struct AIEntity {
+	std::vector<std::pair<int, int>> coveredPositions = {};
+};
+
 struct AnimatedSprite
 {
 	bool paused = true;

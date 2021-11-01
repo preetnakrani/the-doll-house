@@ -17,6 +17,7 @@ public:
 	ComponentContainer<Collision> collisions;
     ComponentContainer<Enemy> enemies;
 	ComponentContainer<Player> players;
+	ComponentContainer<AIEntity> AIEntities;
     ComponentContainer<Momentum> momentums;
 	ComponentContainer<Mesh*> meshPtrs;
 	ComponentContainer<RenderRequest> renderRequests;
@@ -58,6 +59,7 @@ public:
 		registry_list.push_back(&motions);
 		registry_list.push_back(&collisions);
 		registry_list.push_back(&players);
+		registry_list.push_back(&AIEntities);
 		registry_list.push_back(&meshPtrs);
 		registry_list.push_back(&renderRequests);
 		registry_list.push_back(&enemies);

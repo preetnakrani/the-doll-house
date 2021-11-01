@@ -27,7 +27,26 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	return false;
 }
 
-void checkFakeCollision(Entity e) {
+// This whole function has duplicated code from handleWallCollision, should be refactored.
+bool checkWallCollision(Entity entity, Entity wall) {
+	Motion& entity_motion = registry.motions.get(entity);
+	vec2 entity_bounding_box = get_bounding_box(entity_motion) / 2.0f;
+
+	Motion& wall_motion = registry.motions.get(wall);
+	vec2 wall_bounding_box = get_bounding_box(wall_motion) / 2.0f;
+
+	vec2 player_min = { entity_motion.position[0] - entity_bounding_box[0], entity_motion.position[1] + entity_bounding_box[1] };
+	vec2 player_max = { entity_motion.position[0] + entity_bounding_box[0], entity_motion.position[1] - entity_bounding_box[1] };
+	vec2 wall_min = { wall_motion.position[0] - wall_bounding_box[0], wall_motion.position[1] + wall_bounding_box[1] };
+	vec2 wall_max = { wall_motion.position[0] + wall_bounding_box[0], wall_motion.position[1] - wall_bounding_box[1] };
+
+	if ((player_min[0] < wall_max[0]) && (wall_min[0] < player_max[0]) && (player_min[1] > wall_max[1]) && (wall_min[1] > player_min[1])) {
+		return true;
+	}
+	return false;
+}
+
+void checkFakeCollision(Entity e, bool forAI) {
 	ComponentContainer<Motion>& motion_container = registry.motions;
 	Motion m = registry.motions.get(e);
 	std::vector<Entity> entities = registry.motions.entities;
@@ -35,20 +54,50 @@ void checkFakeCollision(Entity e) {
 	for (uint i = 0; i < motion_container.components.size(); i++)
 	{
 		Motion& motion_i = motion_container.components[i];
-		if (motion_i.collision_proof == 1 || (unsigned int)entities[i] == (unsigned int)e) {
+		if (motion_i.collision_proof == 1 || (unsigned int)entities[i] == (unsigned int)e || registry.debugComponents.has(entities[i])) {
 			continue;
+		}
+
+		if (forAI && registry.players.has(entities[i])) {
+			continue;
+		}
+
+		// these two if blocks are pretty clumsy, might want to refactor
+		if (registry.walls.has(entities[i])) {
+			if (checkWallCollision(e, entities[i])) {
+				if (forAI && registry.AIEntities.has(entities[i])) {
+					AIEntity& ai = registry.AIEntities.get(entities[i]);
+					ai.coveredPositions.push_back(std::make_pair(
+						round(m.position.x / 50.f),
+						round(m.position.y / 50.f)
+					));
+				}
+
+				registry.remove_all_components_of(e);
+				return;
+			}
+			else {
+				continue;
+			}
 		}
 
 		if (collides(motion_i, m))
 		{
-;			registry.remove_all_components_of(e);
+			if (forAI && registry.AIEntities.has(entities[i])) {
+				AIEntity& ai = registry.AIEntities.get(entities[i]);
+				ai.coveredPositions.push_back(std::make_pair(
+					round(m.position.x / 50.f),
+					round(m.position.y / 50.f)
+				));
+			}
+
+			registry.remove_all_components_of(e);
 			return;
 		}
 	}
-
 }
 
-std::function<void(Entity)> PhysicsSystem::getCollisionFunction() {
+std::function<void(Entity, bool)> PhysicsSystem::getCollisionFunction() {
 	return checkFakeCollision;
 }
 
@@ -105,11 +154,7 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 				}
 			}
 		}
-
-
 	}
-
-
 
 	// you may need the following quantities to compute wall positions
 	(float)window_width_px; (float)window_height_px;
@@ -117,24 +162,19 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 	// debugging of bounding boxes
 	if (debugging.in_debug_mode)
 	{
-        vec2 verticalLineScale = {5, 100};
-        vec2 horizontalLineScale = {100, 5};
 
         // create a red line around the wall boxes
         for (Entity wallBox: registry.walls.entities) {
             Motion& wallMotion = registry.motions.get(wallBox);
-	        vec2 position = wallMotion.position;
-            createBox(position, verticalLineScale, horizontalLineScale, 100, 100);
+			createBox(wallMotion.position, wallMotion.scale);
         }
         Entity playerDoll = registry.players.entities[0];
         Motion& dollMotion = registry.motions.get(playerDoll);
-        vec2 dollPosition = dollMotion.position;
-        createBox(dollPosition, verticalLineScale, horizontalLineScale, 100, 100);
+        createBox(dollMotion.position, dollMotion.scale);
 
         for (Entity enemy: registry.enemies.entities) {
             Motion& enemyMotion = registry.motions.get(enemy);
-            vec2 position = enemyMotion.position;
-            createBox(position, verticalLineScale, horizontalLineScale, 100, 100);
+            createBox(enemyMotion.position, enemyMotion.scale);
         }
 	}
 }

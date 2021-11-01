@@ -20,6 +20,8 @@ Entity createBattleMenuItem(RenderSystem *renderer, vec2 pos, BattleMenuItemType
 
 Entity createEnemy(RenderSystem *renderer, vec2 pos);
 
+Entity createTestEnemy(vec2 pos);
+
 Entity createDoll(RenderSystem *renderer, vec2 pos, vec2 frameBufferSize, std::vector<Attack> attackList, int hp = 100, int hd = 0);
 
 Entity createBattleDoll(RenderSystem *renderer, vec2 pos);
@@ -64,4 +66,4 @@ Entity createClickableArea(vec2 leftTop, int width, int height);
 
 Entity createLine(vec2 position, vec2 scale);
 
-void createBox(vec2 centrePosition, vec2 verticalLineScale, vec2 horizontalLineScale, int boxWidth, int boxHeight);
+void createBox(vec2 pos, vec2 scale);

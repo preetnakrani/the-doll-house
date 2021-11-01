@@ -1,10 +1,18 @@
 // internal
 #include "ai_system.hpp"
+#include "world_init.hpp"
+#include "world_system.hpp"
+
 #include <iostream>
 #include <random>
 
 #include <vector>
 #include <chrono>
+#include <queue>
+
+float ms_since_recompute = 0;
+float enemy_speed = 80;
+std::vector<std::vector<int>> grid;
 
 struct Choices
 {
@@ -161,10 +169,89 @@ void AISystem::step(float elapsed_ms)
 {
 	(void)elapsed_ms; // placeholder to silence unused warning until implemented
 	Entity player_doll = registry.players.entities[0];
+	Motion& player_motion = registry.motions.get(player_doll);
 	Game& game = registry.game.get(player_doll);
 
 	if (game.battle_state == BattleState::ENEMY_TURN) {
 		do_enemy_turn();
+	}
+
+	if (debugging.in_debug_mode) {
+		for (int i = 0; i < grid.size(); i++) {
+			for (int j = 0; j < grid[0].size(); j++) {
+				if (grid[i][j]) {
+					createLine({ 50.f * i, 50.f * j }, { 5.f, 5.f });
+				}
+			}
+		}
+	}
+
+	ms_since_recompute -= elapsed_ms;
+	if (ms_since_recompute <= 0) {
+		ms_since_recompute = 500;
+
+
+		for (int i = 0; i < registry.AIEntities.entities.size(); i++) {
+			registry.AIEntities.get(registry.AIEntities.entities[i]).coveredPositions = {};
+		}
+		grid = {};
+		PhysicsSystem physics;
+		std::function<void(Entity, bool)> callback = physics.getCollisionFunction();
+		for (int i = 0; i < window_width_px / 50.f; i++) {
+			std::vector<int> col;
+			for (int j = 0; j < window_height_px / 50.f; j++) {
+				Entity testEntity = createTestEnemy({ 50.f * i, 50.f * j });
+
+				callback(testEntity, true);
+
+				if (registry.motions.has(testEntity)) {
+					col.push_back(1);
+					registry.remove_all_components_of(testEntity);
+				}
+				else {
+					col.push_back(0);
+				}
+			}
+			grid.push_back(col);
+		}
+
+
+		std::pair<int, int> dollPos = std::make_pair(
+			round((player_motion.position.x - fmod(player_motion.position.x, 50)) / 50.f),
+			round((player_motion.position.y - fmod(player_motion.position.y, 50)) / 50.f)
+		);
+
+
+		// Do a BFS
+		for (int i = 0; i < registry.enemies.size(); i++) {
+			std::vector<std::vector<int>> copyGrid = grid;
+			Motion& enemy_motion = registry.motions.get(registry.enemies.entities[i]);
+			std::pair<int, int> enemyPos = std::make_pair(
+				round((enemy_motion.position.x - fmod(enemy_motion.position.x, 50)) / 50.f),
+				round((enemy_motion.position.y - fmod(enemy_motion.position.y, 50)) / 50.f)
+			);
+
+			for (int j = 0; j < registry.AIEntities.entities.size(); j++) {
+				std::vector<std::pair<int, int>> coveredPositions = registry.AIEntities.get(registry.AIEntities.entities[j]).coveredPositions;
+				for (int k = 0; k < coveredPositions.size(); k++) {
+					copyGrid[coveredPositions[k].first][coveredPositions[k].second] = 1;
+				}
+			}
+			std::vector<std::pair<int, int>> path = bfs(copyGrid, enemyPos, dollPos);
+			if (path.size() > 1) {
+				enemy_motion.velocity = { (path[1].first - enemyPos.first) * enemy_speed, (path[1].second - enemyPos.second) * enemy_speed };
+				if (enemy_motion.velocity.x + enemy_motion.velocity.y > enemy_speed) {
+					enemy_motion.velocity = {
+						(enemy_motion.velocity.x / (enemy_motion.velocity.x + enemy_motion.velocity.y)) * enemy_speed,
+						(enemy_motion.velocity.y / (enemy_motion.velocity.x + enemy_motion.velocity.y)) * enemy_speed
+					};
+				}
+			}
+			else {
+				enemy_motion.velocity = { 0.f, 0.f };
+			}
+		}
+
 	}
 }
 
@@ -191,3 +278,49 @@ void AISystem::do_enemy_turn() {
 		registry.turns.insert(current_enemies[0], chosen_move);
 	}
 }
+
+std::vector<std::pair<int, int>> getNeighbours(std::pair<int, int > center) {
+	std::vector<std::pair<int, int>> neighbours = {};
+	neighbours.push_back(std::make_pair(center.first, center.second - 1));
+	neighbours.push_back(std::make_pair(center.first - 1, center.second));
+	neighbours.push_back(std::make_pair(center.first + 1, center.second));
+	neighbours.push_back(std::make_pair(center.first, center.second + 1));
+	neighbours.push_back(std::make_pair(center.first - 1, center.second - 1));
+	neighbours.push_back(std::make_pair(center.first + 1, center.second - 1));
+	neighbours.push_back(std::make_pair(center.first - 1, center.second + 1));
+	neighbours.push_back(std::make_pair(center.first + 1, center.second + 1));
+
+	return neighbours;
+}
+
+// do bfs to find shortest path from curr to goal and return the position of the first node in that path
+std::vector<std::pair<int, int>> AISystem::bfs(std::vector<std::vector<int>> grid, std::pair<int, int> curr, std::pair<int, int> goal) {
+	std::queue<std::vector<std::pair<int, int>>> queue;
+	std::vector<std::pair<int, int>> currVec;
+	currVec.push_back(curr);
+	queue.push(currVec);
+	grid[curr.first][curr.second] = 0;
+
+	while (!queue.empty()) {
+		std::vector<std::pair<int, int>> curr_path = queue.front();
+		std::pair<int, int> last_node = curr_path.back();
+		if (last_node.first == goal.first && last_node.second == goal.second) {
+			return curr_path;
+		}
+
+		std::vector<std::pair<int, int>> neighbours = getNeighbours(last_node);
+
+		for (int i = 0; i < neighbours.size(); i++) {
+			if (neighbours[i].first >= 0 && neighbours[i].first < grid.size() && neighbours[i].second >= 0 && neighbours[i].second < grid[0].size() && grid[neighbours[i].first][neighbours[i].second] == 1) {
+				grid[neighbours[i].first][neighbours[i].second] = 0;
+				std::vector<std::pair<int, int>> new_path = curr_path;
+				new_path.push_back(std::make_pair(neighbours[i].first, neighbours[i].second));
+				queue.push(new_path);
+			}
+		}
+		queue.pop();
+	}
+	return {};
+}
+
+

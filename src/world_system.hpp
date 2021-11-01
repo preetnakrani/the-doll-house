@@ -52,7 +52,7 @@ public:
 
 	// Handles removing components of battle window, should only be called by BattleSystem
 	void destroyBattleWindow();
-	void attach(std::function<void(Entity)> fn);
+	void attach(std::function<void(Entity, bool)> fn);
 	void save();
     void incrementEnemiesKilled();
 
@@ -103,7 +103,7 @@ private:
 	// Number of fish eaten by the salmon, displayed in the window title
 	unsigned int points;
 
-	std::vector<std::function<void(Entity)> > callbacks;
+	std::vector<std::function<void(Entity, bool)> > callbacks;
 	// Game state
 	RenderSystem *renderer;
     int enemiesKilled = 0;

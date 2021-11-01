@@ -334,6 +334,7 @@ Entity createEnemy(RenderSystem *renderer, vec2 pos)
 
     // Create an enemy
     Enemy &enemy = registry.enemies.emplace(entity);
+    registry.AIEntities.emplace(entity);
     enemy.name = EnemyName::DUST_BUNNY;
 
     registry.renderRequests.insert(
@@ -344,6 +345,18 @@ Entity createEnemy(RenderSystem *renderer, vec2 pos)
 
     return entity;
 }
+
+Entity createTestEnemy(vec2 pos)
+{
+    auto entity = Entity();
+
+    Motion& motion = registry.motions.emplace(entity);
+    motion.position = pos;
+    motion.scale = { 64.f, 64.f };
+
+    return entity;
+}
+
 
 Entity createBattleEnemy(RenderSystem *renderer, vec2 pos)
 {
@@ -597,20 +610,11 @@ Entity createLine(vec2 position, vec2 scale)
     return entity;
 }
 
-void createBox(vec2 centrePosition, vec2 verticalLineScale, vec2 horizontalLineScale, int boxWidth, int boxHeight)
+void createBox(vec2 pos, vec2 scale)
 {
-    int w = boxWidth / 2;
-    int h = boxHeight / 2;
-    createLine({centrePosition.x - w, centrePosition.y}, verticalLineScale);
-    createLine({centrePosition.x + w, centrePosition.y}, verticalLineScale);
-    createLine({centrePosition.x, centrePosition.y - h}, horizontalLineScale);
-    createLine({centrePosition.x, centrePosition.y + h}, horizontalLineScale);
+    createLine({ pos.x - (scale.x / 2.f), pos.y }, { 5.f, scale.y });
+    createLine({ pos.x + (scale.x / 2.f), pos.y }, { 5.f, scale.y });
+    createLine({ pos.x, pos.y - (scale.y / 2.f) }, { scale.x, 5.f });
+    createLine({ pos.x, pos.y + (scale.y / 2.f) }, { scale.x, 5.f });
 }
 
-void createBoxWithTopLeft(vec2 topLeftCoord, vec2 verticalLineScale, vec2 horizontalLineScale, int boxWidth, int boxHeight)
-{
-    createLine({topLeftCoord.x, topLeftCoord.y}, verticalLineScale);
-    createLine({topLeftCoord.x + boxWidth, topLeftCoord.y}, verticalLineScale);
-    createLine({topLeftCoord.x, topLeftCoord.y}, horizontalLineScale);
-    createLine({topLeftCoord.x, topLeftCoord.y + boxHeight}, horizontalLineScale);
-}

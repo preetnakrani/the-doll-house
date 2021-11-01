@@ -1,6 +1,7 @@
 // Header
 #include "world_system.hpp"
 #include "world_init.hpp"
+#include "physics_system.hpp"
 // stlib
 #include <cassert>
 #include <sstream>
@@ -40,7 +41,6 @@ int SCREEN_WIDTH;
 int SCREEN_HEIGHT;
 
 std::string createSingleAttackString(Attack &attack);
-
 // Create the fish world
 WorldSystem::WorldSystem()
     : points(0), next_enemy_spawn(0.f)
@@ -311,9 +311,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
         registry.motions.get(new_enemy).position = position;
         registry.motions.get(new_enemy).scale = bounding;
 
-        for (std::function<void(Entity)> fn : callbacks)
+        for (std::function<void(Entity, bool)> fn : callbacks)
         {
-            fn(new_enemy);
+            fn(new_enemy, false);
         }
 
         if (registry.motions.has(new_enemy))
@@ -964,7 +964,7 @@ void WorldSystem::closeMenuOverlayScreen()
     game.state = GameState::PLAYING;
 }
 
-void WorldSystem::attach(std::function<void(Entity)> fn)
+void WorldSystem::attach(std::function<void(Entity, bool)> fn)
 {
     callbacks.push_back(fn);
 }
