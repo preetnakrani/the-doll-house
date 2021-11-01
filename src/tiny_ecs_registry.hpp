@@ -43,7 +43,7 @@ public:
 	ComponentContainer<Status> status;
 	ComponentContainer<AnimatedSprite> animatedSprites;
     ComponentContainer<ClickableArea> clickableArea;
-  ComponentContainer<PopUp> popups;
+	ComponentContainer<PopUp> popups;
 
 
 
@@ -53,7 +53,7 @@ public:
 	{
 
 		registry_list.push_back(&health);
-    registry_list.push_back(&attacks);
+		registry_list.push_back(&attacks);
 		registry_list.push_back(&attackLists);
 		registry_list.push_back(&magicLists);
 		registry_list.push_back(&motions);
@@ -83,7 +83,7 @@ public:
 		registry_list.push_back(&status);
 		registry_list.push_back(&animatedSprites);
         registry_list.push_back(&clickableArea);
-    registry_list.push_back(&popups);
+		registry_list.push_back(&popups);
     }
 
 	void clear_all_components() {

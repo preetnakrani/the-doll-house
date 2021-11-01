@@ -120,7 +120,6 @@ Turn AISystem::decideMove(Entity& enemy, Entity& player){
 	}
 	
 	// Chance roll to see what to do
-
 	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
 	std::minstd_rand0 generator(seed);  // minstd_rand0 is a standard linear_congruential_engine
 	float chance_roll = generator() % 100;
@@ -218,8 +217,20 @@ void AISystem::step(float elapsed_ms)
 
 		std::pair<int, int> dollPos = std::make_pair(
 			round((player_motion.position.x - fmod(player_motion.position.x, 50)) / 50.f),
-			round((player_motion.position.y - fmod(player_motion.position.y, 50)) / 50.f)
+			round(((player_motion.position.y + player_motion.scale.y/4) - fmod((player_motion.position.y + player_motion.scale.y / 4), 50)) / 50.f)
 		);
+		
+		printf("%d\n", dollPos.first);
+		printf("%d\n", dollPos.second);
+		printf("%d\n", player_motion.position.x);
+		printf("%d\n", player_motion.position.y);
+		if (dollPos.first >= 0 && dollPos.first < grid.size() && dollPos.second >= 0 && dollPos.second < grid[0].size() && grid[dollPos.first][dollPos.second] == 0) {
+			grid[dollPos.first][dollPos.second] = 1;
+		}
+		
+
+
+
 
 
 		// Do a BFS
