@@ -17,6 +17,8 @@ using json = nlohmann::json;
 // Game configuration
 const size_t MAX_ENEMY = 5;
 const size_t ENEMY_DELAY_MS = 2000 * 3;
+const int MAX_LEVEL_COUNT = 2;
+const int MAX_ENEMY_COUNT = 1;
 std::array<TEXTURE_ASSET_ID, 5> helpScreenOptions = {TEXTURE_ASSET_ID::HELP_PRESS_A,
                                                      TEXTURE_ASSET_ID::HELP_PRESS_D,
                                                      TEXTURE_ASSET_ID::HELP_PRESS_W,
@@ -259,6 +261,11 @@ std::string createMotionString(Motion m)
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update)
 {
+    if (enemiesKilled >= MAX_ENEMY_COUNT) {
+        restart_game(GameStateChange::NEXT);
+        return true;
+    }
+
     if (registry.game.get(player_doll).state == GameState::TUTORIAL)
     {
         progressTutorial(elapsed_ms_since_last_update);
@@ -390,6 +397,10 @@ void WorldSystem::escapeDialogue()
 void WorldSystem::restart_game(GameStateChange gc)
 {
     // Debugging for memory/component leaks
+    enemiesKilled = 0;
+    if (gc == GameStateChange::NEXT && gameProgress.level + 1 > MAX_LEVEL_COUNT) {
+        gc = GameStateChange::RESET;
+    }
     registry.list_all_components();
     JsonReader jr;
     if (gc == GameStateChange::RESET)
@@ -407,6 +418,7 @@ void WorldSystem::restart_game(GameStateChange gc)
         msg += std::to_string(gameProgress.level + 1);
         std::cout << msg << std::endl;
         gameProgress.level += 1;
+        save();
     }
     else
     {
@@ -416,7 +428,7 @@ void WorldSystem::restart_game(GameStateChange gc)
         gameProgress = gpf.create(renderer, gp);
     }
 
-    json level = jr.readLevel( gameProgress.level);
+    json level = jr.readLevel(gameProgress.level);
 
     findInitialFrameBufferSize();
 
@@ -489,8 +501,11 @@ void WorldSystem::restart_game(GameStateChange gc)
     if (level.contains("player_doll"))
     {
         MotionFactory motionFactory;
+        Motion copy = motionFactory.create(level["player_doll"]);
         Motion& m = registry.motions.get(player_doll);
-        m = motionFactory.create(level["player_doll"]);
+        m.position = copy.position;
+        m.dir = copy.dir;
+        m.angle = copy.angle;
     }
 
 
@@ -498,7 +513,6 @@ void WorldSystem::restart_game(GameStateChange gc)
     // Create a new doll
 
     Motion &motion = registry.motions.get(player_doll);
-    motion.scale = motion.scale * float(150);
     player_speed = 200.f;
 
     if (gc == GameStateChange::LOAD)
@@ -507,8 +521,6 @@ void WorldSystem::restart_game(GameStateChange gc)
         motion.velocity = {0, 0};
         registry.health.get(player_doll) = gameProgress.health;
         registry.attackLists.get(player_doll).available_attacks = gameProgress.attack;
-        AttackList& player_attacks = registry.attackLists.get(player_doll);
-        player_attacks.addAttack(AttackName::PUNCH, AttackType::NORMAL, 10);
     }
     else if (gc == GameStateChange::NEXT)
     {
@@ -537,14 +549,15 @@ void WorldSystem::restart_game(GameStateChange gc)
     overlayMotion.scale = overlayMotion.scale * float(300);
 
     // create tutorial screen
-    tutorialScreen = createTutorial(renderer, {600, 400});
-    Motion &tutorialMotion = registry.motions.get(tutorialScreen);
-    tutorialMotion.scale = tutorialMotion.scale * float(600);
-    // set state to tutorial
-    if (!registry.tutorialTimer.get(tutorialScreen).tutorialCompleted)
-    {
-        Game &game = registry.game.get(player_doll);
-        game.state = GameState::TUTORIAL;
+    if (gameProgress.level == 1) {
+        tutorialScreen = createTutorial(renderer, {600, 400});
+        Motion &tutorialMotion = registry.motions.get(tutorialScreen);
+        tutorialMotion.scale = tutorialMotion.scale * float(600);
+        // set state to tutorial
+        if (!registry.tutorialTimer.get(tutorialScreen).tutorialCompleted) {
+            Game &game = registry.game.get(player_doll);
+            game.state = GameState::TUTORIAL;
+        }
     }
 
     save();
@@ -1160,4 +1173,8 @@ void WorldSystem::save()
 void WorldSystem::reset()
 {
     restart_game(GameStateChange::RESET);
+}
+
+void WorldSystem::incrementEnemiesKilled() {
+    enemiesKilled++;
 }

@@ -219,7 +219,7 @@ Entity createDoll(RenderSystem *renderer, vec2 pos, vec2 frameBufferSize, std::v
     motion.position = pos;
     motion.angle = 0.f;
     motion.velocity = {0.f, 0.f};
-    motion.scale = mesh.original_size;
+    motion.scale = mesh.original_size * float(150);
 
     Health &health = registry.health.emplace(entity);
     health.health = hp;
