@@ -17,13 +17,13 @@ The window size can be adjusted (either make the window bigger or smaller).
 **External integration**: Used [nlohmann's JSON parsing library](https://github.com/nlohmann/json) to parse pre-saved level configurations.  This will be further utilized to build up a larger collection of levels without hardcoding values.
 
 **Debugging graphics**:
-Pressing a key will render the bounding boxes around the entities to allow for easier graphics debugging. It will also display the grid nodes that an enemy can move to, illustrating pathing behaviour.
+Pressing the '/' key will render the bounding boxes around the entities to allow for easier graphics debugging. It will also display the grid nodes that an enemy can move to, illustrating pathing behaviour.
 
 **Level loading**:
 When the player defeats 5 enemies, they will progress to the next level. Currently, once the player beats 5 enemies in the last level (room 2) they will return to the start screen. 
 
 **Story**:
-Dialogue boxes are used as a story telling device. These boxes show what the character is saying, the diary entries, and narration. TheDollhouseStoryPlan.pdf contains a detailed description of the general story as well as the story for future rooms. 
+Dialogue boxes are used as a story telling device. These boxes show what the character is saying, the diary entries, and narration. The player can move through the dialogue by pressing the spacebar. Currently the dialogue is triggered when the player enters a new level (and is not in the tutorial). TheDollhouseStoryPlan.pdf contains a detailed description of the general story as well as the story for future rooms. 
 
 **Other information**:
 Graphic assets were created for new rooms and dialogue boxes. 
