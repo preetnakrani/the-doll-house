@@ -45,12 +45,12 @@ void updateEnemyState(Entity& enemy, Entity& player) {
 	else if (enemy_health < 20) {
 		enemy_state = EnemyState::NEAR_DEATH;
 	}
-	else if (registry.status.get(enemy).TAUNTED) {
+	else if (registry.statusEffects.get(enemy).TAUNTED) {
 		enemy_state = EnemyState::TAUNTED;
 	}
 }
 
-void decideMoveType(Entity& enemy, Choices& choices, EnemyState state, Status player_status, Status enemy_status) {
+void decideMoveType(Entity& enemy, Choices& choices, EnemyState state, StatusEffect player_status, StatusEffect enemy_status) {
 	
 	if (state == EnemyState::BOLD) {
 		choices.DEFEND = 0;
@@ -112,8 +112,8 @@ void normalizeChoices(Choices& choices) {
 // Decide on a move based on state and statuses
 Turn AISystem::decideMove(Entity& enemy, Entity& player){
 	EnemyState enemy_state = registry.currentEnemies.components[0].enemyState;
-	Status enemy_status = registry.status.get(enemy);
-	Status player_status = registry.status.get(player);
+	StatusEffect enemy_status = registry.statusEffects.get(enemy);
+	StatusEffect player_status = registry.statusEffects.get(player);
 	GameItem item = GameItem();
 	if (registry.gameItems.has(enemy)) {
 		GameItem& item = registry.gameItems.get(enemy);
