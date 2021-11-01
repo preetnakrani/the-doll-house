@@ -12,7 +12,7 @@ The enemy finds the fastest route to get to the player based on BFS in a project
 When the player is moving with the WASD keys, a walking motion is displayed. The enemies (bunnies) have the animation where their ears constantly move up and down. 
 
 **Adaptive resolution**:
-The window size can be adjusted (either make the window bigger or smaller). 
+The user can adjust the window size by dragging on the corner of the window. The maximum size allowed is the original window size and the minimum size allowed is 1/4 of the original window size. At any size of the screen, the game can receive clickevents normally. 
 
 **External integration**: Used [nlohmann's JSON parsing library](https://github.com/nlohmann/json) to parse pre-saved level configurations.  This will be further utilized to build up a larger collection of levels without hardcoding values.
 
