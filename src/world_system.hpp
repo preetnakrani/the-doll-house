@@ -21,14 +21,14 @@ class WorldSystem
 public:
 	WorldSystem();
 	// Creates a window
-	GLFWwindow* create_window(int width, int height);
+	GLFWwindow *create_window(int width, int height);
 
 	// starts the game
-	void init(RenderSystem* renderer);
+	void init(RenderSystem *renderer);
 
 	// Releases all associated resources
 	~WorldSystem();
-
+	void clearEnemy();
 	// Steps the game ahead by ms milliseconds
 	bool step(float elapsed_ms);
 
@@ -36,9 +36,9 @@ public:
 	void handle_collisions();
 
 	// Should the game be over ?
-	bool is_over()const;
+	bool is_over() const;
 
-    void setRenderRequests();
+	void setRenderRequests();
 	void progressTutorial(float elapsed_ms_since_last_update);
 	void escapeTutorial(bool isComplete);
 
@@ -46,11 +46,16 @@ public:
 	int fbHeight = 0;
 
 	void swap_help_screen();
-    void findInitialFrameBufferSize();
+	void addEnemy(std::string type, int frequency);
+	// Handles removing components of battle window, should only be called by BattleSystem
+	void findInitialFrameBufferSize();
 
-        // Handles removing components of battle window, should only be called by BattleSystem
+	// Handles removing components of battle window, should only be called by BattleSystem
 	void destroyBattleWindow();
 	void attach(std::function<void(Entity)> fn);
+	void save();
+    void incrementEnemiesKilled();
+
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
@@ -59,7 +64,7 @@ private:
 	void openMenuOverlayScreen();
 	void closeMenuOverlayScreen();
 	// restart level
-	void restart_game();
+	void restart_game(GameStateChange gc = GameStateChange::RESET);
 
 	// Updates whether an entity's animation should be paused or not
 	void setSpriteAnimationPauseState(Entity entity);
@@ -86,34 +91,37 @@ private:
 	// where top_left_coords is the coordinate of the region's top left corner
 	bool isClickInRegion(double x, double y, vec2 top_left_coords, double height, double width);
 
-    void escapeDialogue();
+	void escapeDialogue();
 
 	void getScreenSize();
 
+	GameProgress getGameProgress();
+
 	// OpenGL window handle
-	GLFWwindow* window;
+	GLFWwindow *window;
 
 	// Number of fish eaten by the salmon, displayed in the window title
 	unsigned int points;
 
-	std::vector<std::function<void(Entity)>> callbacks;
+	std::vector<std::function<void(Entity)> > callbacks;
 	// Game state
-	RenderSystem* renderer;
+	RenderSystem *renderer;
+    int enemiesKilled = 0;
 	float current_speed;
-    float player_speed = 100.f;
-    float next_enemy_spawn;
+	float player_speed = 100.f;
+	float next_enemy_spawn;
 	Entity player_doll;
 	Entity background;
 	Entity helpScreen;
 	Entity menuButton;
 	Entity menuOverlay;
 	Entity tutorialScreen;
-    Entity room1Dialogue;
+	Entity room1Dialogue;
 
 	// Entities related to rendering battle screen
-    Entity battle_screen;
-    Entity battle_doll;
-    Entity battle_enemy;
+	Entity battle_screen;
+	Entity battle_doll;
+	Entity battle_enemy;
 	Entity battle_menu_button_area;
 	Entity battle_menu_text_area;
 	Entity battle_menu_button_attack;
@@ -123,15 +131,23 @@ private:
 	Entity battle_menu_button_go;
 	Entity punch_button;
 
+	// enemy stuff
+	std::unordered_map<std::string, int> enemyMap;
+	std::vector<std::string> enemyTypes;
+
+	// game state
+	GameProgress gameProgress;
+
 	// Other variables related to battle screen
 	BattleMenuItemType selected_move_menu; // Either attack, magic, or items
 
 	// music references
-	Mix_Music* background_music;
-	Mix_Chunk* salmon_dead_sound;
-	Mix_Chunk* salmon_eat_sound;
+	Mix_Music *background_music;
+	Mix_Chunk *salmon_dead_sound;
+	Mix_Chunk *salmon_eat_sound;
 
 	// C++ random number generator
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
+	void reset();
 };

@@ -36,9 +36,9 @@ class RenderSystem {
 			textures_path("fish.png"),
 			textures_path("turtle.png"),
 			textures_path("fish.png"),
-			textures_path("turtle.png"),
+			textures_path("dresser_1.png"),
 			textures_path("fish.png"),
-			textures_path("turtle.png"),
+			textures_path("bed_1.png"),
 			textures_path("fish.png"),
 			textures_path("turtle.png"),
 			textures_path("fish.png"),
@@ -73,7 +73,8 @@ class RenderSystem {
             textures_path("room1_speech3.png"),
             textures_path("room1_diary1.png"),
             textures_path("room1_diary2.png"),
-            textures_path("room1_explore.png")
+            textures_path("room1_explore.png"),
+            textures_path("level_1_toyRoom.png")
     };
 
 	std::array<GLuint, effect_count> effects;
