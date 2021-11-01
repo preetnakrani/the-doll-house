@@ -30,18 +30,15 @@ class RenderSystem {
 
 	// Make sure these paths remain in sync with the associated enumerators.
 	const std::array<std::string, texture_count> texture_paths = {
-			textures_path("dust_bunny.png"),
-			textures_path("doll_up.png"),
-			textures_path("doll_right.png"),
-			textures_path("doll_down.png"),
-			textures_path("doll_left.png"),
+			textures_path("dust_bunny_spriteSheet.png"),
+			textures_path("doll_spriteSheet.png"),
 			textures_path("turtle.png"),
 			textures_path("fish.png"),
 			textures_path("turtle.png"),
 			textures_path("fish.png"),
-			textures_path("turtle.png"),
+			textures_path("dresser_1.png"),
 			textures_path("fish.png"),
-			textures_path("turtle.png"),
+			textures_path("bed_1.png"),
 			textures_path("fish.png"),
 			textures_path("turtle.png"),
 			textures_path("fish.png"),
@@ -70,6 +67,14 @@ class RenderSystem {
 			textures_path("battle_menu_attackOptions_PUNCH_selected.png"),
 			textures_path("player_temp.png"),
 			textures_path("enemy_temp.png"),
+            textures_path("room1_diarypage.png"),
+            textures_path("room1_speech1.png"),
+            textures_path("room1_speech2.png"),
+            textures_path("room1_speech3.png"),
+            textures_path("room1_diary1.png"),
+            textures_path("room1_diary2.png"),
+            textures_path("room1_explore.png"),
+            textures_path("level_1_toyRoom.png")
     };
 
 	std::array<GLuint, effect_count> effects;
@@ -78,9 +83,13 @@ class RenderSystem {
 		shader_path("coloured"),
 		shader_path("salmon"),
 		shader_path("textured"),
+		shader_path("texturedAnimation"),
 		shader_path("verticalBlur"),
 		shader_path("horizontalBlur"),
-		shader_path("helpScreen")};
+        shader_path("helpScreen"),
+        shader_path("pebble"),
+        shader_path("drawToScreen"),
+	};
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
@@ -114,15 +123,24 @@ public:
 
 	mat3 createProjectionMatrix();
 
+	mat3 specialProjectionMatrix();
+
 private:
+    void findVar();
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
 	void drawToScreen();
-	void horizontalBlur();
+    void verticalBlur();
+    void horizontalBlur();
+	void drawAnimatedSprite(Entity entity);
 	void drawOverlayWindow(Entity entity,
                            const mat3 &projection);
+    bool isInOverlayWindow1(Entity entity);
+    bool isInOverlayWindow2(Entity entity);
+    bool isInOverlayWindow3(Entity entity);
+    bool isInOverlayWindow4(Entity entity);
 
-	// Window handle
+    // Window handle
 	GLFWwindow* window;
 	float screen_scale;  // Screen to pixel coordinates scale factor (for apple
 						 // retina display?)

@@ -1,6 +1,22 @@
 // internal
 #include "render_system.hpp"
 #include <SDL.h>
+#include <iostream>
+
+#include "tiny_ecs_registry.hpp"
+
+Player p;
+int fbWidth;
+int fbHeight;
+
+void RenderSystem::findVar() {
+    p = registry.players.get(registry.players.entities[0]);
+    fbWidth = p.fBWidth;
+    fbHeight = p.fBHeight;
+}
+// internal
+#include "render_system.hpp"
+#include <SDL.h>
 
 #include "tiny_ecs_registry.hpp"
 
@@ -8,14 +24,9 @@ void RenderSystem::drawTexturedMesh(Entity entity,
                                     const mat3 &projection)
 {
     Motion &motion = registry.motions.get(entity);
-    // Transformation code, see Rendering and Transformation in the template
-    // specification for more info Incrementally updates transformation matrix,
-    // thus ORDER IS IMPORTANT
     Transform transform;
     transform.translate(motion.position);
     transform.scale(motion.scale);
-    // !!! TODO A1: add rotation to the chain of transformations, mind the order
-    // of transformations
 
     assert(registry.renderRequests.has(entity));
     const RenderRequest &render_request = registry.renderRequests.get(entity);
@@ -38,7 +49,9 @@ void RenderSystem::drawTexturedMesh(Entity entity,
     gl_has_errors();
 
     // Input data location as in the vertex buffer
-    if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED || render_request.used_effect == EFFECT_ASSET_ID::HELP_SCREEN)
+    if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED ||
+        render_request.used_effect == EFFECT_ASSET_ID::HELP_SCREEN ||
+        render_request.used_effect == EFFECT_ASSET_ID::TEXTURED_ANIMATION)
     {
         GLint in_position_loc = glGetAttribLocation(program, "in_position");
         GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
@@ -65,8 +78,12 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 
         glBindTexture(GL_TEXTURE_2D, texture_id);
         gl_has_errors();
+
+        if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED_ANIMATION) {
+            drawAnimatedSprite(entity);
+        }
     }
-    else if (render_request.used_effect == EFFECT_ASSET_ID::SALMON)
+    else if (render_request.used_effect == EFFECT_ASSET_ID::SALMON || render_request.used_effect == EFFECT_ASSET_ID::PEBBLE)
     {
         GLint in_position_loc = glGetAttribLocation(program, "in_position");
         GLint in_color_loc = glGetAttribLocation(program, "in_color");
@@ -75,11 +92,6 @@ void RenderSystem::drawTexturedMesh(Entity entity,
         glEnableVertexAttribArray(in_position_loc);
         glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
                               sizeof(ColoredVertex), (void *)0);
-        gl_has_errors();
-
-        glEnableVertexAttribArray(in_color_loc);
-        glVertexAttribPointer(in_color_loc, 3, GL_FLOAT, GL_FALSE,
-                              sizeof(ColoredVertex), (void *)sizeof(vec3));
         gl_has_errors();
 
         if (render_request.used_effect == EFFECT_ASSET_ID::SALMON)
@@ -144,7 +156,7 @@ void RenderSystem::drawToScreen()
     gl_has_errors();
 
     // Enabling alpha channel for textures
-    glDisable(GL_BLEND);
+    glEnable(GL_BLEND);
     // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_DEPTH_TEST);
     // Draw the screen texture on the quad geometry
@@ -191,6 +203,23 @@ void RenderSystem::drawToScreen()
     }
 }
 
+void RenderSystem::drawAnimatedSprite(Entity entity) {
+    AnimatedSprite& animated_sprite = registry.animatedSprites.get(entity);
+    GLuint textured_animation_program = effects[(GLuint)EFFECT_ASSET_ID::TEXTURED_ANIMATION];
+    glUseProgram(textured_animation_program);
+
+    GLint frame_height_uloc = glGetUniformLocation(textured_animation_program, "frame_height");
+    glUniform1f(frame_height_uloc, animated_sprite.frame_height);
+    GLint frame_width_uloc = glGetUniformLocation(textured_animation_program, "frame_width");
+    glUniform1f(frame_width_uloc, animated_sprite.frame_width);
+
+    GLint animation_frame_uloc = glGetUniformLocation(textured_animation_program, "frame");
+    glUniform1f(animation_frame_uloc, (float)animated_sprite.current_frame);
+
+    GLint animation_type_uloc = glGetUniformLocation(textured_animation_program, "animation_type");
+    glUniform1f(animation_type_uloc, (float)animated_sprite.current_type);
+}
+
 void RenderSystem::horizontalBlur()
 {
     // Setting shaders
@@ -210,7 +239,7 @@ void RenderSystem::horizontalBlur()
     gl_has_errors();
 
     // Enabling alpha channel for textures
-    glDisable(GL_BLEND);
+    glEnable(GL_BLEND);
     // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_DEPTH_TEST);
     // Draw the screen texture on the quad geometry
@@ -257,9 +286,6 @@ void RenderSystem::drawOverlayWindow(Entity entity,
                                      const mat3 &projection)
 {
     Motion &motion = registry.motions.get(entity);
-    // Transformation code, see Rendering and Transformation in the template
-    // specification for more info Incrementally updates transformation matrix,
-    // thus ORDER IS IMPORTANT
     Transform transform;
     transform.translate(motion.position);
     transform.scale(motion.scale);
@@ -284,7 +310,8 @@ void RenderSystem::drawOverlayWindow(Entity entity,
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
     gl_has_errors();
 
-    if (render_request.used_effect == EFFECT_ASSET_ID::HELP_SCREEN) {
+    if (render_request.used_effect == EFFECT_ASSET_ID::HELP_SCREEN
+    || render_request.used_effect == EFFECT_ASSET_ID::TEXTURED_ANIMATION) {
         GLint in_position_loc = glGetAttribLocation(program, "in_position");
         GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
         gl_has_errors();
@@ -337,6 +364,7 @@ void RenderSystem::drawOverlayWindow(Entity entity,
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
 void RenderSystem::draw()
 {
+    findVar();
     // Getting size of window
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
@@ -345,7 +373,7 @@ void RenderSystem::draw()
     glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
     gl_has_errors();
     // Clearing backbuffer
-    glViewport(0, 0, w, h);
+    glViewport(0, 0, fbWidth, fbHeight);
     glDepthRange(0.00001, 10);
     glClearColor(0, 1, 1, 1.0); // background color
     glClearDepth(1.f);
@@ -362,36 +390,76 @@ void RenderSystem::draw()
     {
         if (!registry.motions.has(entity))
             continue;
-        // Note, its not very efficient to access elements indirectly via the entity
-        // albeit iterating through all Sprites in sequence. A good point to optimize
-            drawTexturedMesh(entity, projection_2D);
+
+        drawTexturedMesh(entity, projection_2D);
     }
 
     // Truely render to the screen
     drawToScreen();
     for (Entity entity : registry.renderRequests.entities) {
-        if (registry.helpScreens.has(entity)) {
+        if (isInOverlayWindow1(entity)) {
             drawOverlayWindow(entity, projection_2D);
         }
-        if (registry.battleScreens.has(entity)) {
+    }
+    for (Entity entity : registry.renderRequests.entities) {
+        if (isInOverlayWindow2(entity)) {
             drawOverlayWindow(entity, projection_2D);
         }
-        if (registry.battleDolls.has(entity)) {
+    }
+    for (Entity entity : registry.renderRequests.entities) {
+        if (isInOverlayWindow3(entity)) {
             drawOverlayWindow(entity, projection_2D);
         }
-        if (registry.battleEnemies.has(entity)) {
+    }
+    for (Entity entity : registry.renderRequests.entities) {
+        if (isInOverlayWindow4(entity)) {
             drawOverlayWindow(entity, projection_2D);
         }
-        if (registry.battleMenus.has(entity)) {
+        if (registry.popups.has(entity)) {
             drawOverlayWindow(entity, projection_2D);
         }
-        if (registry.battleMenuButtons.has(entity) || registry.battleMenuPlayerMoves.has(entity)) {
-            drawOverlayWindow(entity, projection_2D);
-        }
-	}
+    }
     // flicker-free display with a double buffer
     glfwSwapBuffers(window);
     gl_has_errors();
+}
+
+bool RenderSystem::isInOverlayWindow1(Entity entity) {
+    return (registry.helpScreens.has(entity));
+}
+
+bool RenderSystem::isInOverlayWindow2(Entity entity) {
+    return (registry.battleScreens.has(entity));
+}
+
+
+bool RenderSystem::isInOverlayWindow3(Entity entity) {
+    return (registry.battleDolls.has(entity)
+                || registry.battleEnemies.has(entity) || registry.battleMenus.has(entity));
+}
+
+bool RenderSystem::isInOverlayWindow4(Entity entity) {
+    return (registry.battleMenuButtons.has(entity) ||
+            registry.battleMenuPlayerMoves.has(entity));
+}
+
+
+
+mat3 RenderSystem::specialProjectionMatrix()
+{
+    // Fake projection matrix, scales with respect to window coordinates
+    float left = 0.f;
+    float top = 0.f;
+
+    gl_has_errors();
+    float right = (float) 1;
+    float bottom = (float) 1;
+
+    float sx = 2.f / (right - left);
+    float sy = 2.f / (top - bottom);
+    float tx = -(right + left) / (right - left);
+    float ty = -(top + bottom) / (top - bottom);
+    return {{sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f}};
 }
 
 mat3 RenderSystem::createProjectionMatrix()
