@@ -45,6 +45,18 @@ public:
 
 };
 
+//class HouseFactory : public Factory {
+//public:
+//    void create(RenderSystem* renderer, json components) override {
+//        createHouse(renderer,
+//                  vec2(components["pos"]["x"].get<float>(),
+//                       components["pos"]["y"].get<float>()),
+//                  components["dir"].get<Direction>(),
+//                  components["angle"].get<float>());
+//    }
+//
+//};
+
 class LampFactory : public Factory {
 public:
     void create(RenderSystem* renderer, json components) override {
@@ -81,27 +93,27 @@ public:
 
 class MagicFactory {
 public:
-    static void getMagicAttacks(json components, vector<MagicAttack> * magic) {
-        for(auto& spell: components) {
-            magic->push_back(createMagicAttack(spell["name"].get<std::string>(), spell["magicType"].get<MagicType>(), spell["attackType"].get<AttackType>(), spell["damage"].get<int>()));
-        }
-    }
-
-    static void getMagicEffects(json components, vector<MagicEffect> * magic) {
-        for(auto& spell: components) {
-            magic->push_back(createMagicEffect(spell["name"].get<std::string>(), spell["magicType"].get<MagicType>(), spell["isTemporary"].get<bool>(), spell["timer"].get<float>()));
-        }
-    }
-
-    static void getMagicDefense(json components, vector<MagicDefense> * magic) {
-        for(auto& spell: components) {
-            magic->push_back(createMagicDefense(spell["name"].get<std::string>(), spell["magicType"].get<MagicType>(), spell["physical_defense_boost"].get<int>(), spell["magic_defense_boost"].get<int>()));
-        }
-    }
+//    static void getMagicAttacks(json components, vector<MagicAttack> * magic) {
+//        for(auto& spell: components) {
+//            magic->push_back(createMagicAttack(spell["name"].get<std::string>(), spell["magicType"].get<MagicType>(), spell["attackType"].get<AttackType>(), spell["damage"].get<int>()));
+//        }
+//    }
+//
+//    static void getMagicEffects(json components, vector<MagicEffect> * magic) {
+//        for(auto& spell: components) {
+//            magic->push_back(createMagicEffect(spell["name"].get<std::string>(), spell["magicType"].get<MagicType>(), spell["isTemporary"].get<bool>(), spell["timer"].get<float>()));
+//        }
+//    }
+//
+//    static void getMagicDefense(json components, vector<MagicDefense> * magic) {
+//        for(auto& spell: components) {
+//            magic->push_back(createMagicDefense(spell["name"].get<std::string>(), spell["magicType"].get<MagicType>(), spell["physical_defense_boost"].get<int>(), spell["magic_defense_boost"].get<int>()));
+//        }
+//    }
 
     static void getAttacks(json components, vector<Attack> * attacks) {
         for(auto& attack: components) {
-            attacks->push_back(createAttack(attack["name"].get<std::string>(), attack["type"].get<AttackType>(), attack["damage"].get<int>()));
+            attacks->push_back(createAttack(attack["name"].get<AttackName>(), attack["type"].get<AttackType>(), attack["damage"].get<int>()));
         }
     }
 };
@@ -110,7 +122,7 @@ public:
 
 class PlayerFactory {
 public:
-    Entity createDollFactory(RenderSystem* renderer, json components) {
+    Entity createDollFactory(WorldSystem * world, RenderSystem* renderer, json components) {
         std::vector<Attack> attacks;
         json attackList = components["attacks"];
         MagicFactory::getAttacks(attackList, &attacks);
@@ -127,7 +139,7 @@ public:
 //        std::vector<MagicDefense> magicDefense;
 //        MagicFactory::getMagicDefense(magicLists["magicDefense"], &magicDefense);
 
-        return createDoll(renderer, vec2(components["pos"]["x"].get<float>(), components["pos"]["y"].get<float>()), attacks, components["hp"], components["dp"]);
+        return createDoll(renderer, vec2(components["pos"]["x"].get<float>(), components["pos"]["y"].get<float>()), {world->fbHeight,world->fbWidth}, attacks, components["hp"], components["dp"]);
 
     }
 
