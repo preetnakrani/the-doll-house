@@ -220,10 +220,6 @@ void AISystem::step(float elapsed_ms)
 			round(((player_motion.position.y + player_motion.scale.y/4) - fmod((player_motion.position.y + player_motion.scale.y / 4), 50)) / 50.f)
 		);
 		
-		printf("%d\n", dollPos.first);
-		printf("%d\n", dollPos.second);
-		printf("%d\n", player_motion.position.x);
-		printf("%d\n", player_motion.position.y);
 		if (dollPos.first >= 0 && dollPos.first < grid.size() && dollPos.second >= 0 && dollPos.second < grid[0].size() && grid[dollPos.first][dollPos.second] == 0) {
 			grid[dollPos.first][dollPos.second] = 1;
 		}
