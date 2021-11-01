@@ -134,7 +134,7 @@ Entity createPopUpWindow(RenderSystem *renderer, vec2 pos)
     registry.popups.emplace(entity);
     registry.renderRequests.insert(
         entity,
-        {TEXTURE_ASSET_ID::ROOM1_EXPLORE,
+        {TEXTURE_ASSET_ID::ROOM1_SPEECH1,
          EFFECT_ASSET_ID::HELP_SCREEN,
          GEOMETRY_BUFFER_ID::SPRITE});
     return entity;
