@@ -14,6 +14,8 @@ When the player is moving with the WASD keys, a walking motion is displayed. The
 **Adaptive resolution**:
 The window size can be adjusted (either make the window bigger or smaller). 
 
+**External integration**: Used an external library.
+
 **Debugging graphics**:
 Pressing a key will render the bounding boxes around the entities to allow for easier graphics debugging. 
 
