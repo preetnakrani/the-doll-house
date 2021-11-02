@@ -252,13 +252,6 @@ std::string createMotionString(Motion m)
     return result;
 }
 
-//void WorldSystem::getScreenSize() {
-//    int screen_width, screen_height;
-//    glfwGetFramebufferSize(window, &screen_width, &screen_height);
-//    SCREEN_HEIGHT = screen_height;
-//    SCREEN_WIDTH = screen_width;
-//}
-
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update)
 {
@@ -340,8 +333,7 @@ void WorldSystem::progressTutorial(float elapsed_ms_since_last_update)
 {
     Background &bg_motion = registry.backgrounds.get(background);
     bg_motion.blur_state = 1;
-    registry.helpScreens.remove(helpScreen);
-    registry.helpScreens.remove(menuButton);
+    registry.remove_all_components_of(helpScreen);
     RenderRequest &rr = registry.renderRequests.get(tutorialScreen);
     TutorialTimer &tutorialTimer = registry.tutorialTimer.get(tutorialScreen);
     float &time = tutorialTimer.timePerSprite;
@@ -377,9 +369,8 @@ void WorldSystem::findInitialFrameBufferSize()
 void WorldSystem::escapeTutorial(bool isComplete)
 {
     isComplete = true;
-    registry.helpScreens.emplace(helpScreen);
-    registry.helpScreens.emplace(menuButton);
-    registry.renderRequests.remove(tutorialScreen);
+    helpScreen = createHelpWindow(renderer, {600, 130});
+    registry.remove_all_components_of(tutorialScreen);
     Game &game = registry.game.get(player_doll);
     game.state = GameState::PLAYING;
     Background &bg_motion = registry.backgrounds.get(background);
@@ -713,15 +704,22 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     // press spacebar to close tutorial screen
     if (game.state == GameState::TUTORIAL && key == GLFW_KEY_SPACE && action == GLFW_PRESS)
     {
+        assert(registry.tutorialTimer.has(tutorialScreen));
         TutorialTimer &tutorialTimer = registry.tutorialTimer.get(tutorialScreen);
         escapeTutorial(tutorialTimer.tutorialCompleted);
         // create the dialogue window once the tutorial is completed
-        room1Dialogue = createPopUpWindow(renderer, {600.f, 600.f});
+        if (gameProgress.level == 1){
+            room1Dialogue = createPopUpWindow(renderer, {600.f, 600.f});
+        }
+        if (gameProgress.level == 2) {
+            room2Dialogue = createPopUpWindow(renderer, {600.f, 600.f});
+        }
         game.state = GameState::POPUP;
     }
     // press return key to progress tutorial faster
     if (game.state == GameState::TUTORIAL && key == GLFW_KEY_ENTER && action == GLFW_PRESS)
     {
+        assert(registry.tutorialTimer.has(tutorialScreen));
         RenderRequest &rr = registry.renderRequests.get(tutorialScreen);
         TutorialTimer &tutorialTimer = registry.tutorialTimer.get(tutorialScreen);
         float &time = tutorialTimer.timePerSprite;
@@ -730,7 +728,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         if (index == 4)
         {
             escapeTutorial(isComplete);
-            room1Dialogue = createPopUpWindow(renderer, {600.f, 600.f});
+            if (gameProgress.level == 1){
+                room1Dialogue = createPopUpWindow(renderer, {600.f, 600.f});
+            }
+            if (gameProgress.level == 2) {
+                room2Dialogue = createPopUpWindow(renderer, {600.f, 600.f});
+            }
             game.state = GameState::POPUP;
         }
         else
@@ -742,7 +745,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     }
 
     // change the helpscreen display, n to move left and m to move right
-    if (registry.helpScreens.has(helpScreen))
+    if (registry.helpScreens.has(helpScreen) && registry.renderRequests.has(helpScreen))
     {
         HelpScreen &hs = registry.helpScreens.get(helpScreen);
         RenderRequest &hs_rr = registry.renderRequests.get(helpScreen);
@@ -762,12 +765,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     {
         PopUp &dialogue = registry.popups.get(room1Dialogue);
         RenderRequest &dialogue_rr = registry.renderRequests.get(room1Dialogue);
-        if (key == GLFW_KEY_SPACE && action == GLFW_PRESS && dialogue.order < room1Popups.size())
+        if (key == GLFW_KEY_ENTER && action == GLFW_PRESS && dialogue.order < room1Popups.size())
         {
             dialogue_rr.used_texture = room1Popups[dialogue.order];
             dialogue.order++;
         }
-        else if (key == GLFW_KEY_SPACE && action == GLFW_PRESS && dialogue.order == (room1Popups.size()))
+        else if (key == GLFW_KEY_ENTER && action == GLFW_PRESS && dialogue.order == (room1Popups.size()))
         {
             escapeDialogue(room1Dialogue);
         }
@@ -777,12 +780,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     {
         PopUp &dialogue = registry.popups.get(room2Dialogue);
         RenderRequest &dialogue_rr = registry.renderRequests.get(room2Dialogue);
-        if (key == GLFW_KEY_SPACE && action == GLFW_PRESS && dialogue.order < room2Popups.size())
+        if (key == GLFW_KEY_ENTER && action == GLFW_PRESS && dialogue.order < room2Popups.size())
         {
             dialogue_rr.used_texture = room2Popups[dialogue.order];
             dialogue.order++;
         }
-        else if (key == GLFW_KEY_SPACE && action == GLFW_PRESS && dialogue.order == (room2Popups.size()))
+        else if (key == GLFW_KEY_ENTER && action == GLFW_PRESS && dialogue.order == (room2Popups.size()))
         {
             escapeDialogue(room2Dialogue);
         }
@@ -914,14 +917,16 @@ void WorldSystem::on_mouse_click(int button, int action, int mods)
                 closeMenuOverlayScreen();
                 restart_game();
             }
+            // REPLAY_TUTORIAL
             if (isClickInRegion(xPos, yPos, {460, 430}, 40, 300))
             {
                 closeMenuOverlayScreen();
-                registry.renderRequests.insert(
-                    tutorialScreen,
-                    {TEXTURE_ASSET_ID::TUTORIAL_ONE,
-                     EFFECT_ASSET_ID::HELP_SCREEN,
-                     GEOMETRY_BUFFER_ID::HELP_SCREEN});
+                if (gameProgress.level == 1) {
+                    helpScreen = createHelpWindow(renderer, {600, 130});
+                }
+                tutorialScreen = createTutorial(renderer, {600, 400});
+                Motion &tutorialMotion = registry.motions.get(tutorialScreen);
+                tutorialMotion.scale = tutorialMotion.scale * float(600);
                 TutorialTimer &tutorial = registry.tutorialTimer.get(tutorialScreen);
                 tutorial.tutorialCompleted = false;
                 tutorial.tutorialIndex = 0;

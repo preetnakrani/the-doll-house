@@ -1,1 +1,1 @@
-{"attacks":[{"damage":10,"name":1,"type":0}],"health":{"health":100,"healthDecrement":0},"level":1,"motion":{"angle":0.0,"collision_proof":false,"dir":1,"position":{"x":546.691528,"y":439.972992},"scale":{"x":150.0,"y":150.0},"velocity":{"x":0.0,"y":0.0}}}
+{"attacks":[{"damage":10,"name":1,"type":0}],"health":{"health":20,"healthDecrement":5},"level":2,"motion":{"angle":0.0,"collision_proof":false,"dir":1,"position":{"x":547.202393,"y":263.459167},"scale":{"x":150.0,"y":150.0},"velocity":{"x":0.0,"y":0.0}}}
