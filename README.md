@@ -3,7 +3,7 @@
 # Milestone 2
 Here is a summary of what to expect with our Milestone 2 implementation:
 
-**State machine**: The enemy AI determines what action to do depending on the statuses, health, and health difference of both the enemy and the player, as well as whether it has an item to use during battle.
+**State machine**: The enemy AI determines what action to do depending on the statuses, health, and health difference of both the enemy and the player, as well as whether it has an item to use during battle. 
 
 **Simple path finding**:
 The enemy finds the fastest route to get to the player based on BFS in a projected grid of available area to move in, accounting for walls and other obstacles. 
