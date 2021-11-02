@@ -17,6 +17,9 @@ using Clock = std::chrono::high_resolution_clock;
 //const int window_width_px = 1200;
 //const int window_height_px = 800; //* 2;
 
+int frameBufferWidth;
+int frameBufferHeight;
+
 // Entry point
 int main()
 {
@@ -28,22 +31,17 @@ int main()
 	BattleSystem battle;
 
 	// Initializing window
-	GLFWwindow* window = world.create_window(window_width_px, window_height_px);
-	if (!window) {
+    GLFWwindow* window = world.create_window(window_width_px, window_height_px);
+    int w, h;
+    glfwGetFramebufferSize(window, &w, &h);
+    glfwSetWindowAspectRatio(window, w, h);
+    glfwSetWindowSizeLimits(window, window_width_px/2, window_height_px/2, window_width_px, window_height_px);
+    if (!window) {
 		// Time to read the error message
 		printf("Press any key to exit");
 		getchar();
 		return EXIT_FAILURE;
 	}
-
-	// initialize the main systems
-	// if app is running on macos, double the size of the renderer to display the entire screen.
-	//if (__APPLE__) {
-//	renderer.init(window_width_px * 2, window_height_px * 2, window);
-    //} else {
-        //renderer.init(window_width_px, window_height_px, window);
-    //}
-
 	renderer.init(window_width_px, window_height_px, window);
 	world.init(&renderer);
     battle.init(&world);

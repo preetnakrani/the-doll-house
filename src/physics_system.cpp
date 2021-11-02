@@ -1,4 +1,5 @@
 // internal
+#include <iostream>
 #include "physics_system.hpp"
 #include "world_init.hpp"
 
@@ -26,7 +27,26 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	return false;
 }
 
-void checkFakeCollision(Entity e) {
+// This whole function has duplicated code from handleWallCollision, should be refactored.
+bool checkWallCollision(Entity entity, Entity wall) {
+	Motion& entity_motion = registry.motions.get(entity);
+	vec2 entity_bounding_box = get_bounding_box(entity_motion) / 2.0f;
+
+	Motion& wall_motion = registry.motions.get(wall);
+	vec2 wall_bounding_box = get_bounding_box(wall_motion) / 2.0f;
+
+	vec2 player_min = { entity_motion.position[0] - entity_bounding_box[0], entity_motion.position[1] + entity_bounding_box[1] };
+	vec2 player_max = { entity_motion.position[0] + entity_bounding_box[0], entity_motion.position[1] - entity_bounding_box[1] };
+	vec2 wall_min = { wall_motion.position[0] - wall_bounding_box[0], wall_motion.position[1] + wall_bounding_box[1] };
+	vec2 wall_max = { wall_motion.position[0] + wall_bounding_box[0], wall_motion.position[1] - wall_bounding_box[1] };
+
+	if ((player_min[0] < wall_max[0]) && (wall_min[0] < player_max[0]) && (player_min[1] > wall_max[1]) && (wall_min[1] > player_min[1])) {
+		return true;
+	}
+	return false;
+}
+
+void checkFakeCollision(Entity e, bool forAI) {
 	ComponentContainer<Motion>& motion_container = registry.motions;
 	Motion m = registry.motions.get(e);
 	std::vector<Entity> entities = registry.motions.entities;
@@ -34,20 +54,50 @@ void checkFakeCollision(Entity e) {
 	for (uint i = 0; i < motion_container.components.size(); i++)
 	{
 		Motion& motion_i = motion_container.components[i];
-		if (motion_i.collision_proof == 1 || (unsigned int)entities[i] == (unsigned int)e) {
+		if (motion_i.collision_proof == 1 || (unsigned int)entities[i] == (unsigned int)e || registry.debugComponents.has(entities[i])) {
 			continue;
+		}
+
+		if (forAI && registry.players.has(entities[i])) {
+			continue;
+		}
+
+		// these two if blocks are pretty clumsy, might want to refactor
+		if (registry.walls.has(entities[i])) {
+			if (checkWallCollision(e, entities[i])) {
+				if (forAI && registry.AIEntities.has(entities[i])) {
+					AIEntity& ai = registry.AIEntities.get(entities[i]);
+					ai.coveredPositions.push_back(std::make_pair(
+						round(m.position.x / 50.f),
+						round(m.position.y / 50.f)
+					));
+				}
+
+				registry.remove_all_components_of(e);
+				return;
+			}
+			else {
+				continue;
+			}
 		}
 
 		if (collides(motion_i, m))
 		{
-;			registry.remove_all_components_of(e);
+			if (forAI && registry.AIEntities.has(entities[i])) {
+				AIEntity& ai = registry.AIEntities.get(entities[i]);
+				ai.coveredPositions.push_back(std::make_pair(
+					round(m.position.x / 50.f),
+					round(m.position.y / 50.f)
+				));
+			}
+
+			registry.remove_all_components_of(e);
 			return;
 		}
 	}
-
 }
 
-std::function<void(Entity)> PhysicsSystem::getCollisionFunction() {
+std::function<void(Entity, bool)> PhysicsSystem::getCollisionFunction() {
 	return checkFakeCollision;
 }
 
@@ -82,7 +132,18 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 				if (i == j)
 					continue;
 
+				Entity entity_j = motion_container.entities[j];
 				Motion& motion_j = motion_container.components[j];
+				
+				if (registry.players.has(entity_i) && registry.walls.has(entity_j)) {
+					handleWallCollision(entity_i, entity_j);
+					continue;
+				}
+				else if (registry.walls.has(entity_i) && registry.players.has(entity_j)) {
+					handleWallCollision(entity_j, entity_i); 
+					continue;
+				}
+
 				if (collides(motion_i, motion_j))
 				{
 					Entity entity_j = motion_container.entities[j];
@@ -95,29 +156,60 @@ void PhysicsSystem::step(float elapsed_ms, float window_width_px, float window_h
 		}
 	}
 
-
-
 	// you may need the following quantities to compute wall positions
 	(float)window_width_px; (float)window_height_px;
 
 	// debugging of bounding boxes
 	if (debugging.in_debug_mode)
 	{
-		uint size_before_adding_new = (uint)motion_container.components.size();
-		for (uint i = 0; i < size_before_adding_new; i++)
-		{
-			Motion& motion_i = motion_container.components[i];
-			Entity entity_i = motion_container.entities[i];
 
-			// visualize the radius with two axis-aligned lines
-			const vec2 bonding_box = get_bounding_box(motion_i);
-			float radius = sqrt(dot(bonding_box/2.f, bonding_box/2.f));
-			//vec2 line_scale1 = { motion_i.scale.x / 10, 2*radius };
-			//Entity line1 = createLine(motion_i.position, line_scale1);
-			//vec2 line_scale2 = { 2*radius, motion_i.scale.x / 10};
-			//Entity line2 = createLine(motion_i.position, line_scale2);
+        // create a red line around the wall boxes
+        for (Entity wallBox: registry.walls.entities) {
+            Motion& wallMotion = registry.motions.get(wallBox);
+			createBox(wallMotion.position, wallMotion.scale);
+        }
+        Entity playerDoll = registry.players.entities[0];
+        Motion& dollMotion = registry.motions.get(playerDoll);
+        createBox(dollMotion.position, dollMotion.scale);
 
-			// !!! TODO A2: implement debugging of bounding boxes and mesh
+        for (Entity enemy: registry.enemies.entities) {
+            Motion& enemyMotion = registry.motions.get(enemy);
+            createBox(enemyMotion.position, enemyMotion.scale);
+        }
+	}
+}
+
+void PhysicsSystem::handleWallCollision(Entity player, Entity wall) {
+	Motion& player_motion = registry.motions.get(player);
+	vec2 player_bounding_box = get_bounding_box(player_motion) / 2.0f;
+	// temporary hack to account for whitespace
+	player_bounding_box = { player_bounding_box[0] - 30, player_bounding_box[1] - 30 };
+
+	Motion& wall_motion = registry.motions.get(wall);
+	vec2 wall_bounding_box = get_bounding_box(wall_motion) / 2.0f;
+
+	vec2 player_min = { player_motion.position[0] - player_bounding_box[0], player_motion.position[1] + player_bounding_box[1] };
+	vec2 player_max = { player_motion.position[0] + player_bounding_box[0], player_motion.position[1] - player_bounding_box[1] };
+	vec2 wall_min = { wall_motion.position[0] - wall_bounding_box[0], wall_motion.position[1] + wall_bounding_box[1] }; 
+	vec2 wall_max = { wall_motion.position[0] + wall_bounding_box[0], wall_motion.position[1] - wall_bounding_box[1] };
+
+	if ((player_min[0] < wall_max[0]) && (wall_min[0] < player_max[0]) && (player_min[1] > wall_max[1]) && (wall_min[1] > player_min[1])) {
+		if (player_motion.dir == Direction::UP) {
+			float overlap = wall_min[1] - player_min[1];
+			player_motion.position[1] = player_motion.position[1] + overlap;
+		}
+		else if (player_motion.dir == Direction::DOWN) {
+			float overlap = player_min[1] - wall_max[1];
+			player_motion.position[1] = player_motion.position[1] - overlap;
+		}
+		else if (player_motion.dir == Direction::LEFT) {
+			float overlap = wall_max[0] - player_min[0];
+			player_motion.position[0] = player_motion.position[0] + overlap;
+		}
+		else if (player_motion.dir == Direction::RIGHT) {
+			float overlap = player_max[0] - wall_min[0];
+			player_motion.position[0] = player_motion.position[0] - overlap;
 		}
 	}
+	return;
 }
