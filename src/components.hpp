@@ -109,7 +109,7 @@ enum class EnemyState
 	TAUNTED = 7,
 };
 
-struct Status
+struct StatusEffect
 {
 	bool NONE = true;
 	bool TAUNTED = false;

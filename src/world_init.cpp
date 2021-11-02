@@ -253,7 +253,7 @@ Entity createDoll(RenderSystem *renderer, vec2 pos, vec2 frameBufferSize, std::v
     animated_sprite.paused = true;
     animated_sprite.num_frames_per_type = {{0, 4}, {1, 4}, {2, 4}, {3, 4}};
 
-    registry.status.emplace(entity);
+    registry.statusEffects.emplace(entity);
     registry.renderRequests.insert(
         entity,
         {TEXTURE_ASSET_ID::DOLL,
@@ -312,7 +312,7 @@ Entity createEnemy(RenderSystem *renderer, vec2 pos)
     health.healthDecrement = 0;
 
     // Give it a status
-    registry.status.emplace(entity);
+    registry.statusEffects.emplace(entity);
     // TEMPORARY - We will want to give different enemies different attacks/moves, but for now I'm just assuming dust bunny here - Naoreen
     AttackList &enemy_attacks = registry.attackLists.emplace(entity);
     // One attack move: Sneeze
