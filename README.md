@@ -23,7 +23,7 @@ Pressing the '/' key will render the bounding boxes around the entities to allow
 When the player defeats 5 enemies, they will progress to the next level. Currently, once the player beats 5 enemies in the last level (room 2) they will return to the start screen. 
 
 **Story**:
-Dialogue boxes are used as a story telling device. These boxes show what the character is saying, the diary entries, and narration. The player can move through the dialogue by pressing the spacebar. Currently the dialogue is triggered when the player enters a new level (and is not in the tutorial). TheDollhouseStoryPlan.pdf contains a detailed description of the general story as well as the story for future rooms. 
+Dialogue boxes are used as a story telling device. These boxes show what the character is saying, the diary entries, and narration. The player can move through the dialogue by pressing the ENTER key. Currently the dialogue is triggered when the player enters a new level, and the dialog for the current level can also be replayed when you replay the tutorial. TheDollhouseStoryPlan.pdf contains a detailed description of the general story as well as the story for future rooms. 
 
 **Other information**:
 Graphic assets were created for new rooms and dialogue boxes. 
