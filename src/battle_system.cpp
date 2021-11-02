@@ -71,7 +71,7 @@ void BattleSystem::process_player_turn(Turn& player_turn) {
         enemy_health.healthDecrement = chosen_attack.damage;
 
         // Change this later when poison included
-        Status& enemy_status = registry.status.get(registry.currentEnemies.entities[0]);
+        StatusEffect& enemy_status = registry.statusEffects.get(registry.currentEnemies.entities[0]);
         if (enemy_status.POISONED) {
             if (enemy_status.timer <= 0) {
                 enemy_status.POISONED = false;
@@ -98,8 +98,8 @@ void BattleSystem::process_player_turn(Turn& player_turn) {
             
             
         }
-        if (registry.status.get(player_doll).TAUNTED) {
-            Status& player_status = registry.status.get(player_doll);
+        if (registry.statusEffects.get(player_doll).TAUNTED) {
+            StatusEffect& player_status = registry.statusEffects.get(player_doll);
             
             if (player_status.timer <= 0) {
                 player_status.TAUNTED = false;
@@ -132,7 +132,7 @@ void BattleSystem::process_enemy_turn(Turn& enemy_turn, Entity& enemy) {
         player_health.healthDecrement = chosen_attack.damage;
 
         // Change this later when poison included
-        Status& player_status = registry.status.get(player_doll);
+        StatusEffect& player_status = registry.statusEffects.get(player_doll);
         if (player_status.POISONED) {
             
             if (player_status.timer <= 0) {
@@ -162,8 +162,8 @@ void BattleSystem::process_enemy_turn(Turn& enemy_turn, Entity& enemy) {
         Entity& player_doll = registry.players.entities[0];
         MagicList& enemy_attacks = registry.magicLists.get(enemy);
         Magic chosen_attack = enemy_attacks.getAttack(enemy_turn.magic_name);
-        Status& enemy_status = registry.status.get(enemy);
-        Status& player_status = registry.status.get(player_doll);
+        StatusEffect& enemy_status = registry.statusEffects.get(enemy);
+        StatusEffect& player_status = registry.statusEffects.get(player_doll);
 
         if (chosen_attack.magicType == MagicType::DEFENSE) {
             enemy_status.SHIELDED = true;
@@ -179,9 +179,9 @@ void BattleSystem::process_enemy_turn(Turn& enemy_turn, Entity& enemy) {
             player_status.timer = chosen_attack.timer;
             // chosen_attack.countdown = chosen_attack.timer;
         }
-        else if (chosen_attack.magicType == MagicType::ATTACK) {
-            void; // no magic attacks at the moment
-        }
+        //else if (chosen_attack.magicType == MagicType::ATTACK) {
+            //void; // no magic attacks at the moment
+        //}
         printf("The enemy used the move: %s", chosen_attack.nameAsString().c_str());
         printf("!, Your health : %d\n\n", player_health.health);
     }

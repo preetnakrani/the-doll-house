@@ -40,7 +40,7 @@ public:
 	ComponentContainer<BattleMenuPlayerMove> battleMenuPlayerMoves;
 	ComponentContainer<TutorialTimer> tutorialTimer;
 	ComponentContainer<Wall> walls;
-	ComponentContainer<Status> status;
+	ComponentContainer<StatusEffect> statusEffects;
 	ComponentContainer<AnimatedSprite> animatedSprites;
     ComponentContainer<ClickableArea> clickableArea;
 	ComponentContainer<PopUp> popups;
@@ -80,7 +80,7 @@ public:
 		registry_list.push_back(&battleMenuPlayerMoves);
 		registry_list.push_back(&tutorialTimer);
 		registry_list.push_back(&walls);
-		registry_list.push_back(&status);
+		registry_list.push_back(&statusEffects);
 		registry_list.push_back(&animatedSprites);
         registry_list.push_back(&clickableArea);
 		registry_list.push_back(&popups);
